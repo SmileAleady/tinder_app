@@ -37,18 +37,26 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            // Header with back button and tabs
-            _buildHeader(),
-            // Tab content
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [_buildEditTab(), _buildPreviewTab()],
-              ),
+        child: GestureDetector(
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Container(
+            color: const Color.fromARGB(255, 150, 150, 150).withOpacity(0.1),
+            child: Column(
+              children: [
+                // Header with back button and tabs
+                _buildHeader(),
+                // Tab content
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [_buildEditTab(), _buildPreviewTab()],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -117,6 +125,25 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           _buildHeightSection(),
           const SizedBox(height: 32),
           _buildLanguageSection(),
+          const SizedBox(height: 32),
+          // 新增的“我的更多信息”和“生活方式”
+          _buildMoreInfoSection(),
+          const SizedBox(height: 24),
+          _buildLifestyleSection(),
+          const SizedBox(height: 32),
+          _buildWelcomeChatSection(),
+          const SizedBox(height: 32),
+          _buildWorkEducationSection(),
+          const SizedBox(height: 32),
+          _buildSpotifySection(),
+          const SizedBox(height: 32),
+          _buildGenderSection(),
+          const SizedBox(height: 32),
+          _buildOrientationSection(),
+          const SizedBox(height: 32),
+          _buildManageProfileSection(),
+          const SizedBox(height: 32),
+          _buildPrivacySection(),
           const SizedBox(height: 32),
         ],
       ),
@@ -204,38 +231,46 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           onTap: () => _handlePhotoTap(index),
           child: Stack(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[300]!, width: 1),
+              if (photos[index] == null)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(0, 4, 4, 0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[300]!, width: 1),
+                    ),
+                    child: Center(
+                      child: Icon(Icons.add, size: 32, color: Colors.grey[400]),
+                    ),
+                  ),
                 ),
-                child: photos[index] != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.file(
-                          File(photos[index]!),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              color: Colors.grey[300],
-                              child: const Icon(Icons.error),
-                            );
-                          },
-                        ),
-                      )
-                    : Center(
-                        child: Icon(
-                          Icons.add,
-                          size: 32,
-                          color: Colors.grey[400],
-                        ),
-                      ),
-              ),
+
+              if (photos[index] != null)
+                Container(
+                  padding: EdgeInsets.fromLTRB(0, 4, 4, 0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    // clipBehavior: Clip.hardEdge, // 显式指定裁切行为（关键）
+                    child: Image.file(
+                      File(photos[index]!),
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.error),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
               if (photos[index] != null)
                 Positioned(
-                  top: 8,
-                  right: 8,
+                  top: 0,
+                  right: 0,
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
@@ -395,6 +430,198 @@ class _ProfileEditPageState extends State<ProfileEditPage>
     }
   }
 
+  Widget _buildMoreInfoSection() {
+    final items = [
+      {'icon': Icons.nights_stay, 'label': '星座', 'value': '空'},
+      {'icon': Icons.school, 'label': '教育情况', 'value': '空'},
+      {'icon': Icons.family_restroom, 'label': '家庭计划', 'value': '空'},
+      {'icon': Icons.chat, 'label': '沟通风格', 'value': '空'},
+      {'icon': Icons.favorite, 'label': '爱的方式', 'value': '空'},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '我的更多信息',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          ...items.map((item) {
+            return GestureDetector(
+              onTap: () {},
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    Icon(
+                      item['icon'] as IconData,
+                      color: Colors.grey,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      item['label'] as String,
+                      style: const TextStyle(fontSize: 14, color: Colors.black),
+                    ),
+                    const Spacer(),
+                    Text(
+                      item['value'] as String,
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 14,
+                      color: Colors.grey[400],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWelcomeChatSection() {
+    final items = [
+      {'icon': Icons.nights_stay, 'label': '外出', 'value': '正在跳舞, 盛装打扮, ...'},
+      {'icon': Icons.weekend, 'label': '我的周末', 'value': '添加问答'},
+      {'icon': Icons.phone_iphone, 'label': '我和我的手机', 'value': '添加问答'},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '欢迎跟我聊',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          ...items.map((item) {
+            return GestureDetector(
+              onTap: () {},
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    Icon(
+                      item['icon'] as IconData,
+                      color: Colors.grey,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        item['label'] as String,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      item['value'] as String,
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 14,
+                      color: Colors.grey[400],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWorkEducationSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSingleFieldSection('职位', '添加职位', important: true, percent: '+4%'),
+        const SizedBox(height: 24),
+        _buildSingleFieldSection('公司', '添加公司', percent: '+2%'),
+        const SizedBox(height: 24),
+        _buildSingleFieldSection('学校', '添加学校', percent: '+4%'),
+        const SizedBox(height: 24),
+        _buildSingleFieldSection('居住地', '添加城市'),
+      ],
+    );
+  }
+
+  Widget _buildLifestyleSection() {
+    final items = [
+      {'icon': Icons.pets, 'label': '宠物喜好', 'value': '鱼类'},
+      {'icon': Icons.local_bar, 'label': '饮酒', 'value': '少喝或不喝'},
+      {'icon': Icons.smoke_free, 'label': '你多久抽一次烟?', 'value': '不吸烟'},
+      {'icon': Icons.fitness_center, 'label': '健身情况', 'value': '每天'},
+      {'icon': Icons.alternate_email, 'label': '社交媒体活跃度', 'value': '空'},
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '生活方式',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          ...items.map((item) {
+            return GestureDetector(
+              onTap: () {},
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  children: [
+                    Icon(
+                      item['icon'] as IconData,
+                      color: Colors.grey,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        item['label'] as String,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      item['value'] as String,
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 14,
+                      color: Colors.grey[400],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPhotoOptionsSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -436,6 +663,79 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           const Text(
             '智能照片会一直测试你的所有个人资料\n照片，以找到最棒的一张。',
             style: TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSingleFieldSection(
+    String title,
+    String placeholder, {
+    bool important = false,
+    String percent = '',
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 8),
+              if (important)
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  child: const Text(
+                    '重要',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              const Spacer(),
+              if (percent.isNotEmpty)
+                Text(
+                  percent,
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey[300]!),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: placeholder,
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+              ),
+              maxLines: 1,
+            ),
           ),
         ],
       ),
@@ -762,6 +1062,277 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSpotifySection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '我的最爱歌曲',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () {},
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1DB954),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'S',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'PinkPantheress',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const Text(
+                        'Stateside + Zara Larsson',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            '我最喜欢的 Spotify 艺术家',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey[300]!),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const TextField(
+              decoration: InputDecoration(
+                hintText: '添加艺术家',
+                border: InputBorder.none,
+                contentPadding: EdgeInsets.zero,
+              ),
+              maxLines: 1,
+            ),
+          ),
+          const SizedBox(height: 8),
+          RichText(
+            text: const TextSpan(
+              children: [
+                TextSpan(
+                  text: '将 Spotify 添加进你的个人资料',
+                  style: TextStyle(fontSize: 12, color: Colors.red),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGenderSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '性别',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () {},
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '男性',
+                  style: TextStyle(fontSize: 14, color: Colors.black),
+                ),
+                Row(
+                  children: [
+                    const Text(
+                      '可见',
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 14,
+                      color: Colors.grey[400],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrientationSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '性取向',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () {},
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '异性恫',
+                  style: TextStyle(fontSize: 14, color: Colors.black),
+                ),
+                Row(
+                  children: [
+                    const Text(
+                      '隐藏',
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 14,
+                      color: Colors.grey[400],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildManageProfileSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text(
+                '管理您的个人资料',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: const Text(
+                  'Tinder Plus®',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPrivacySection() {
+    bool hideAge = false;
+    bool hideDistance = false;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    '不要显示我的年龄',
+                    style: TextStyle(fontSize: 14, color: Colors.black),
+                  ),
+                  Transform.scale(
+                    scale: 0.8,
+                    child: Switch(
+                      value: hideAge,
+                      onChanged: (value) {
+                        setState(() {
+                          hideAge = value;
+                        });
+                      },
+                      activeColor: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    '不显示我的距离',
+                    style: TextStyle(fontSize: 14, color: Colors.black),
+                  ),
+                  Transform.scale(
+                    scale: 0.8,
+                    child: Switch(
+                      value: hideDistance,
+                      onChanged: (value) {
+                        setState(() {
+                          hideDistance = value;
+                        });
+                      },
+                      activeColor: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
