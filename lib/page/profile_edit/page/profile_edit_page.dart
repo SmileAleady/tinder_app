@@ -19,6 +19,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   String? selectedInterest;
   String? relationshipGoal = '寻找长期的伴侣';
   String? height;
+  List<String> languages = ['English', '中文', '日本語'];
 
   @override
   void initState() {
@@ -115,6 +116,8 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           // Height Section
           _buildHeightSection(),
           const SizedBox(height: 32),
+          _buildLanguageSection(),
+          const SizedBox(height: 32),
         ],
       ),
     );
@@ -180,15 +183,6 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           const SizedBox(height: 16),
           // Photo grid
           _buildPhotoGrid(),
-          const SizedBox(height: 16),
-          // Photo options link
-          GestureDetector(
-            onTap: () {},
-            child: const Text(
-              '照片选项',
-              style: TextStyle(fontSize: 13, color: Colors.grey),
-            ),
-          ),
         ],
       ),
     );
@@ -409,19 +403,19 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         children: [
           const Text(
             '照片选项',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
+          // const SizedBox(height: 5),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 '智能照片',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey,
+                ),
               ),
               Transform.scale(
                 scale: 0.8,
@@ -440,7 +434,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
 
           const SizedBox(height: 4),
           const Text(
-            '智能照片会一直测试你的所有个人资料照片，以找到最棒的一张。',
+            '智能照片会一直测试你的所有个人资料\n照片，以找到最棒的一张。',
             style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
         ],
@@ -650,6 +644,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const Text(
             '交往目标',
@@ -661,48 +656,40 @@ class _ProfileEditPageState extends State<ProfileEditPage>
             onTap: () {},
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
                   '我想要',
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: Colors.grey[400],
+                Expanded(child: SizedBox()),
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(Icons.favorite, color: Colors.red, size: 16),
+                const SizedBox(width: 8),
+                const Text(
+                  textAlign: TextAlign.right,
+                  '寻找长期的伴侣',
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
+                ),
+                const Spacer(),
+                GestureDetector(
+                  onTap: () {},
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: Colors.grey[400],
+                  ),
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 12),
-          // Goal description
-          Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(Icons.favorite, color: Colors.red, size: 16),
-              const SizedBox(width: 8),
-              const Text(
-                '寻找长期的伴侣',
-                style: TextStyle(fontSize: 13, color: Colors.grey),
-              ),
-              const Spacer(),
-              GestureDetector(
-                onTap: () {},
-                child: Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: Colors.grey[400],
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -731,6 +718,39 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                     fontSize: 14,
                     color: height != null ? Colors.black : Colors.grey,
                   ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey[400],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLanguageSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            '我会的语言',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () {},
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  languages.isNotEmpty ? languages.join(', ') : '添加语言',
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 Icon(
                   Icons.arrow_forward_ios,

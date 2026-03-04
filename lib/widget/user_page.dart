@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tinder_app/page/search_page.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({Key? key}) : super(key: key);
@@ -566,23 +567,4 @@ class _UserPageState extends State<UserPage> {
       ),
     );
   }
-}
-
-class SectionItem {
-  final String title;
-  final List<CardItem> array;
-  SectionItem({required this.title, required this.array});
-}
-
-class CardItem {
-  final String title;
-  final String subtitle;
-  final String image;
-  final Color color;
-  CardItem({
-    required this.title,
-    required this.subtitle,
-    required this.image,
-    required this.color,
-  });
 }
