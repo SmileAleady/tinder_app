@@ -1,9 +1,9 @@
 /// 欢迎跟我聊 - 聊天偏好模型（更新版）
 class UserChatPreference {
   final String title; // 标题：欢迎跟我聊
-  final String? goingOut; // 外出相关内容
-  final String? myWeekend; // 我的周末相关内容
-  final String? myPhone; // 我和我的手机相关内容
+  List<String>? goingOut; // 外出相关内容
+  List<String>? myWeekend; // 我的周末相关内容
+  List<String>? myPhone; // 我和我的手机相关内容
 
   UserChatPreference({
     required this.title,
@@ -26,9 +26,15 @@ class UserChatPreference {
   factory UserChatPreference.fromJson(Map<String, dynamic> json) {
     return UserChatPreference(
       title: json['title'] as String,
-      goingOut: json['goingOut'] as String?,
-      myWeekend: json['myWeekend'] as String?,
-      myPhone: json['myPhone'] as String?,
+      goingOut: json['goingOut'] != null
+          ? json['goingOut'].map((e) => e as String).toList()
+          : [],
+      myWeekend: json['myWeekend'] != null
+          ? json['myWeekend'].map((e) => e as String).toList()
+          : [],
+      myPhone: json['myPhone'] != null
+          ? json['myPhone'].map((e) => e as String).toList()
+          : [],
     );
   }
 }
@@ -209,6 +215,36 @@ class UserHeightModel {
   }
 }
 
+/// 语言数据模型
+class UserLanguage {
+  final String id;
+  final String name;
+
+  const UserLanguage({required this.id, required this.name});
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name};
+  }
+
+  factory UserLanguage.fromJson(Map<String, dynamic> json) {
+    return UserLanguage(id: json['id'] as String, name: json['name'] as String);
+  }
+}
+
+/// 兴趣数据模型
+class UserInterest {
+  final String id;
+  final String name;
+
+  const UserInterest({required this.id, required this.name});
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name};
+  }
+
+  factory UserInterest.fromJson(Map<String, dynamic> json) {
+    return UserInterest(id: json['id'] as String, name: json['name'] as String);
+  }
+}
+
 /// 用户主数据模型
 class UserProfileModel {
   final String id;
@@ -217,10 +253,10 @@ class UserProfileModel {
   String aboutMe; // 关于我
   final UserChatPreference? chatPreference; // 新增：欢迎跟我聊 聊天偏好
   final List<UserPrompt> prompts; // 问答列表
-  final List<String> interests; // 兴趣列表
+  List<UserInterest> interests; // 兴趣列表
   UserRelationshipGoalItem? relationshipGoal; // 交往目标
   UserHeightModel? height; // 身高
-  final List<String> languages; // 会的语言
+  List<UserLanguage> languages; // 会的语言
   final UserMoreInfo moreInfo; // 更多信息
   final UserLifestyle lifestyle; // 生活方式
   String? jobTitle; // 职位
@@ -298,14 +334,18 @@ class UserProfileModel {
       prompts: (json['prompts'] as List)
           .map((i) => UserPrompt.fromJson(i as Map<String, dynamic>))
           .toList(),
-      interests: List<String>.from(json['interests'] as List),
+      interests: (json['interests'] as List)
+          .map((i) => UserInterest.fromJson(i as Map<String, dynamic>))
+          .toList(),
       relationshipGoal: UserRelationshipGoalItem.fromJson(
         json['relationshipGoal'] as Map<String, dynamic>,
       ),
       height: json['height'] != null
           ? UserHeightModel.fromJson(json['height'] as Map<String, dynamic>)
           : null,
-      languages: List<String>.from(json['languages'] as List),
+      languages: (json['languages'] as List)
+          .map((i) => UserLanguage.fromJson(i as Map<String, dynamic>))
+          .toList(),
       moreInfo: UserMoreInfo.fromJson(json['moreInfo'] as Map<String, dynamic>),
       lifestyle: UserLifestyle.fromJson(
         json['lifestyle'] as Map<String, dynamic>,
@@ -330,9 +370,9 @@ UserProfileModel getUserProfileModel() {
   // 构建聊天偏好示例（更新后的结构）
   final chatPref = UserChatPreference(
     title: "欢迎跟我聊",
-    goingOut: "喜欢去城市周边短途旅行，偶尔去看演唱会",
-    myWeekend: "周末通常会健身、看电影，偶尔和朋友聚餐",
-    myPhone: "手机里最多的是音乐APP和拍照软件，每天使用约6小时",
+    goingOut: [],
+    myWeekend: [],
+    myPhone: [],
   );
 
   // 构建完整用户信息示例
@@ -343,10 +383,13 @@ UserProfileModel getUserProfileModel() {
     aboutMe: "一个热爱生活的人",
     chatPreference: chatPref, // 关联更新后的聊天偏好
     prompts: [UserPrompt(title: "关于我", content: "我喜欢旅行，喜欢看电影，喜欢听音乐，喜欢和朋友聚餐。")],
-    interests: ["旅行", "阅读"],
+    interests: [
+      UserInterest(id: "travel", name: "旅行"),
+      UserInterest(id: "reading", name: "阅读"),
+    ],
     relationshipGoal: UserRelationshipGoalItem(id: 1, title: "交友", emoji: "🤝"),
     height: UserHeightModel(unit: HeightUnit.cm, cm: 165.0),
-    languages: ["中文"],
+    languages: [UserLanguage(id: "zh", name: "中文")],
     moreInfo: UserMoreInfo(zodiac: "天秤座"),
     lifestyle: UserLifestyle(
       petPreference: "喜欢猫",

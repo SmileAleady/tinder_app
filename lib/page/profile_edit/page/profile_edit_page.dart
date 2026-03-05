@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:tinder_app/data/app_data.dart';
 import 'package:tinder_app/model/user_profile_model.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_about_me_list_page.dart';
 import 'dart:io';
@@ -8,8 +9,12 @@ import 'dart:io';
 import 'package:tinder_app/page/profile_edit/widget/profile_about_me_sheet.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_dashed_border_container.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_height_edit_sheet.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_interest_sheet.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_language_sheet.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_outfit_quiz_sheet.dart';
 
 import 'package:tinder_app/page/profile_edit/widget/profile_relationship_goal_sheet.dart';
+import 'package:tinder_app/page/profile_edit/widget/universal_option_sheet.dart';
 import 'package:tinder_app/tool/event_bus.dart';
 
 class ProfileEditPage extends StatefulWidget {
@@ -120,27 +125,27 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   }
 
   Widget _buildEditTab() {
-    final moreItems = [
-      {'icon': Icons.nights_stay, 'label': '星座', 'value': '空'},
-      {'icon': Icons.school, 'label': '教育情况', 'value': '空'},
-      {'icon': Icons.family_restroom, 'label': '家庭计划', 'value': '空'},
-      {'icon': Icons.chat, 'label': '沟通风格', 'value': '空'},
-      {'icon': Icons.favorite, 'label': '爱的方式', 'value': '空'},
-    ];
+    // final moreItems = [
+    //   {'icon': Icons.nights_stay, 'label': '星座', 'value': '空'},
+    //   {'icon': Icons.school, 'label': '教育情况', 'value': '空'},
+    //   {'icon': Icons.family_restroom, 'label': '家庭计划', 'value': '空'},
+    //   {'icon': Icons.chat, 'label': '沟通风格', 'value': '空'},
+    //   {'icon': Icons.favorite, 'label': '爱的方式', 'value': '空'},
+    // ];
 
-    final lifestyleItems = [
-      {'icon': Icons.pets, 'label': '宠物喜好', 'value': '鱼类'},
-      {'icon': Icons.local_bar, 'label': '饮酒', 'value': '少喝或不喝'},
-      {'icon': Icons.smoke_free, 'label': '你多久抽一次烟?', 'value': '不吸烟'},
-      {'icon': Icons.fitness_center, 'label': '健身情况', 'value': '每天'},
-      {'icon': Icons.alternate_email, 'label': '社交媒体活跃度', 'value': '空'},
-    ];
+    // final lifestyleItems = [
+    //   {'icon': Icons.pets, 'label': '宠物喜好', 'value': '鱼类'},
+    //   {'icon': Icons.local_bar, 'label': '饮酒', 'value': '少喝或不喝'},
+    //   {'icon': Icons.smoke_free, 'label': '你多久抽一次烟?', 'value': '不吸烟'},
+    //   {'icon': Icons.fitness_center, 'label': '健身情况', 'value': '每天'},
+    //   {'icon': Icons.alternate_email, 'label': '社交媒体活跃度', 'value': '空'},
+    // ];
 
-    final welcomeChatItems = [
-      {'icon': Icons.nights_stay, 'label': '外出', 'value': '正在跳舞, 盛装打扮, ...'},
-      {'icon': Icons.weekend, 'label': '我的周末', 'value': '添加问答'},
-      {'icon': Icons.phone_iphone, 'label': '我和我的手机', 'value': '添加问答'},
-    ];
+    // final welcomeChatItems = [
+    //   {'icon': Icons.nights_stay, 'label': '外出', 'value': '正在跳舞, 盛装打扮, ...'},
+    //   {'icon': Icons.weekend, 'label': '我的周末', 'value': '添加问答'},
+    //   {'icon': Icons.phone_iphone, 'label': '我和我的手机', 'value': '添加问答'},
+    // ];
 
     return SingleChildScrollView(
       child: Column(
@@ -181,11 +186,107 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           _buildLanguageSection(),
           const SizedBox(height: 32),
           // 新增的“我的更多信息”和“生活方式”
-          _buildListInfoSection(title: '我的更多信息', items: moreItems),
+          _buildListInfoSection(
+            title: '我的更多信息',
+            items: OptionDataManager.moreItems,
+            onTap: (item) {
+              _buildSheet(type: item.optionType);
+            },
+          ),
           const SizedBox(height: 24),
-          _buildListInfoSection(title: '生活方式', items: lifestyleItems),
+          _buildListInfoSection(
+            title: '生活方式',
+            items: OptionDataManager.lifestyleItems,
+            onTap: (item) {
+              _buildSheet(type: item.optionType);
+            },
+          ),
           const SizedBox(height: 32),
-          _buildListInfoSection(title: '欢迎跟我聊天', items: welcomeChatItems),
+          _buildListInfoSection(
+            title: '欢迎跟我聊天',
+            items: OptionDataManager.welcomeChatItems,
+            onTap: (item) {
+              OutfitResult? initialResult;
+              if (item.optionType == SheetOptionType.goOut &&
+                  userProfileModel?.chatPreference?.goingOut?.isNotEmpty ==
+                      true) {
+                initialResult = OutfitResult(
+                  action: userProfileModel?.chatPreference?.goingOut?[0] ?? '',
+                  style: userProfileModel?.chatPreference?.goingOut?[1] ?? '',
+                  timing: userProfileModel?.chatPreference?.goingOut?[2] ?? '',
+                  departure:
+                      userProfileModel?.chatPreference?.goingOut?[3] ?? '',
+                );
+              } else if (item.optionType == SheetOptionType.weekend &&
+                  userProfileModel?.chatPreference?.myWeekend?.isNotEmpty ==
+                      true) {
+                initialResult = OutfitResult(
+                  action: userProfileModel?.chatPreference?.myWeekend?[0] ?? '',
+                  style: userProfileModel?.chatPreference?.myWeekend?[1] ?? '',
+                  timing: userProfileModel?.chatPreference?.myWeekend?[2] ?? '',
+
+                  departure:
+                      userProfileModel?.chatPreference?.myWeekend?[3] ?? '',
+                );
+              } else if (item.optionType == SheetOptionType.phoneUsage &&
+                  userProfileModel?.chatPreference?.myPhone?.isNotEmpty ==
+                      true) {
+                initialResult = OutfitResult(
+                  action: userProfileModel?.chatPreference?.myPhone?[0] ?? '',
+                  style: userProfileModel?.chatPreference?.myPhone?[1] ?? '',
+                  timing: userProfileModel?.chatPreference?.myPhone?[2] ?? '',
+                  departure:
+                      userProfileModel?.chatPreference?.myPhone?[3] ?? '',
+                );
+              }
+              ProfileOutfitQuizSheet.show(
+                context,
+                // 可选：传入之前保存的结果进行回显
+                initialResult: initialResult,
+                onCompleted: (result) {
+                  // 处理最终结果
+                  print('结果: ${result.combinedText}');
+                  setState(() {
+                    if (item.optionType == SheetOptionType.goOut) {
+                      userProfileModel?.chatPreference?.goingOut = [
+                        result.action,
+                        result.style,
+                        result.timing,
+                        result.departure,
+                      ];
+                    } else if (item.optionType == SheetOptionType.weekend) {
+                      userProfileModel?.chatPreference?.myWeekend = [
+                        result.action,
+                        result.style,
+                        result.timing,
+                        result.departure,
+                      ];
+                    } else if (item.optionType == SheetOptionType.phoneUsage) {
+                      userProfileModel?.chatPreference?.myPhone = [
+                        result.action,
+                        result.style,
+                        result.timing,
+                        result.departure,
+                      ];
+                    }
+                  });
+                },
+                onDelete: () {
+                  // 处理删除逻辑
+                  print('删除问答');
+                  setState(() {
+                    if (item.optionType == SheetOptionType.goOut) {
+                      userProfileModel?.chatPreference?.goingOut = [];
+                    } else if (item.optionType == SheetOptionType.weekend) {
+                      userProfileModel?.chatPreference?.myWeekend = [];
+                    } else if (item.optionType == SheetOptionType.phoneUsage) {
+                      userProfileModel?.chatPreference?.myPhone = [];
+                    }
+                  });
+                },
+              );
+            },
+          ),
           const SizedBox(height: 32),
           _buildWorkEducationSection(),
           const SizedBox(height: 32),
@@ -496,7 +597,8 @@ class _ProfileEditPageState extends State<ProfileEditPage>
 
   Widget _buildListInfoSection({
     required String title,
-    required List<dynamic> items,
+    required List<ProfileItem> items,
+    required void Function(ProfileItem profileItem) onTap,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -510,72 +612,93 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           const SizedBox(height: 12),
           ...items.map((item) {
             int index = items.indexOf(item);
-            return Column(
-              children: [
-                GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    height: 60,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white, // 浅灰色背景
-                      borderRadius: index == 0
-                          ? BorderRadius.only(
-                              topLeft: Radius.circular(8),
-                              topRight: Radius.circular(8),
-                              bottomLeft: Radius.circular(4),
-                              bottomRight: Radius.circular(4),
-                            )
-                          : index == items.length - 1
-                          ? BorderRadius.only(
-                              topLeft: Radius.circular(4),
-                              topRight: Radius.circular(4),
-                              bottomLeft: Radius.circular(8),
-                              bottomRight: Radius.circular(8),
-                            )
-                          : BorderRadius.circular(4), // 圆角
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          item['icon'] as IconData,
-                          color: Colors.grey,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          item['label'] as String,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                          ),
-                        ),
-                        const Spacer(),
-                        Text(
-                          item['value'] as String,
-                          style: const TextStyle(
-                            fontSize: 14,
+            String? valueString = item.value;
+            if (item.optionType == SheetOptionType.goOut) {
+              valueString = userProfileModel?.chatPreference?.goingOut?.join(
+                ',',
+              );
+            } else if (item.optionType == SheetOptionType.weekend) {
+              valueString = userProfileModel?.chatPreference?.myWeekend?.join(
+                ',',
+              );
+            } else if (item.optionType == SheetOptionType.phoneUsage) {
+              valueString = userProfileModel?.chatPreference?.myPhone?.join(
+                ',',
+              );
+            }
+            return InkWell(
+              onTap: () => onTap(item),
+              child: SizedBox(
+                child: Column(
+                  children: [
+                    Container(
+                      height: 60,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white, // 浅灰色背景
+                        borderRadius: index == 0
+                            ? BorderRadius.only(
+                                topLeft: Radius.circular(8),
+                                topRight: Radius.circular(8),
+                                bottomLeft: Radius.circular(4),
+                                bottomRight: Radius.circular(4),
+                              )
+                            : index == items.length - 1
+                            ? BorderRadius.only(
+                                topLeft: Radius.circular(4),
+                                topRight: Radius.circular(4),
+                                bottomLeft: Radius.circular(8),
+                                bottomRight: Radius.circular(8),
+                              )
+                            : BorderRadius.circular(4), // 圆角
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(
+                            item.icon as IconData,
                             color: Colors.grey,
+                            size: 20,
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 14,
-                          color: Colors.grey[400],
-                        ),
-                      ],
+                          const SizedBox(width: 12),
+                          Text(
+                            item.label as String,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const Spacer(),
+                          Expanded(
+                            child: Text(
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              valueString as String,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 14,
+                            color: Colors.grey[400],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+
+                    if (index < items.length - 1)
+                      Divider(height: 2, color: Colors.transparent),
+                  ],
                 ),
-                if (index < items.length - 1)
-                  Divider(height: 2, color: Colors.transparent),
-              ],
+              ),
             );
           }).toList(),
         ],
@@ -1043,6 +1166,14 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   }
 
   Widget _buildInterestsSection() {
+    String showInterestsText = '';
+    if (userProfileModel != null && userProfileModel!.interests.isNotEmpty) {
+      showInterestsText = userProfileModel!.interests
+          .map((interest) => interest.name)
+          .join(', ');
+    } else {
+      showInterestsText = '添加兴趣';
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
@@ -1067,7 +1198,17 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           ),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              ProfileInterestSheet.show(
+                context,
+                selectedInterest: userProfileModel?.interests,
+                onCompleted: (selectedInterests) {
+                  setState(() {
+                    userProfileModel?.interests = selectedInterests;
+                  });
+                },
+              );
+            },
             child: Container(
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -1079,10 +1220,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    (userProfileModel != null &&
-                            userProfileModel!.interests.isNotEmpty)
-                        ? userProfileModel!.interests.join(', ')
-                        : '添加兴趣',
+                    showInterestsText,
                     style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   Icon(
@@ -1256,6 +1394,14 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   }
 
   Widget _buildLanguageSection() {
+    String showLanguageText = '';
+    if (userProfileModel != null && userProfileModel!.languages.isNotEmpty) {
+      showLanguageText = userProfileModel!.languages
+          .map((language) => language.name)
+          .join(', ');
+    } else {
+      showLanguageText = '添加语言';
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
@@ -1267,7 +1413,17 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           ),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              ProfileLanguageSheet.show(
+                context,
+                selectedLanguage: userProfileModel?.languages,
+                onCompleted: (selectedLanguages) {
+                  setState(() {
+                    userProfileModel?.languages = selectedLanguages;
+                  });
+                },
+              );
+            },
             child: Container(
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -1279,10 +1435,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    userProfileModel != null &&
-                            userProfileModel!.languages.isNotEmpty
-                        ? userProfileModel!.languages.join(', ')
-                        : '添加语言',
+                    showLanguageText,
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   Icon(
@@ -1647,6 +1800,19 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) => const ProfileAboutMeSheet(),
+    );
+  }
+
+  _buildSheet({SheetOptionType type = SheetOptionType.constellation}) {
+    print("select type: $type");
+    UniversalOptionSheet.show(
+      context,
+      type: type, // 只需传枚举值
+      // initialSelectedId: 'libra', // 可选：初始选中ID
+      onCompleted: (selectedItem) {
+        print('选中的：${selectedItem.title}，ID：${selectedItem.id}');
+        Navigator.pop(context);
+      },
     );
   }
 }
