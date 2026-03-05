@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tinder_app/data/app_data.dart';
 
 /// 枚举：定义外出问答的各个步骤
 enum OutfitQuizStep {
@@ -38,6 +39,8 @@ class OutfitResult {
 }
 
 class ProfileOutfitQuizSheet extends StatefulWidget {
+  final SheetOptionType optionType;
+
   /// 初始选中的结果（用于回显）
   final OutfitResult? initialResult;
 
@@ -49,6 +52,7 @@ class ProfileOutfitQuizSheet extends StatefulWidget {
 
   const ProfileOutfitQuizSheet({
     super.key,
+    required this.optionType,
     this.initialResult,
     required this.onCompleted,
     this.onDelete,
@@ -56,6 +60,7 @@ class ProfileOutfitQuizSheet extends StatefulWidget {
 
   static Future<T?> show<T>(
     BuildContext context, {
+    required SheetOptionType optionType,
     OutfitResult? initialResult,
     required Function(OutfitResult) onCompleted,
     VoidCallback? onDelete,
@@ -70,6 +75,7 @@ class ProfileOutfitQuizSheet extends StatefulWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => ProfileOutfitQuizSheet(
+        optionType: optionType,
         initialResult: initialResult,
         onCompleted: onCompleted,
         onDelete: onDelete,
@@ -114,44 +120,119 @@ class _OutfitQuizSheetState extends State<ProfileOutfitQuizSheet> {
 
   void _initData() {
     // 1. 动作选项
-    _actionOptions = [
-      const QuizOption(
-        id: 'dancing',
-        title: '正在跳舞',
-        assetImage: 'assets/ic_dancing.png',
-      ),
-      const QuizOption(
-        id: 'social',
-        title: '正在社交',
-        assetImage: 'assets/ic_social.png',
-      ),
-    ];
+    if (widget.optionType == SheetOptionType.goOut) {
+      _actionOptions = [
+        const QuizOption(
+          id: 'dancing',
+          title: '正在跳舞',
+          assetImage: 'assets/ic_dancing.png',
+        ),
+        const QuizOption(
+          id: 'social',
+          title: '正在社交',
+          assetImage: 'assets/ic_social.png',
+        ),
+      ];
+    } else if (widget.optionType == SheetOptionType.weekend) {
+      _actionOptions = [
+        const QuizOption(
+          title: '充电',
+          id: 'recharge',
+          assetImage: 'assets/ic_dress.png',
+        ),
+        const QuizOption(
+          title: '社交',
+          id: 'social',
+          assetImage: 'assets/ic_cap.png',
+        ),
+      ];
+    } else if (widget.optionType == SheetOptionType.phoneUsage) {
+      _actionOptions = [
+        const QuizOption(
+          title: '充电',
+          id: 'recharge',
+          assetImage: 'assets/ic_dress.png',
+        ),
+        const QuizOption(
+          title: '社交',
+          id: 'social',
+          assetImage: 'assets/ic_cap.png',
+        ),
+      ];
+    }
 
     // 2. 风格选项
-    _styleOptions = [
-      const QuizOption(
-        id: 'glam',
-        title: '盛装打扮',
-        assetImage: 'assets/ic_dress.png',
-      ),
-      const QuizOption(
-        id: 'casual',
-        title: '随意打扮',
-        assetImage: 'assets/ic_cap.png',
-      ),
-    ];
+    if (widget.optionType == SheetOptionType.goOut) {
+      _styleOptions = [
+        const QuizOption(
+          id: 'glam',
+          title: '盛装打扮',
+          assetImage: 'assets/ic_dress.png',
+        ),
+        const QuizOption(
+          id: 'casual',
+          title: '随意打扮',
+          assetImage: 'assets/ic_cap.png',
+        ),
+      ];
+    } else if (widget.optionType == SheetOptionType.weekend) {
+      _styleOptions = [
+        const QuizOption(
+          title: '舒服的待在家里',
+          id: 'comfortable',
+          assetImage: 'assets/ic_dress.png',
+        ),
+        const QuizOption(
+          title: '夜晚外出嗨玩',
+          id: 'night_out',
+          assetImage: 'assets/ic_cap.png',
+        ),
+      ];
+    } else if (widget.optionType == SheetOptionType.phoneUsage) {
+      _styleOptions = [
+        const QuizOption(
+          title: '舒服的待在家里',
+          id: 'comfortable',
+          assetImage: 'assets/ic_dress.png',
+        ),
+        const QuizOption(
+          title: '夜晚外出嗨玩',
+          id: 'night_out',
+          assetImage: 'assets/ic_cap.png',
+        ),
+      ];
+    }
 
     // 3. 时间选项
-    _timingOptions = [
-      const QuizOption(id: 'early', title: '早一些'),
-      const QuizOption(id: 'late', title: '故意迟一会儿'),
-    ];
+    if (widget.optionType == SheetOptionType.goOut) {
+      _timingOptions = [
+        const QuizOption(id: 'early', title: '早一些'),
+        const QuizOption(id: 'late', title: '故意迟一会儿'),
+      ];
+    } else if (widget.optionType == SheetOptionType.weekend) {
+      _timingOptions = [
+        const QuizOption(id: 'alone', title: '关起自己'),
+        const QuizOption(id: 'fun', title: '玩个痛快'),
+      ];
+    } else if (widget.optionType == SheetOptionType.phoneUsage) {}
 
     // 4. 离场选项
-    _departureOptions = [
-      const QuizOption(id: 'shh', title: '嘘 -- 不要说'),
-      const QuizOption(id: 'bye', title: '先说再见'),
-    ];
+    if (widget.optionType == SheetOptionType.goOut) {
+      _departureOptions = [
+        const QuizOption(id: 'shh', title: '嘘 -- 不要说'),
+        const QuizOption(id: 'bye', title: '先说再见'),
+      ];
+    } else if (widget.optionType == SheetOptionType.weekend) {
+      _departureOptions = [
+        const QuizOption(id: 'shh', title: '嘘 -- 不要说'),
+        const QuizOption(id: 'bye', title: '先说再见'),
+      ];
+    } else if (widget.optionType == SheetOptionType.phoneUsage) {
+      _departureOptions = [
+        const QuizOption(id: 'shh', title: '嘘 -- 不要说'),
+        const QuizOption(id: 'bye', title: '先说再见'),
+      ];
+    }
   }
 
   /// 处理选项选择

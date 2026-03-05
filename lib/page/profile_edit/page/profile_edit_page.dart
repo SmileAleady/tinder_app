@@ -242,6 +242,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
               ProfileOutfitQuizSheet.show(
                 context,
                 // 可选：传入之前保存的结果进行回显
+                optionType: item.optionType,
                 initialResult: initialResult,
                 onCompleted: (result) {
                   // 处理最终结果
@@ -841,6 +842,19 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 contentPadding: EdgeInsets.zero,
               ),
               maxLines: 1,
+              onChanged: (value) {
+                setState(() {
+                  if (title == '职位') {
+                    userProfileModel?.jobTitle = value;
+                  } else if (title == '公司') {
+                    userProfileModel?.company = value;
+                  } else if (title == '学校') {
+                    userProfileModel?.school = value;
+                  } else if (title == '居住地') {
+                    userProfileModel?.city = value;
+                  }
+                });
+              },
             ),
           ),
         ],
