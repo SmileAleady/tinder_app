@@ -7,6 +7,9 @@ import 'dart:io';
 
 import 'package:tinder_app/page/profile_edit/widget/profile_about_me_sheet.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_dashed_border_container.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_height_edit_sheet.dart';
+
+import 'package:tinder_app/page/profile_edit/widget/profile_relationship_goal_sheet.dart';
 import 'package:tinder_app/tool/event_bus.dart';
 
 class ProfileEditPage extends StatefulWidget {
@@ -1110,7 +1113,22 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           const SizedBox(height: 12),
           // Looking for goal
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              ProfileRelationshipGoalSheet.show(
+                context,
+                selectedItem: userProfileModel?.relationshipGoal, // 回显已选中的项
+                onItemSelected: (item) {
+                  // 选中回调，更新状态
+                  setState(() {
+                    if (userProfileModel != null) {
+                      userProfileModel!.relationshipGoal = item;
+                    }
+                  });
+                  // 选中后关闭弹窗（可根据需求移除，保留弹窗）
+                  Navigator.pop(context);
+                },
+              );
+            },
             child: Container(
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -1127,33 +1145,21 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   Expanded(child: SizedBox()),
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.favorite, color: Colors.red, size: 16),
-                  const SizedBox(width: 8),
+
                   Text(
                     textAlign: TextAlign.right,
                     (userProfileModel != null &&
-                            userProfileModel!.relationshipGoal.isNotEmpty)
-                        ? userProfileModel!.relationshipGoal
+                            userProfileModel!.relationshipGoal != null)
+                        ? '${userProfileModel!.relationshipGoal!.emoji} ${userProfileModel!.relationshipGoal!.title}'
                         : '寻找长期的伴侣',
                     style: const TextStyle(fontSize: 13, color: Colors.grey),
                   ),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: Colors.grey[400],
-                    ),
+                  const SizedBox(width: 8),
+
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: Colors.grey[400],
                   ),
                 ],
               ),
@@ -1165,6 +1171,21 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   }
 
   Widget _buildHeightSection() {
+    // 拼接展示文案
+    String showHeightText = '';
+    if (userProfileModel?.height?.unit == HeightUnit.cm) {
+      showHeightText =
+          (userProfileModel?.height?.cm != null &&
+              userProfileModel?.height?.cm != 0)
+          ? '${userProfileModel?.height?.cm ?? 0} cm'
+          : '未设置身高';
+    } else {
+      showHeightText =
+          (userProfileModel?.height?.feet != null &&
+              userProfileModel?.height?.inch != null)
+          ? '${userProfileModel?.height?.feet} 英尺 ${userProfileModel?.height?.inch} 英寸'
+          : '未设置身高';
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
@@ -1176,7 +1197,33 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           ),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              // 一键唤起身高编辑弹窗
+              ProfileHeightEditSheet.show(
+                context,
+                // 回显已保存的数值
+                initialUnit: userProfileModel?.height?.unit,
+                initialCm: userProfileModel?.height?.cm,
+                initialFeet: userProfileModel?.height?.feet,
+                initialInch: userProfileModel?.height?.inch,
+                // 完成按钮回调
+                onCompleted: (height) {
+                  setState(() {
+                    userProfileModel?.height = height;
+                  });
+                },
+
+                // 删除按钮回调
+                onDelete: () {
+                  setState(() {
+                    userProfileModel?.height?.unit = HeightUnit.feetInch;
+                    userProfileModel?.height?.cm = null;
+                    userProfileModel?.height?.feet = null;
+                    userProfileModel?.height?.inch = null;
+                  });
+                },
+              );
+            },
             child: Container(
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -1188,10 +1235,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    (userProfileModel != null &&
-                            userProfileModel!.height != null)
-                        ? '${userProfileModel!.height}cm'
-                        : '添加身高',
+                    showHeightText,
                     style: TextStyle(
                       fontSize: 14,
                       color: height != null ? Colors.black : Colors.grey,

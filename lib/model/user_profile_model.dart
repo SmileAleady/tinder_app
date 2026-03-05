@@ -89,6 +89,32 @@ class UserPrompt {
   }
 }
 
+/// 交友目标
+
+class UserRelationshipGoalItem {
+  final int id;
+  final String title;
+  final String emoji;
+
+  const UserRelationshipGoalItem({
+    required this.id,
+    required this.title,
+    required this.emoji,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {'title': title, 'emoji': emoji, 'id': id};
+  }
+
+  factory UserRelationshipGoalItem.fromJson(Map<String, dynamic> json) {
+    return UserRelationshipGoalItem(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      emoji: json['emoji'] as String,
+    );
+  }
+}
+
 /// 用户更多信息
 class UserMoreInfo {
   final String? zodiac; // 星座
@@ -145,6 +171,44 @@ class UserPrivacySettings {
   }
 }
 
+/// 身高单位枚举
+enum HeightUnit {
+  /// 英尺/英寸
+  feetInch,
+
+  /// 厘米
+  cm,
+}
+
+class UserHeightModel {
+  /// 初始选中的单位
+  HeightUnit? unit;
+
+  /// 初始厘米值（cm模式下）
+  double? cm;
+
+  /// 初始英尺值（英尺/英寸模式下）
+  int? feet;
+
+  /// 初始英寸值（英尺/英寸模式下）
+  int? inch;
+  UserHeightModel({this.unit = HeightUnit.cm, this.cm, this.feet, this.inch});
+  Map<String, dynamic> toJson() {
+    return {'unit': unit.toString(), 'cm': cm, 'feet': feet, 'inch': inch};
+  }
+
+  factory UserHeightModel.fromJson(Map<String, dynamic> json) {
+    return UserHeightModel(
+      unit: HeightUnit.values.firstWhere(
+        (element) => element.toString() == json['unit'],
+      ),
+      cm: json['cm'] as double?,
+      feet: json['feet'] as int?,
+      inch: json['inch'] as int?,
+    );
+  }
+}
+
 /// 用户主数据模型
 class UserProfileModel {
   final String id;
@@ -154,8 +218,8 @@ class UserProfileModel {
   final UserChatPreference? chatPreference; // 新增：欢迎跟我聊 聊天偏好
   final List<UserPrompt> prompts; // 问答列表
   final List<String> interests; // 兴趣列表
-  String relationshipGoal; // 交往目标
-  int? height; // 身高
+  UserRelationshipGoalItem? relationshipGoal; // 交往目标
+  UserHeightModel? height; // 身高
   final List<String> languages; // 会的语言
   final UserMoreInfo moreInfo; // 更多信息
   final UserLifestyle lifestyle; // 生活方式
@@ -235,8 +299,12 @@ class UserProfileModel {
           .map((i) => UserPrompt.fromJson(i as Map<String, dynamic>))
           .toList(),
       interests: List<String>.from(json['interests'] as List),
-      relationshipGoal: json['relationshipGoal'] as String,
-      height: json['height'] as int?,
+      relationshipGoal: UserRelationshipGoalItem.fromJson(
+        json['relationshipGoal'] as Map<String, dynamic>,
+      ),
+      height: json['height'] != null
+          ? UserHeightModel.fromJson(json['height'] as Map<String, dynamic>)
+          : null,
       languages: List<String>.from(json['languages'] as List),
       moreInfo: UserMoreInfo.fromJson(json['moreInfo'] as Map<String, dynamic>),
       lifestyle: UserLifestyle.fromJson(
@@ -276,8 +344,8 @@ UserProfileModel getUserProfileModel() {
     chatPreference: chatPref, // 关联更新后的聊天偏好
     prompts: [UserPrompt(title: "关于我", content: "我喜欢旅行，喜欢看电影，喜欢听音乐，喜欢和朋友聚餐。")],
     interests: ["旅行", "阅读"],
-    relationshipGoal: "寻找灵魂伴侣",
-    height: 165,
+    relationshipGoal: UserRelationshipGoalItem(id: 1, title: "交友", emoji: "🤝"),
+    height: UserHeightModel(unit: HeightUnit.cm, cm: 165.0),
     languages: ["中文"],
     moreInfo: UserMoreInfo(zodiac: "天秤座"),
     lifestyle: UserLifestyle(
