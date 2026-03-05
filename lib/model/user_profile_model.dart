@@ -72,19 +72,19 @@ class UserLifestyle {
 
 /// 用户问答信息
 class UserPrompt {
-  final String promptType; // 问答类型（如外出、周末等）
-  final String? answer; // 回答内容
+  String title; // 问答类型（如外出、周末等）
+  String? content; // 回答内容
 
-  UserPrompt({required this.promptType, this.answer});
+  UserPrompt({required this.title, this.content});
 
   Map<String, dynamic> toJson() {
-    return {'promptType': promptType, 'answer': answer};
+    return {'title': title, 'content': content};
   }
 
   factory UserPrompt.fromJson(Map<String, dynamic> json) {
     return UserPrompt(
-      promptType: json['promptType'] as String,
-      answer: json['answer'] as String?,
+      title: json['title'] as String,
+      content: json['content'] as String?,
     );
   }
 }
@@ -146,30 +146,30 @@ class UserPrivacySettings {
 }
 
 /// 用户主数据模型
-class UserProfile {
+class UserProfileModel {
   final String id;
-  final List<String> mediaUrls; // 媒体图片URL列表
-  final bool smartPhotosEnabled; // 是否启用智能照片
-  final String aboutMe; // 关于我
+  final List<String?> mediaUrls; // 媒体图片URL列表
+  bool smartPhotosEnabled; // 是否启用智能照片
+  String aboutMe; // 关于我
   final UserChatPreference? chatPreference; // 新增：欢迎跟我聊 聊天偏好
   final List<UserPrompt> prompts; // 问答列表
   final List<String> interests; // 兴趣列表
-  final String relationshipGoal; // 交往目标
-  final int? height; // 身高
+  String relationshipGoal; // 交往目标
+  int? height; // 身高
   final List<String> languages; // 会的语言
   final UserMoreInfo moreInfo; // 更多信息
   final UserLifestyle lifestyle; // 生活方式
-  final String? jobTitle; // 职位
-  final String? company; // 公司
-  final String? school; // 学校
-  final String? city; // 居住地
-  final String? favoriteSong; // 最爱歌曲
-  final String? spotifyArtist; // Spotify艺术家
-  final String gender; // 性别
-  final String sexualOrientation; // 性取向
+  String? jobTitle; // 职位
+  String? company; // 公司
+  String? school; // 学校
+  String? city; // 居住地
+  String? favoriteSong; // 最爱歌曲
+  String? spotifyArtist; // Spotify艺术家
+  String gender; // 性别
+  String sexualOrientation; // 性取向
   final UserPrivacySettings privacySettings; // 隐私设置
 
-  UserProfile({
+  UserProfileModel({
     required this.id,
     required this.mediaUrls,
     required this.smartPhotosEnabled,
@@ -219,8 +219,8 @@ class UserProfile {
     };
   }
 
-  factory UserProfile.fromJson(Map<String, dynamic> json) {
-    return UserProfile(
+  factory UserProfileModel.fromJson(Map<String, dynamic> json) {
+    return UserProfileModel(
       id: json['id'] as String,
       mediaUrls: List<String>.from(json['mediaUrls'] as List),
       smartPhotosEnabled: json['smartPhotosEnabled'] as bool,
@@ -258,7 +258,7 @@ class UserProfile {
 }
 
 // 示例使用
-UserProfile getUserProfile() {
+UserProfileModel getUserProfileModel() {
   // 构建聊天偏好示例（更新后的结构）
   final chatPref = UserChatPreference(
     title: "欢迎跟我聊",
@@ -268,15 +268,16 @@ UserProfile getUserProfile() {
   );
 
   // 构建完整用户信息示例
-  final userProfile = UserProfile(
+  final userProfileModel = UserProfileModel(
     id: "user_123456",
     mediaUrls: ["https://example.com/photo1.jpg"],
     smartPhotosEnabled: true,
     aboutMe: "一个热爱生活的人",
     chatPreference: chatPref, // 关联更新后的聊天偏好
-    prompts: [],
+    prompts: [UserPrompt(title: "关于我", content: "我喜欢旅行，喜欢看电影，喜欢听音乐，喜欢和朋友聚餐。")],
     interests: ["旅行", "阅读"],
     relationshipGoal: "寻找灵魂伴侣",
+    height: 165,
     languages: ["中文"],
     moreInfo: UserMoreInfo(zodiac: "天秤座"),
     lifestyle: UserLifestyle(
@@ -289,9 +290,9 @@ UserProfile getUserProfile() {
     sexualOrientation: "异性恋",
     privacySettings: UserPrivacySettings(hideAge: false, hideDistance: true),
   );
-  return userProfile;
+  return userProfileModel;
   // // 转换为JSON并打印聊天偏好信息
-  // final json = userProfile.toJson();
+  // final json = UserProfileModel.toJson();
   // print("外出：${json['chatPreference']['goingOut']}");
   // print("我的周末：${json['chatPreference']['myWeekend']}");
   // print("我和我的手机：${json['chatPreference']['myPhone']}");
