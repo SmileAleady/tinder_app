@@ -8,12 +8,15 @@ import 'dart:io';
 
 import 'package:tinder_app/page/profile_edit/widget/profile_about_me_sheet.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_dashed_border_container.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_gender_selection_page.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_height_edit_sheet.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_interest_sheet.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_language_sheet.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_outfit_quiz_sheet.dart';
 
 import 'package:tinder_app/page/profile_edit/widget/profile_relationship_goal_sheet.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_sexual_orientation_selection_page.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_spotify_song_selection_page.dart';
 import 'package:tinder_app/page/profile_edit/widget/universal_option_sheet.dart';
 import 'package:tinder_app/tool/event_bus.dart';
 
@@ -1467,6 +1470,15 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   }
 
   Widget _buildMusicSection() {
+    String title = '';
+    String description = '';
+    if (userProfileModel?.favoriteSong != null) {
+      title = userProfileModel!.favoriteSong!.title;
+      description = userProfileModel!.favoriteSong!.artist;
+    } else {
+      title = '添加最爱歌曲';
+      description = '';
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
@@ -1478,7 +1490,27 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           ),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileSpotifySongSelectionWidget(
+                    onNoFavoriteClick: (time) {
+                      print("点击'我不想要最爱歌曲'的时间: $time");
+                      setState(() {
+                        userProfileModel?.favoriteSong = null;
+                      });
+                    },
+                    onMusicSelected: (music) {
+                      print("选中的音乐: ${music.title} - ${music.artist}");
+                      setState(() {
+                        userProfileModel?.favoriteSong = music;
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
               decoration: BoxDecoration(
@@ -1494,9 +1526,9 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                       color: const Color(0xFF1DB954),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        'S',
+                        title.isNotEmpty ? '♫' : '+',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -1509,17 +1541,18 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'PinkPantheress',
+                        Text(
+                          title,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const Text(
-                          'Stateside + Zara Larsson',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
+                        if (description.isNotEmpty)
+                          Text(
+                            description,
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
                       ],
                     ),
                   ),
@@ -1575,6 +1608,20 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   }
 
   Widget _buildGenderSection() {
+    String title = '';
+    if (userProfileModel != null && userProfileModel!.gender != null) {
+      title = userProfileModel!.gender!.map((g) => g.name).join(', ');
+    } else {
+      title = '添加性别';
+    }
+    String description = '可见';
+    if (userProfileModel != null && userProfileModel!.gender != null) {
+      //其中有一个可见，就为可见，否则为隐藏
+      bool anyVisible = userProfileModel!.gender!.any((g) => g.isVisible);
+      description = anyVisible ? '可见' : '隐藏';
+    } else {
+      description = '';
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
@@ -1586,7 +1633,24 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           ),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileGenderSelectionPage(
+                    // 传入已选中的性别（回显）
+                    initialSelectedGenders: userProfileModel?.gender ?? [],
+                    // 接收选中的性别数组
+                    onConfirm: (selectedGenders) {
+                      print('选中的性别：');
+                      setState(() {
+                        userProfileModel?.gender = selectedGenders;
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
             child: Container(
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -1597,14 +1661,14 @@ class _ProfileEditPageState extends State<ProfileEditPage>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    '男性',
+                  Text(
+                    title,
                     style: TextStyle(fontSize: 14, color: Colors.black),
                   ),
                   Row(
                     children: [
-                      const Text(
-                        '可见',
+                      Text(
+                        description,
                         style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                       const SizedBox(width: 8),
@@ -1625,6 +1689,26 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   }
 
   Widget _buildOrientationSection() {
+    String title = '';
+    if (userProfileModel != null &&
+        userProfileModel!.sexualOrientation != null) {
+      title = userProfileModel!.sexualOrientation!
+          .map((o) => o.name)
+          .join(', ');
+    } else {
+      title = '添加性取向';
+    }
+    String description = '可见';
+    if (userProfileModel != null &&
+        userProfileModel!.sexualOrientation != null) {
+      //其中有一个可见，就为可见，否则为隐藏
+      bool anyVisible = userProfileModel!.sexualOrientation!.any(
+        (o) => o.isVisible,
+      );
+      description = anyVisible ? '可见' : '隐藏';
+    } else {
+      description = '';
+    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Column(
@@ -1636,7 +1720,26 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           ),
           const SizedBox(height: 12),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfileSexualOrientationSelectionPage(
+                    // 传入已选中的性向（回显）
+                    initialSelectedOrientations:
+                        userProfileModel?.sexualOrientation ?? [],
+                    // 接收选中的性向数组
+                    onConfirm: (selectedOrientations) {
+                      print('选中的性向：');
+                      setState(() {
+                        userProfileModel?.sexualOrientation =
+                            selectedOrientations;
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
             child: Container(
               height: 60,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -1647,14 +1750,14 @@ class _ProfileEditPageState extends State<ProfileEditPage>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    '异性恫',
+                  Text(
+                    title,
                     style: TextStyle(fontSize: 14, color: Colors.black),
                   ),
                   Row(
                     children: [
-                      const Text(
-                        '隐藏',
+                      Text(
+                        description,
                         style: TextStyle(fontSize: 14, color: Colors.grey),
                       ),
                       const SizedBox(width: 8),
@@ -1745,10 +1848,11 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                     Transform.scale(
                       scale: 0.8,
                       child: Switch(
-                        value: hideAge,
+                        value:
+                            userProfileModel?.privacySettings.hideAge ?? false,
                         onChanged: (value) {
                           setState(() {
-                            hideAge = value;
+                            userProfileModel?.privacySettings.hideAge = value;
                           });
                         },
                         activeColor: Colors.grey[600],
@@ -1783,10 +1887,13 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                     Transform.scale(
                       scale: 0.8,
                       child: Switch(
-                        value: hideDistance,
+                        value:
+                            userProfileModel?.privacySettings.hideDistance ??
+                            false,
                         onChanged: (value) {
                           setState(() {
-                            hideDistance = value;
+                            userProfileModel?.privacySettings.hideDistance =
+                                value;
                           });
                         },
                         activeColor: Colors.grey[600],

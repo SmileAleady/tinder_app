@@ -160,8 +160,8 @@ class UserMoreInfo {
 
 /// 用户隐私设置
 class UserPrivacySettings {
-  final bool hideAge; // 是否隐藏年龄
-  final bool hideDistance; // 是否隐藏距离
+  bool hideAge; // 是否隐藏年龄
+  bool hideDistance; // 是否隐藏距离
 
   UserPrivacySettings({required this.hideAge, required this.hideDistance});
 
@@ -245,6 +245,110 @@ class UserInterest {
   }
 }
 
+// 音乐模型
+class MusicModel {
+  final String title;
+  final String artist;
+  final String? coverImageUrl;
+
+  MusicModel({required this.title, required this.artist, this.coverImageUrl});
+  Map<String, dynamic> toJson() {
+    return {'title': title, 'artist': artist, 'coverImageUrl': coverImageUrl};
+  }
+
+  factory MusicModel.fromJson(Map<String, dynamic> json) {
+    return MusicModel(
+      title: json['title'] as String,
+      artist: json['artist'] as String,
+      coverImageUrl: json['coverImageUrl'] as String?,
+    );
+  }
+}
+
+// 性别
+class GenderModel {
+  final String id; // 唯一标识（用于匹配和回显）
+  final String name; // 性别名称
+  final String? desc; // 可选描述信息
+  final bool isVisible; // 是否在个人资料中可见
+
+  const GenderModel({
+    required this.id,
+    required this.name,
+    this.desc,
+    this.isVisible = false,
+  });
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name, 'desc': desc, 'isVisible': isVisible};
+  }
+
+  factory GenderModel.fromJson(Map<String, dynamic> json) {
+    return GenderModel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      desc: json['desc'] as String?,
+      isVisible: json['isVisible'] as bool,
+    );
+  }
+
+  // 复制方法（用于扩展/修改字段）
+  GenderModel copyWith({
+    String? id,
+    String? name,
+    String? desc,
+    bool? isVisible,
+  }) {
+    return GenderModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      desc: desc ?? this.desc,
+      isVisible: isVisible ?? this.isVisible,
+    );
+  }
+}
+
+// 性向模型
+class SexualOrientationModel {
+  final String id; // 唯一标识（用于匹配和回显）
+  final String name; // 性向名称
+  final String desc; // 性向描述
+  final bool isVisible; // 是否在个人资料中可见
+
+  const SexualOrientationModel({
+    required this.id,
+    required this.name,
+    required this.desc,
+    this.isVisible = false, // 默认隐藏，与截图一致
+  });
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'name': name, 'desc': desc, 'isVisible': isVisible};
+  }
+
+  factory SexualOrientationModel.fromJson(Map<String, dynamic> json) {
+    return SexualOrientationModel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      desc: json['desc'] as String,
+      isVisible: json['isVisible'] as bool,
+    );
+  }
+
+  // 复制方法（用于扩展/修改字段）
+  SexualOrientationModel copyWith({
+    String? id,
+    String? name,
+    String? desc,
+    bool? isVisible,
+  }) {
+    return SexualOrientationModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      desc: desc ?? this.desc,
+      isVisible: isVisible ?? this.isVisible,
+    );
+  }
+}
+
 /// 用户主数据模型
 class UserProfileModel {
   final String id;
@@ -263,10 +367,10 @@ class UserProfileModel {
   String? company; // 公司
   String? school; // 学校
   String? city; // 居住地
-  String? favoriteSong; // 最爱歌曲
+  MusicModel? favoriteSong; // 最爱歌曲
   String? spotifyArtist; // Spotify艺术家
-  String gender; // 性别
-  String sexualOrientation; // 性取向
+  List<GenderModel>? gender; // 性别
+  List<SexualOrientationModel>? sexualOrientation; // 性取向
   final UserPrivacySettings privacySettings; // 隐私设置
 
   UserProfileModel({
@@ -354,10 +458,18 @@ class UserProfileModel {
       company: json['company'] as String?,
       school: json['school'] as String?,
       city: json['city'] as String?,
-      favoriteSong: json['favoriteSong'] as String?,
+      favoriteSong: json['favoriteSong'] != null
+          ? MusicModel.fromJson(json['favoriteSong'] as Map<String, dynamic>)
+          : null,
       spotifyArtist: json['spotifyArtist'] as String?,
-      gender: json['gender'] as String,
-      sexualOrientation: json['sexualOrientation'] as String,
+      gender: (json['gender'] as List)
+          .map((i) => GenderModel.fromJson(i as Map<String, dynamic>))
+          .toList(),
+      sexualOrientation: (json['sexualOrientation'] as List)
+          .map(
+            (i) => SexualOrientationModel.fromJson(i as Map<String, dynamic>),
+          )
+          .toList(),
       privacySettings: UserPrivacySettings.fromJson(
         json['privacySettings'] as Map<String, dynamic>,
       ),
@@ -397,8 +509,10 @@ UserProfileModel getUserProfileModel() {
       smoking: "不吸烟",
       fitness: "每周3次",
     ),
-    gender: "女",
-    sexualOrientation: "异性恋",
+    gender: [GenderModel(id: 'male', name: '男性')],
+    sexualOrientation: [
+      SexualOrientationModel(id: 'heterosexual', name: '异性恋', desc: '对异性有吸引力'),
+    ],
     privacySettings: UserPrivacySettings(hideAge: false, hideDistance: true),
   );
   return userProfileModel;

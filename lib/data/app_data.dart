@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tinder_app/model/user_profile_model.dart';
 
 /// 选项类型枚举（对应11张图的分类）
 enum SheetOptionType {
@@ -48,6 +49,114 @@ class OptionConfig {
 
 /// 全局选项数据管理类
 class OptionDataManager {
+  static final List<SexualOrientationModel> sexualOrientations = [
+    const SexualOrientationModel(
+      id: 'heterosexual',
+      name: '异性恋',
+      desc: '仅会被相反性别吸引的人士',
+    ),
+    const SexualOrientationModel(
+      id: 'gay',
+      name: '男同性恋',
+      desc: '这是一个统称术语，指会被同性吸引的人士',
+    ),
+    const SexualOrientationModel(
+      id: 'lesbian',
+      name: '女同性恋',
+      desc: '对其他女性产生爱慕感、能建立浪漫关系或认为其他女性具有性吸引力的女士',
+    ),
+    const SexualOrientationModel(
+      id: 'bisexual',
+      name: '双性恋',
+      desc: '对一种以上的性别者有可能产生爱慕感、建立浪漫关系或认为这些性别者具有性吸引力的人士',
+    ),
+    const SexualOrientationModel(
+      id: 'asexual',
+      name: '无性恋',
+      desc: '感受不到性吸引力的人士',
+    ),
+    const SexualOrientationModel(
+      id: 'demisexual',
+      name: '半性恋',
+      desc: '只有与他人建立深厚的情感联系才能感受到性吸引力的人士',
+    ),
+    const SexualOrientationModel(
+      id: 'pansexual',
+      name: '泛性恋',
+      desc: '对任意性别者均有可能产生爱慕感、建立浪漫关系或认为任意性别者均具有性吸引力的人士',
+    ),
+    const SexualOrientationModel(
+      id: 'queer',
+      name: '酷儿',
+      desc: '这是一个用于指代一系列性向和性别的统称，它往往涵盖不属于完全异性恋的性别或性向',
+    ),
+    const SexualOrientationModel(
+      id: 'questioning',
+      name: '疑性恋',
+      desc: '正在探索自身性向和/或性别的人士',
+    ),
+    const SexualOrientationModel(
+      id: 'other',
+      name: '未列出',
+      desc: '请告知我们还缺什么性别。',
+    ),
+  ];
+
+  // 初始化性别选项（与参考图一致）
+  static final List<GenderModel> genders = [
+    const GenderModel(id: 'male', name: '男性'),
+    const GenderModel(id: 'female', name: '女性'),
+    const GenderModel(id: 'non_binary', name: '二元性别以外', desc: '包含跨性别、非二元性别等'),
+  ];
+
+  static final List<MusicModel> songs = [
+    MusicModel(
+      title: "Risk It All",
+      artist: "Bruno Mars",
+      coverImageUrl: "https://example.com/cover1.jpg",
+    ),
+    MusicModel(
+      title: "Stateside + Zara Larsson",
+      artist: "PinkPantheress",
+      coverImageUrl: "https://example.com/cover2.jpg",
+    ),
+    MusicModel(
+      title: "Choosin' Texas",
+      artist: "Ella Langley",
+      coverImageUrl: "https://example.com/cover3.jpg",
+    ),
+    MusicModel(
+      title: "I Just Might",
+      artist: "Bruno Mars",
+      coverImageUrl: "https://example.com/cover4.jpg",
+    ),
+    MusicModel(
+      title: "DtMF",
+      artist: "Bad Bunny",
+      coverImageUrl: "https://example.com/cover5.jpg",
+    ),
+    MusicModel(
+      title: "Man I Need",
+      artist: "Olivia Dean",
+      coverImageUrl: "https://example.com/cover6.jpg",
+    ),
+    MusicModel(
+      title: "Babydoll",
+      artist: "Dominic Fike",
+      coverImageUrl: "https://example.com/cover7.jpg",
+    ),
+    MusicModel(
+      title: "E85",
+      artist: "Don Toliver",
+      coverImageUrl: "https://example.com/cover8.jpg",
+    ),
+    MusicModel(
+      title: "So Easy (To Fall In Love)",
+      artist: "Olivia Dean",
+      coverImageUrl: "https://example.com/cover9.jpg",
+    ),
+  ];
+
   // 枚举 -> 配置映射表
   static const Map<SheetOptionType, OptionConfig> _optionConfigs = {
     // 1. 星座
