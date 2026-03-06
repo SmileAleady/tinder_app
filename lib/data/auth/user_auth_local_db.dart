@@ -200,6 +200,12 @@ class UserAuthLocalDb {
     await _saveUsers(users);
   }
 
+  Future<void> deleteUserById(String userId) async {
+    final users = await getAllUsers();
+    users.removeWhere((u) => u.userId == userId);
+    await _saveUsers(users);
+  }
+
   Future<Map<String, dynamic>> _readRaw() async {
     final file = await _dbFile();
     if (!await file.exists()) {

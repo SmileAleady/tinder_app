@@ -313,6 +313,25 @@ class ChatLocalDb {
     await _save(raw, matches, messages);
   }
 
+  Future<void> removeAllForUser(String userId) async {
+    final raw = await _readRaw();
+    final matches = _readMatches(raw);
+    final removedPairIds = matches
+        .where((m) => m.includes(userId))
+        .map((m) => m.pairId)
+        .toSet();
+    matches.removeWhere((m) => removedPairIds.contains(m.pairId));
+
+    final messages = _readMessages(raw)
+      ..removeWhere(
+        (m) =>
+            m.senderId == userId ||
+            m.receiverId == userId ||
+            removedPairIds.contains(m.pairId),
+      );
+    await _save(raw, matches, messages);
+  }
+
   Future<Map<String, dynamic>> _readRaw() async {
     final file = await _dbFile();
     if (!await file.exists()) {
