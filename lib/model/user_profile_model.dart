@@ -26,14 +26,23 @@ class UserChatPreference {
   factory UserChatPreference.fromJson(Map<String, dynamic> json) {
     return UserChatPreference(
       title: json['title'] as String,
+      // goingOut: json['goingOut'] != null
+      //     ?  json['goingOut'].map((e) => e as String).toList()
+      //     : [],
+      // myWeekend: json['myWeekend'] != null
+      //     ? json['myWeekend'].map((e) => e as String).toList()
+      //     : [],
+      // myPhone: json['myPhone'] != null
+      //     ? json['myPhone'].map((e) => e as String).toList()
+      //     : [],
       goingOut: json['goingOut'] != null
-          ? json['goingOut'].map((e) => e as String).toList()
+          ? List<String>.from(json['goingOut'])
           : [],
       myWeekend: json['myWeekend'] != null
-          ? json['myWeekend'].map((e) => e as String).toList()
+          ? List<String>.from(json['myWeekend'])
           : [],
       myPhone: json['myPhone'] != null
-          ? json['myPhone'].map((e) => e as String).toList()
+          ? List<String>.from(json['myPhone'])
           : [],
     );
   }
@@ -351,8 +360,12 @@ class SexualOrientationModel {
 
 /// 用户主数据模型
 class UserProfileModel {
-  final String id;
-  final List<String?> mediaUrls; // 媒体图片URL列表
+  final String userId; // 用户ID
+  final String email; // 邮箱
+  final String phone; // 电话
+  final String password; // 密码
+  final String nikeName; // 昵称
+  final List<String> mediaUrls; // 媒体图片URL列表
   bool smartPhotosEnabled; // 是否启用智能照片
   String aboutMe; // 关于我
   final UserChatPreference? chatPreference; // 新增：欢迎跟我聊 聊天偏好
@@ -372,9 +385,16 @@ class UserProfileModel {
   List<GenderModel>? gender; // 性别
   List<SexualOrientationModel>? sexualOrientation; // 性取向
   final UserPrivacySettings privacySettings; // 隐私设置
+  int? age; // 年龄
+  double? distance; // 距离
+  bool? isActive; //是否最近活跃
 
   UserProfileModel({
-    required this.id,
+    required this.userId,
+    required this.email,
+    required this.phone,
+    required this.password,
+    required this.nikeName,
     required this.mediaUrls,
     required this.smartPhotosEnabled,
     required this.aboutMe,
@@ -395,37 +415,53 @@ class UserProfileModel {
     required this.gender,
     required this.sexualOrientation,
     required this.privacySettings,
+    this.age,
+    this.distance,
+    this.isActive,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'userId': userId,
+      'email': email,
+      'phone': phone,
+      'password': password,
+      'nikeName': nikeName,
       'mediaUrls': mediaUrls,
       'smartPhotosEnabled': smartPhotosEnabled,
       'aboutMe': aboutMe,
       'chatPreference': chatPreference?.toJson(), // 聊天偏好JSON转换
       'prompts': prompts.map((p) => p.toJson()).toList(),
-      'interests': interests,
-      'relationshipGoal': relationshipGoal,
-      'height': height,
-      'languages': languages,
+      'interests': interests.map((item) => item.toJson()).toList(),
+      'relationshipGoal': relationshipGoal?.toJson(),
+      'height': height?.toJson(),
+      'languages': languages.map((lang) => lang.toJson()).toList(),
       'moreInfo': moreInfo.toJson(),
       'lifestyle': lifestyle.toJson(),
       'jobTitle': jobTitle,
       'company': company,
       'school': school,
       'city': city,
-      'favoriteSong': favoriteSong,
+      'favoriteSong': favoriteSong?.toJson(),
       'spotifyArtist': spotifyArtist,
-      'gender': gender,
-      'sexualOrientation': sexualOrientation,
+      'gender': gender?.map((item) => item.toJson()).toList(),
+      'sexualOrientation': sexualOrientation
+          ?.map((item) => item.toJson())
+          .toList(),
       'privacySettings': privacySettings.toJson(),
+      'age': age,
+      'distance': distance,
+      'isActive': isActive,
     };
   }
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     return UserProfileModel(
-      id: json['id'] as String,
+      userId: json['userId'] as String,
+      email: json['email'] as String,
+      phone: json['phone'] as String,
+      password: json['password'] as String,
+      nikeName: json['nikeName'] as String,
       mediaUrls: List<String>.from(json['mediaUrls'] as List),
       smartPhotosEnabled: json['smartPhotosEnabled'] as bool,
       aboutMe: json['aboutMe'] as String,
@@ -435,19 +471,21 @@ class UserProfileModel {
               json['chatPreference'] as Map<String, dynamic>,
             )
           : null,
-      prompts: (json['prompts'] as List)
+      prompts: (json['prompts'] as List? ?? <dynamic>[])
           .map((i) => UserPrompt.fromJson(i as Map<String, dynamic>))
           .toList(),
-      interests: (json['interests'] as List)
+      interests: (json['interests'] as List? ?? <dynamic>[])
           .map((i) => UserInterest.fromJson(i as Map<String, dynamic>))
           .toList(),
-      relationshipGoal: UserRelationshipGoalItem.fromJson(
-        json['relationshipGoal'] as Map<String, dynamic>,
-      ),
+      relationshipGoal: json['relationshipGoal'] != null
+          ? UserRelationshipGoalItem.fromJson(
+              json['relationshipGoal'] as Map<String, dynamic>,
+            )
+          : null,
       height: json['height'] != null
           ? UserHeightModel.fromJson(json['height'] as Map<String, dynamic>)
           : null,
-      languages: (json['languages'] as List)
+      languages: (json['languages'] as List? ?? <dynamic>[])
           .map((i) => UserLanguage.fromJson(i as Map<String, dynamic>))
           .toList(),
       moreInfo: UserMoreInfo.fromJson(json['moreInfo'] as Map<String, dynamic>),
@@ -462,10 +500,10 @@ class UserProfileModel {
           ? MusicModel.fromJson(json['favoriteSong'] as Map<String, dynamic>)
           : null,
       spotifyArtist: json['spotifyArtist'] as String?,
-      gender: (json['gender'] as List)
+      gender: (json['gender'] as List? ?? <dynamic>[])
           .map((i) => GenderModel.fromJson(i as Map<String, dynamic>))
           .toList(),
-      sexualOrientation: (json['sexualOrientation'] as List)
+      sexualOrientation: (json['sexualOrientation'] as List? ?? <dynamic>[])
           .map(
             (i) => SexualOrientationModel.fromJson(i as Map<String, dynamic>),
           )
@@ -473,6 +511,9 @@ class UserProfileModel {
       privacySettings: UserPrivacySettings.fromJson(
         json['privacySettings'] as Map<String, dynamic>,
       ),
+      age: json['age'] as int?,
+      distance: (json['distance'] as num?)?.toDouble(),
+      isActive: json['isActive'] as bool?,
     );
   }
 }
@@ -489,7 +530,11 @@ UserProfileModel getUserProfileModel() {
 
   // 构建完整用户信息示例
   final userProfileModel = UserProfileModel(
-    id: "user_123456",
+    userId: "user_123456",
+    email: "<EMAIL>",
+    phone: "123-456-7890",
+    password: "securepassword",
+    nikeName: "Tinder用户",
     mediaUrls: ["https://example.com/photo1.jpg"],
     smartPhotosEnabled: true,
     aboutMe: "一个热爱生活的人",
@@ -514,6 +559,9 @@ UserProfileModel getUserProfileModel() {
       SexualOrientationModel(id: 'heterosexual', name: '异性恋', desc: '对异性有吸引力'),
     ],
     privacySettings: UserPrivacySettings(hideAge: false, hideDistance: true),
+    age: 25,
+    distance: 10.0,
+    isActive: true,
   );
   return userProfileModel;
   // // 转换为JSON并打印聊天偏好信息

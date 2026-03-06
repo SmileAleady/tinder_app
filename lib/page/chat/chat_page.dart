@@ -1,282 +1,450 @@
 import 'package:flutter/material.dart';
-import '../../model/message_model.dart';
+import 'package:tinder_app/data/chat/chat_local_db.dart';
+import 'package:tinder_app/page/chat/chat_safety_ui.dart';
+import 'package:tinder_app/page/chat/conversation_page.dart';
 
 class ChatPage extends StatefulWidget {
-  final ChatSession chatSession;
-
-  const ChatPage({
-    required this.chatSession,
-    super.key,
-  });
+  const ChatPage({super.key});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
 }
 
 class _ChatPageState extends State<ChatPage> {
-  late TextEditingController _messageController;
-  late List<Message> _messages;
+  ChatUserProfile? _activeUser;
+  ConversationListData? _data;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _messageController = TextEditingController();
-    _messages = List.from(widget.chatSession.messages);
+    _load();
   }
 
-  @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
-  }
+  Future<void> _load() async {
+    final active = await ChatLocalDb.instance.getActiveUser();
+    if (!mounted) {
+      return;
+    }
 
-  void _sendMessage() {
-    final content = _messageController.text.trim();
-    if (content.isEmpty) return;
+    if (active == null) {
+      setState(() {
+        _activeUser = null;
+        _loading = false;
+      });
+      return;
+    }
 
-    final newMessage = Message(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      content: content,
-      timestamp: DateTime.now(),
-      isSent: true,
-      status: 'sent',
+    final listData = await ChatLocalDb.instance.getConversationListData(
+      activeUserId: active.userId,
     );
 
+    if (!mounted) {
+      return;
+    }
+
     setState(() {
-      _messages.add(newMessage);
+      _activeUser = active;
+      _data = listData;
+      _loading = false;
     });
-
-    _messageController.clear();
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.year}/${date.month}/${date.day}';
+  Future<void> _openConversation(ConversationPeer peer) async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => ConversationPage(peer: peer)),
+    );
+    if (changed == true) {
+      await _load();
+    }
   }
 
-  String _formatTime(DateTime date) {
-    return '${date.year}/${date.month}/${date.day} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  Future<void> _openTopSafetySheet() async {
+    if (_data == null) {
+      return;
+    }
+
+    final target = _data!.chatted.isNotEmpty
+        ? _data!.chatted.first
+        : (_data!.newMatches.isNotEmpty ? _data!.newMatches.first : null);
+    if (target == null) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('暂无可操作的配对用户')));
+      return;
+    }
+
+    final result = await showSafetyToolboxSheet(
+      context,
+      peerName: target.peerName,
+      onUnmatchConfirmed: () =>
+          ChatLocalDb.instance.removePairAndMessages(target.pairId),
+      onBlockConfirmed: () =>
+          ChatLocalDb.instance.removePairAndMessages(target.pairId),
+    );
+
+    if (result == SafetySheetResult.unmatched ||
+        result == SafetySheetResult.blocked) {
+      await _load();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_activeUser == null || _data == null) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: Text('请先登录后查看聊天列表', style: TextStyle(fontSize: 16)),
+        ),
+      );
+    }
+
+    final count = _data!.newMatches.length + _data!.chatted.length;
+
     return Scaffold(
-      backgroundColor: Color(0xFF0A0E27),
-      appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          // 配对信息
-          _buildMatchInfo(),
-          
-          // 消息列表
-          Expanded(
-            child: _buildMessageList(),
-          ),
-
-          // 输入框
-          _buildInputBox(),
-        ],
-      ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: Color(0xFF1a1a1a),
-      leading: GestureDetector(
-        onTap: () => Navigator.pop(context),
-        child: Icon(Icons.arrow_back, color: Colors.white),
-      ),
-      title: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.network(
-              widget.chatSession.userAvatar,
-              width: 40,
-              height: 40,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey[700],
-                  ),
-                  child: Icon(Icons.person, color: Colors.grey),
-                );
-              },
-            ),
-          ),
-          SizedBox(width: 12),
-          Text(
-            widget.chatSession.userName,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.more_vert, color: Colors.white),
-          onPressed: () {},
-        ),
-      ],
-      elevation: 0,
-    );
-  }
-
-  Widget _buildMatchInfo() {
-    final matchedDate = _formatDate(widget.chatSession.matchedDate);
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 16),
-      color: Color(0xFF0A0E27),
-      child: Center(
-        child: Text(
-          '你已于 $matchedDate 与 ${widget.chatSession.userName} 配对',
-          style: TextStyle(
-            color: Colors.grey[400],
-            fontSize: 14,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMessageList() {
-    return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      itemCount: _messages.length,
-      itemBuilder: (context, index) {
-        final message = _messages[index];
-        
-        // 显示时间戳
-        Widget? timeSeparator;
-        if (index == 0 || _shouldShowTimeSeparator(index)) {
-          timeSeparator = Padding(
-            padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(
-              child: Text(
-                _formatTime(message.timestamp),
-                style: TextStyle(
-                  color: Colors.grey[600],
-                  fontSize: 12,
-                ),
-              ),
-            ),
-          );
-        }
-
-        return Column(
-          children: [
-            if (timeSeparator != null) timeSeparator,
-            Align(
-              alignment: message.isSent ? Alignment.centerRight : Alignment.centerLeft,
-              child: Container(
-                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: message.isSent ? Color(0xFF5B7EFF) : Colors.grey[800],
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  crossAxisAlignment: message.isSent ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _load,
+          child: ListView(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+                child: Row(
                   children: [
-                    Text(
-                      message.content,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
+                    const Expanded(
+                      child: Text(
+                        '聊天',
+                        style: TextStyle(
+                          fontSize: 44 / 2,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
-                    if (message.isSent && message.status == 'sent')
-                      Padding(
-                        padding: EdgeInsets.only(top: 4),
-                        child: Text(
-                          '已发送',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.shield,
+                        color: Color(0xFF283B66),
+                        size: 26,
+                      ),
+                    ),
+                    // Stack(
+                    //   clipBehavior: Clip.none,
+                    //   children: [
+                    //     IconButton(
+                    //       onPressed: _openTopSafetySheet,
+                    //       icon: const Icon(
+                    //         Icons.link,
+                    //         color: Color(0xFF283B66),
+                    //         size: 26,
+                    //       ),
+                    //     ),
+                    //     Positioned(
+                    //       right: 6,
+                    //       top: 6,
+                    //       child: Container(
+                    //         width: 18,
+                    //         height: 18,
+                    //         decoration: const BoxDecoration(
+                    //           color: Color(0xFFDF123B),
+                    //           shape: BoxShape.circle,
+                    //         ),
+                    //         child: const Center(
+                    //           child: Text(
+                    //             '1',
+                    //             style: TextStyle(
+                    //               color: Colors.white,
+                    //               fontSize: 11,
+                    //               fontWeight: FontWeight.w700,
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                  ],
+                ),
+              ),
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(16, 2, 16, 12),
+              //   child: Container(
+              //     height: 54,
+              //     decoration: BoxDecoration(
+              //       border: Border.all(color: const Color(0xFFE6E7ED)),
+              //       borderRadius: BorderRadius.circular(14),
+              //     ),
+              //     child: Row(
+              //       children: [
+              //         const SizedBox(width: 12),
+              //         const Icon(
+              //           Icons.search,
+              //           color: Color(0xFF6D7382),
+              //           size: 24,
+              //         ),
+              //         const SizedBox(width: 12),
+              //         Text(
+              //           '搜索 $count 个配对',
+              //           style: const TextStyle(
+              //             color: Color(0xFF505667),
+              //             fontSize: 21 / 1.2,
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              // const Divider(height: 1, color: Color(0xFFE9EAF0)),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '新的配对',
+                      style: TextStyle(
+                        fontSize: 37 / 2,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 126,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _data!.newMatches.length,
+                        separatorBuilder: (_, _) => const SizedBox(width: 14),
+                        itemBuilder: (context, index) {
+                          final item = _data!.newMatches[index];
+                          return GestureDetector(
+                            onTap: () => _openConversation(item),
+                            child: SizedBox(
+                              width: 90,
+                              child: Column(
+                                children: [
+                                  _avatar(item.peerName, item.peerAvatar, 88),
+                                  const SizedBox(height: 6),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          item.peerName,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontSize: 34 / 2,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                      if (item.isVerified)
+                                        const Padding(
+                                          padding: EdgeInsets.only(left: 3),
+                                          child: Icon(
+                                            Icons.verified,
+                                            color: Color(0xFF1D6AF5),
+                                            size: 14,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+                child: Row(
+                  children: [
+                    const Text(
+                      '消息',
+                      style: TextStyle(
+                        fontSize: 37 / 2,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    if (_unreadCount > 0)
+                      Container(
+                        width: 22,
+                        height: 22,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFD90E37),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$_unreadCount',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ),
                   ],
                 ),
               ),
-            ),
-            SizedBox(height: 12),
-          ],
-        );
-      },
+              ..._data!.chatted.map((item) {
+                return InkWell(
+                  onTap: () => _openConversation(item),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Stack(
+                              children: [
+                                _avatar(item.peerName, item.peerAvatar, 50),
+                                if (item.unreadCount > 0)
+                                  Positioned(
+                                    top: 2,
+                                    right: 2,
+                                    child: Container(
+                                      width: 12,
+                                      height: 12,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF11C35E),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Flexible(
+                                        child: Text(
+                                          item.peerName,
+                                          style: const TextStyle(
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                      if (item.isVerified)
+                                        const Padding(
+                                          padding: EdgeInsets.only(left: 5),
+                                          child: Icon(
+                                            Icons.verified,
+                                            size: 18,
+                                            color: Color(0xFF1E67F1),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    item.latestMessage ?? '近期活跃，马上配对！',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Color(0xFF515666),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (item.unreadCount > 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFD60D35),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  '${item.unreadCount}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        const Divider(height: 1, color: Color(0xFFE5E6ED)),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  bool _shouldShowTimeSeparator(int index) {
-    if (index == 0) return false;
-    final current = _messages[index].timestamp;
-    final previous = _messages[index - 1].timestamp;
-    final difference = current.difference(previous).inMinutes;
-    return difference > 5;
+  int get _unreadCount =>
+      _data?.chatted.fold<int>(0, (sum, item) => sum + item.unreadCount) ?? 0;
+
+  Widget _avatar(String name, String url, double size) {
+    if (url.isNotEmpty) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(18),
+        child: Image.network(
+          url,
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              _avatarFallback(name, size),
+        ),
+      );
+    }
+    return _avatarFallback(name, size);
   }
 
-  Widget _buildInputBox() {
+  Widget _avatarFallback(String name, double size) {
+    final initials = name.isEmpty ? '?' : name.substring(0, 1);
     return Container(
-      color: Color(0xFF0A0E27),
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 12,
-        bottom: 12 + MediaQuery.of(context).padding.bottom,
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: const Color(0xFFE7E8EE),
+        borderRadius: BorderRadius.circular(18),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[800],
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: TextField(
-                controller: _messageController,
-                style: TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: '键入一条消息',
-                  hintStyle: TextStyle(color: Colors.grey[600]),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-                onSubmitted: (_) => _sendMessage(),
-              ),
-            ),
+      child: Center(
+        child: Text(
+          initials,
+          style: TextStyle(
+            color: const Color(0xFF3D4150),
+            fontSize: size / 2.4,
+            fontWeight: FontWeight.w700,
           ),
-          SizedBox(width: 12),
-          GestureDetector(
-            onTap: _sendMessage,
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: Color(0xFF5B7EFF),
-                shape: BoxShape.circle,
-              ),
-              child: Center(
-                child: Text(
-                  '发送',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -13,6 +13,7 @@ import 'package:tinder_app/page/profile_edit/widget/profile_height_edit_sheet.da
 import 'package:tinder_app/page/profile_edit/widget/profile_interest_sheet.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_language_sheet.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_outfit_quiz_sheet.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_preview_widget.dart';
 
 import 'package:tinder_app/page/profile_edit/widget/profile_relationship_goal_sheet.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_sexual_orientation_selection_page.dart';
@@ -128,28 +129,6 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   }
 
   Widget _buildEditTab() {
-    // final moreItems = [
-    //   {'icon': Icons.nights_stay, 'label': '星座', 'value': '空'},
-    //   {'icon': Icons.school, 'label': '教育情况', 'value': '空'},
-    //   {'icon': Icons.family_restroom, 'label': '家庭计划', 'value': '空'},
-    //   {'icon': Icons.chat, 'label': '沟通风格', 'value': '空'},
-    //   {'icon': Icons.favorite, 'label': '爱的方式', 'value': '空'},
-    // ];
-
-    // final lifestyleItems = [
-    //   {'icon': Icons.pets, 'label': '宠物喜好', 'value': '鱼类'},
-    //   {'icon': Icons.local_bar, 'label': '饮酒', 'value': '少喝或不喝'},
-    //   {'icon': Icons.smoke_free, 'label': '你多久抽一次烟?', 'value': '不吸烟'},
-    //   {'icon': Icons.fitness_center, 'label': '健身情况', 'value': '每天'},
-    //   {'icon': Icons.alternate_email, 'label': '社交媒体活跃度', 'value': '空'},
-    // ];
-
-    // final welcomeChatItems = [
-    //   {'icon': Icons.nights_stay, 'label': '外出', 'value': '正在跳舞, 盛装打扮, ...'},
-    //   {'icon': Icons.weekend, 'label': '我的周末', 'value': '添加问答'},
-    //   {'icon': Icons.phone_iphone, 'label': '我和我的手机', 'value': '添加问答'},
-    // ];
-
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -394,7 +373,8 @@ class _ProfileEditPageState extends State<ProfileEditPage>
             children: [
               if (userProfileModel == null ||
                   (userProfileModel != null &&
-                      userProfileModel!.mediaUrls.length <= index))
+                  userProfileModel!.mediaUrls != null &&
+                      userProfileModel!.mediaUrls!.length <= index))
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 4, 4, 0),
                   child: Container(
@@ -410,15 +390,15 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 ),
 
               if (userProfileModel != null &&
-                  userProfileModel!.mediaUrls.length > index &&
-                  userProfileModel!.mediaUrls[index] != null)
+                  userProfileModel!.mediaUrls!.length > index &&
+                  userProfileModel!.mediaUrls?[index] != null)
                 Container(
                   padding: EdgeInsets.fromLTRB(0, 4, 4, 0),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     // clipBehavior: Clip.hardEdge, // 显式指定裁切行为（关键）
                     child: Image.file(
-                      File(userProfileModel!.mediaUrls[index]!),
+                      File(userProfileModel!.mediaUrls![index]),
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
@@ -433,15 +413,15 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 ),
 
               if (userProfileModel != null &&
-                  userProfileModel!.mediaUrls.length > index &&
-                  userProfileModel!.mediaUrls[index] != null)
+                  userProfileModel!.mediaUrls != null &&
+                  userProfileModel!.mediaUrls!.length > index)
                 Positioned(
                   top: 0,
                   right: 0,
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        userProfileModel!.mediaUrls.removeAt(index);
+                        userProfileModel!.mediaUrls?.removeAt(index);
                       });
                     },
                     child: Container(
@@ -476,8 +456,9 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   void _handlePhotoTap(int index) {
     // 如果已有图片，则不处理点击
     if (userProfileModel != null &&
-        userProfileModel!.mediaUrls.length > index &&
-        userProfileModel!.mediaUrls[index] != null) {
+    userProfileModel!.mediaUrls != null &&
+        userProfileModel!.mediaUrls!.length > index &&
+        userProfileModel!.mediaUrls?[index] != null) {
       return;
     }
     // 弹出底部选择框
@@ -539,7 +520,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
       if (image != null) {
         final String localPath = await _saveImageLocally(image.path);
         setState(() {
-          userProfileModel!.mediaUrls.add(localPath);
+          userProfileModel!.mediaUrls?.add(localPath);
         });
       }
     } catch (e) {
@@ -559,7 +540,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
       if (image != null) {
         final String localPath = await _saveImageLocally(image.path);
         setState(() {
-          userProfileModel!.mediaUrls.add(localPath);
+          userProfileModel!.mediaUrls?.add(localPath);
         });
       }
     } catch (e) {
@@ -1910,7 +1891,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   }
 
   Widget _buildPreviewTab() {
-    return const Center(child: Text('预览内容'));
+    return ProfilePreviewWidget(userProfile: userProfileModel!);
   }
 
   _buildAboutSheet() {

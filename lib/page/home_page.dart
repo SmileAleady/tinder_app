@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tinder_app/data/app_data.dart';
+import 'package:tinder_app/model/user_profile_model.dart';
 import 'package:tinder_app/widget/user_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,12 +16,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late AnimationController _nextCardController;
 
   // 用户数据列表
-  final List<Map<String, String>> users = [
-    {'name': 'Lee Na', 'age': '25', 'distance': '3公里远'},
-    {'name': 'Emma Smith', 'age': '23', 'distance': '5公里远'},
-    {'name': 'Sophia Chen', 'age': '26', 'distance': '2公里远'},
-    {'name': 'Jessica Wang', 'age': '24', 'distance': '4公里远'},
-  ];
+  List<UserProfileModel> users = [];
 
   int currentUserIndex = 0;
   Offset dragOffset = Offset.zero;
@@ -28,6 +25,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    users = OptionDataManager.getUserList();
     _dragController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
@@ -223,7 +221,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildBackUserCard(Map<String, String> user) {
+  Widget _buildBackUserCard(UserProfileModel user) {
     return Container(
       width: double.infinity,
       height: double.infinity,
@@ -293,7 +291,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   Row(
                     children: [
                       Text(
-                        user['name']!,
+                        user.nikeName,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 32,
@@ -302,7 +300,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        user['age']!,
+                        user.age.toString(),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 32,
@@ -322,7 +320,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        user['distance']!,
+                        "${user.distance ?? 0} km",
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 14,
@@ -339,7 +337,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildUserCard(Map<String, String> user) {
+  Widget _buildUserCard(UserProfileModel user) {
     return Transform.rotate(
       angle: cardRotationAngle,
       child: Container(
@@ -412,7 +410,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             ///跳转 UserPage
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => const UserPage(),
+                                builder: (context) =>
+                                    UserPage(userProfile: user),
                               ),
                             );
                           },
@@ -429,7 +428,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     Row(
                       children: [
                         Text(
-                          user['name']!,
+                          user.nikeName,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 32,
@@ -438,7 +437,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          user['age']!,
+                          user.age.toString(),
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 32,
@@ -458,7 +457,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          user['distance']!,
+                          "${user.distance ?? 0} km",
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 14,

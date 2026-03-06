@@ -1,0 +1,126 @@
+Sublime Text
+
+我正在操作主页MyHomePage界面
+图片与文字对应关系:
+
+一.UI设计
+	1.主页MyHomePage 在路径tinder_app/lib/main.dart中
+	    a.图片tab_a、tab_b、tab_c、tab_d、tab_e五个BottomNavigationBar需要1:1还原UI (间距、文字大小需要保持一致)
+
+
+	   
+	 
+二.业务逻辑
+	1.主页MyHomePage
+		a.选中BottomNavigationBar第一个时；HomePage背景颜色要设为黑色，BottomNavigationBar背景颜色设为黑色
+		a.选中BottomNavigationBar第二个时；SearchPage背景颜色要设为白色，BottomNavigationBar背景颜色设为白色
+		a.选中BottomNavigationBar第三个时；LikePage背景颜色要设为白色，BottomNavigationBar背景颜色设为白色
+		a.选中BottomNavigationBar第四个时；ChatPage背景颜色要设为白色，BottomNavigationBar背景颜色设为白色，并且顶部有分割线
+		a.选中BottomNavigationBar第五个时；ProfilePage背景颜色要设为白色，BottomNavigationBar背景颜色设为白色
+	
+三.数据补充
+	1.主页MyHomePage
+		a.切换BottomNavigationBar时候，展示的界面需要拉取最新的数据
+
+
+
+
+
+
+现在我在个人资料页面
+图片与文字对应关系:
+
+一.UI设计
+	1.个人资料页面 在路径tinder_app/lib/page/profile_page.dart中
+	    a.图片personal_a、personal_b、personal_c、personal_d，为同一个列表；需要1:1还原UI (间距、文字大小需要保持一致)
+	    b.点击superlike跳转到如图personal_super_like界面；需要1:1还原UI (间距、文字大小需要保持一致)
+	    c.点击boost弹出如图personal_boost弹窗；需要1:1还原UI (间距、文字大小需要保持一致)
+	    d.点击订阅套餐跳转到如图personal_dingyue界面；需要1:1还原UI (间距、文字大小需要保持一致)
+
+	   
+	 
+二.业务逻辑
+	1.个人资料页面
+		a.个人资料完善进度条数值根据当前用户的UserProfileModel中数据填充比例作为显示数值
+		b.至少3张照片；判断用户UserProfileModel模型中mediaUrls的数量，如果少于3张需要显示这个view，大于3张则隐藏
+		c.底部升级套餐可以横向滑动
+	
+三.数据补充
+	1.个人资料页面
+		a.页面数据与该用户的UserProfileModel同步，与本地数据库同步
+
+
+
+
+现在我在做登陆注册选择界面、登陆界面、注册界面
+图片与文字对应关系:
+
+一.UI设计
+	1.登陆注册选择界面 在路径tinder_app/lib/page/login/login_page.dart中
+	    a.图片login_a，需要1:1还原UI (间距、文字大小需要保持一致)
+	    b.点击图片login_a中的注册，跳转到登录页面，用邮箱登陆+密码+密码二次输入验证，UI你自行设计风格与图片login_a统一
+	    c.点击图片login_a中的登陆，跳转到登录页面，用邮箱登陆+密码，UI你自行设计风格与图片login_a统一
+	 
+二.业务逻辑
+	1.登陆注册选择界面 
+		b.输入邮箱+密码登陆，需要验证邮箱的正确性，邮箱验证通过后，输入密码，二次输入密码与第一次输入密码比对是否一致，不一致需要提示，注册成功，保存账号信息UserProfileModel，随机匹配生成userId（后续新用户注册不能与老用户userId重复），存入本地数据库
+		c.输入邮箱+密码登陆，需要验证邮箱的正确性，邮箱验证通过后，输入密码，对比本地数据库验证密码是否正确，正确的话登陆成功进入首页MyHomePage,保存这次的登陆信息，下次打开app直接进入首页MyHomePage
+	
+三.数据补充
+	1.登陆注册选择界面 
+		a.注册成功随机匹配生成userId（后续新用户注册不能与老用户userId重复），存入本地数据库
+		b.登陆成功，UserProfileModel中isActive保存登陆状态，写入数据库
+	
+
+
+
+现在我在做对话列表、对话界面
+图片与文字对应关系:
+
+
+
+一.UI设计
+	1.对话列表 在路径tinder_app/lib/page/chat/chat_page.dart中
+		a.图片conversation_list，需要1:1还原UI (间距、文字大小需要保持一致)
+		b.图片conversation_list右上角按钮点击弹出界面为图片report_sheet.jpg，需要1:1还原
+	2.对话界面 在路径tinder_app/lib/page/chat/conversation_page.dart中,如果没有conversation_page.dart文件需要自动创建
+		a.图片conversation_1界面是双方第一次聊天所展示的界面，需要1:1还原UI (间距、文字大小需要保持一致)
+		b.图片conversation_2界面是双方非第一次聊天所展示的界面，需要1:1还原UI (间距、文字大小需要保持一致)
+		c.对话界面右上角按钮点击弹出图片report_sheet弹窗
+		d.底部输入框输入文字、发送聊天内容并显示到界面上
+		
+	3.对话界面-举报弹窗
+	   a.图片report_sheet弹窗需要1:1还原UI (间距、文字大小需要保持一致)
+	4.点击片report_sheet弹窗第一项，弹出report_sheet_click_item_1图片上的UI，需要1:1还原UI (间距、文字大小需要保持一致)
+	5.点击片report_sheet弹窗第二项，弹出report_sheet_click_item_2_a界面，需要1:1还原UI (间距、文字大小需要保持一致)
+		a.按照顺序在同一个界面上布局：图片report_sheet_click_item_2_a、图片report_sheet_click_item_2_b、图片report_sheet_click_item_2_a、图片report_sheet_click_item_2_a、图片report_sheet_click_item_2_a UI逻辑
+	6.点击片report_sheet弹窗第三项，弹出report_sheet_click_item_3界面,需要1:1还原UI (间距、文字大小需要保持一致)
+	7.点击片report_sheet弹窗第三项，弹出report_sheet_click_item_4_a界面,需要1:1还原UI (间距、文字大小需要保持一致)
+	    a.图片report_sheet_click_item_4_a、图片report_sheet_click_item_4_b、图片report_sheet_click_item_4_c、图片report_sheet_click_item_4_d、图片report_sheet_click_item_4_e、图片report_sheet_click_item_4_f用同一个界面展示；需要1:1还原UI (间距、文字大小需要保持一致)
+	    b.顶部选中指南的时候显示图片report_sheet_click_item_4_a、图片report_sheet_click_item_4_b、图片report_sheet_click_item_4_c，用一个列表上下显示
+	    c.顶部选中工具的时候显示图片report_sheet_click_item_4_d、图片report_sheet_click_item_4_e，用一个列表上下显示
+	    d.顶部选中资源的时候显示图片report_sheet_click_item_4_f
+二.业务逻辑
+	1.对话列表
+		a.上方新的匹配，显示未与本人聊过天的用户，需要从本地数据库中拉取
+		b.下方聊天列表是与本人聊过天的用户列表，需要从本地数据库中拉取
+		c.下方列表cell中需要展示与该用户最新那次聊天内容
+		d.点击上方新匹配的用户和点击下方列表中用户都跳转到对话界面，首次聊天用户数据中标记为非第一次聊天
+	2.对话界面
+		a.进入对话界面，从本地数据库拉取与对方的聊天记录，没有记录表示第一次聊天，有记录表示非第一聊天；聊天界面，左侧展示对方发送的消息，右侧表示自己发送的消息，消息顺序是最新消息在最底部，支持滑动加载历史数据，每次加载十条数据，附带加载动画
+		b.点击左上角头像跳转UserPage界面
+		d.底部输入框输入文字、发送聊天内容需要存进本地数据库中，以便下次进入对话界面有历史数据
+		
+	3.对话界面-举报弹窗
+	   a.图片report_sheet弹窗需要1:1还原UI (间距、文字大小需要保持一致)
+	4.点击片report_sheet弹窗第一项，弹出report_sheet_click_item_1图片上的UI，点击【是的，取消配对】后关闭弹窗，退出聊天界面，从对话列表删除该用户，从本地聊天数据库删除该用户聊天记录
+	5.点击片report_sheet弹窗第二项，弹出report_sheet_click_item_2_a界面
+		a.按照顺序在同一个界面上布局：图片report_sheet_click_item_2_a、图片report_sheet_click_item_2_b、图片report_sheet_click_item_2_a、图片report_sheet_click_item_2_a、图片report_sheet_click_item_2_a UI逻辑
+	6.点击片report_sheet弹窗第三项，弹出report_sheet_click_item_3界面,点击【是的，屏蔽】后关闭弹窗，退出聊天界面，从对话列表删除该用户，从本地聊天数据库删除该用户聊天记录
+三.数据补充
+	1.对话列表
+		a.聊天列表数据需要本地存储起来，用户的聊天数据中包含userId与UserProfileModel中的userId关联起来
+	2.对话界面界面
+		a.发送消息需要存入与对方的聊天记录中
+		b.给对方发送消息后，切换到对方账号，对话列表要显示收到了新的消息
+	

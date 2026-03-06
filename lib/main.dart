@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:tinder_app/data/auth/user_auth_local_db.dart';
+import 'package:tinder_app/page/chat/chat_page.dart';
 import 'package:tinder_app/page/home_page.dart';
 import 'package:tinder_app/page/like_page.dart';
-import 'package:tinder_app/page/my_message_page.dart';
+import 'package:tinder_app/page/login/login_page.dart';
 import 'package:tinder_app/page/profile_page.dart';
 import 'package:tinder_app/page/search_page.dart';
 
@@ -12,45 +14,64 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Tinder App',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      routes: {'/home': (_) => const MyHomePage(title: 'Tinder')},
+      home: const AuthGate(),
     );
+  }
+}
+
+class AuthGate extends StatefulWidget {
+  const AuthGate({super.key});
+
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  bool _isLoading = true;
+  bool _hasActiveSession = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkSession();
+  }
+
+  Future<void> _checkSession() async {
+    final user = await UserAuthLocalDb.instance.getActiveUser();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _hasActiveSession = user != null;
+      _isLoading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator(color: Colors.white)),
+      );
+    }
+    if (_hasActiveSession) {
+      return const MyHomePage(title: 'Tinder');
+    }
+    return const LoginPage();
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -60,277 +81,195 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
-  late PageController _pageController;
-
-  double itemWidth = 0;
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
+  final List<int> _tabVersion = [0, 0, 0, 0, 0];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _tabVersion[index] = _tabVersion[index] + 1;
     });
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    itemWidth = MediaQuery.of(context).size.width / 5;
+    final isHomeTab = _selectedIndex == 0;
+    final pageBackground = isHomeTab ? Colors.black : Colors.white;
+
     return Scaffold(
-      body: Stack(
+      backgroundColor: pageBackground,
+      body: Container(color: pageBackground, child: _buildCurrentPage()),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Column(
-            children: [
-              if (_selectedIndex != 4) _customAppBar(),
-              Expanded(
-                child: PageView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  controller: _pageController,
-                  onPageChanged: (index) {
-                    setState(() {
-                      _selectedIndex = index;
-                    });
-                  },
-                  children: const [
-                    HomePage(),
-                    SearchPage(),
-                    LikePage(),
-                    MyMessagePage(),
-                    ProfilePage(),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          if (_selectedIndex == 3)
+            const Divider(height: 1, thickness: 1, color: Color(0xFFD1D7E2)),
+          _buildBottomNav(),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: SizedBox(
-              width: itemWidth,
-              child: Icon(
-                Icons.local_fire_department,
-                color: _selectedIndex == 0 ? Colors.red : Colors.grey,
-                size: 32,
-              ),
+    );
+  }
+
+  Widget _buildCurrentPage() {
+    final key = ValueKey('tab-$_selectedIndex-${_tabVersion[_selectedIndex]}');
+    switch (_selectedIndex) {
+      case 0:
+        return KeyedSubtree(key: key, child: HomePage());
+      case 1:
+        return KeyedSubtree(key: key, child: SearchPage());
+      case 2:
+        return KeyedSubtree(key: key, child: LikePage());
+      case 3:
+        return KeyedSubtree(key: key, child: ChatPage());
+      case 4:
+      default:
+        return KeyedSubtree(key: key, child: ProfilePage());
+    }
+  }
+
+  Widget _buildBottomNav() {
+    final isDark = _selectedIndex == 0;
+    final bg = isDark ? Colors.black : Colors.white;
+    final selectedColor = isDark ? Colors.white : const Color(0xFF151C2B);
+    final unselectedColor = isDark
+        ? const Color(0xFF6E7A90)
+        : const Color(0xFF7D8899);
+
+    return Container(
+      color: bg,
+      padding: EdgeInsets.only(
+        left: 6,
+        right: 6,
+        top: 6,
+        bottom: MediaQuery.of(context).padding.bottom + 8,
+      ),
+      child: Row(
+        children: [
+          _navItem(
+            index: 0,
+            label: '滑动',
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
+            iconBuilder: (selected, color) => Icon(
+              selected
+                  ? Icons.local_fire_department
+                  : Icons.local_fire_department_outlined,
+              color: color,
+              size: 36,
             ),
-            label: '',
           ),
-          BottomNavigationBarItem(
-            icon: SizedBox(
-              width: itemWidth,
-              child: Icon(
-                Icons.grid_view,
-                color: _selectedIndex == 1 ? Colors.red : Colors.grey,
-                size: 28,
-              ),
+          _navItem(
+            index: 1,
+            label: '探索',
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
+            iconBuilder: (selected, color) => Icon(
+              selected ? Icons.explore : Icons.explore_outlined,
+              color: color,
+              size: 34,
             ),
-            label: '',
           ),
-          BottomNavigationBarItem(
-            icon: SizedBox(
-              width: itemWidth,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Center(
-                    child: Icon(
-                      Icons.auto_awesome,
-                      color: _selectedIndex == 2 ? Colors.red : Colors.grey,
-                      size: 32,
+          _navItem(
+            index: 2,
+            label: '赞',
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
+            iconBuilder: (selected, color) => Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  selected ? Icons.favorite : Icons.favorite_border,
+                  color: color,
+                  size: 34,
+                ),
+                Positioned(
+                  top: -8,
+                  right: -12,
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF4C842),
+                      shape: BoxShape.circle,
                     ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        '20',
+                    child: const Center(
+                      child: Text(
+                        '21',
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1C2333),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            label: '',
           ),
-          BottomNavigationBarItem(
-            icon: SizedBox(
-              // color: Colors.yellow,
-              width: itemWidth,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Center(
-                    child: Icon(
-                      Icons.chat_bubble,
-                      color: _selectedIndex == 3 ? Colors.red : Colors.grey,
-                      size: 28,
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: itemWidth / 2 - 15,
-                    child: Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black, width: 2),
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+          _navItem(
+            index: 3,
+            label: '聊天',
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
+            iconBuilder: (selected, color) => Icon(
+              selected ? Icons.chat_bubble : Icons.chat_bubble_outline,
+              color: color,
+              size: 33,
             ),
-            label: '',
           ),
-          BottomNavigationBarItem(
-            icon: SizedBox(
-              width: itemWidth,
-              child: Icon(
-                Icons.person,
-                color: _selectedIndex == 4 ? Colors.red : Colors.grey,
-                size: 28,
-              ),
+          _navItem(
+            index: 4,
+            label: '个人资料',
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
+            iconBuilder: (selected, color) => Icon(
+              selected ? Icons.person : Icons.person_outline,
+              color: color,
+              size: 35,
             ),
-            label: '',
           ),
         ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.black,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
       ),
     );
   }
 
-  Widget _customAppBar() {
-    return Container(
-      color: Colors.black,
-      padding: EdgeInsets.fromLTRB(
-        16,
-        MediaQuery.of(context).padding.top,
-        16,
-        12,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Tinder Logo
-          Expanded(child: SizedBox()),
-          Center(
-            child: SizedBox(
-              height: 40,
-              width: 200,
-              child: Center(
-                child: Text(
-                  textAlign: TextAlign.center,
-                  '🔥 tinder',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+  Widget _navItem({
+    required int index,
+    required String label,
+    required Color selectedColor,
+    required Color unselectedColor,
+    required Widget Function(bool selected, Color color) iconBuilder,
+  }) {
+    final selected = _selectedIndex == index;
+    final color = selected ? selectedColor : unselectedColor;
+
+    return Expanded(
+      child: InkWell(
+        onTap: () => _onItemTapped(index),
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 40,
+                child: Center(child: iconBuilder(selected, color)),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 14,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 ),
               ),
-            ),
+            ],
           ),
-          // Shield Icon
-          Expanded(child: SizedBox()),
-          (_selectedIndex == 0 || _selectedIndex == 3)
-              ? Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[800],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey[600]!, width: 1),
-                  ),
-                  child: Icon(
-                    _selectedIndex == 0 ? Icons.light : Icons.shield,
-                    color: Colors.grey,
-                    size: 20,
-                  ),
-                )
-              : SizedBox(width: 40, height: 40),
-        ],
+        ),
       ),
     );
   }
-
-  //   Widget _customAppBar() {
-  //     return Container(
-  //       height: 80,
-  //       padding: const EdgeInsets.only(top: 30, left: 16, right: 16),
-  //       decoration: BoxDecoration(
-  //         color: Colors.white,
-  //         boxShadow: [
-  //           BoxShadow(
-  //             color: Colors.grey.withOpacity(0.5),
-  //             spreadRadius: 1,
-  //             blurRadius: 5,
-  //             offset: const Offset(0, 3), // changes position of shadow
-  //           ),
-  //         ],
-  //       ),
-  //       child: Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //         children: [
-  //           Expanded(
-  //             child: Center(
-  //               child: Row(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   const Icon(Icons.favorite, color: Colors.red, size: 28),
-  //                   const SizedBox(width: 8),
-  //                   const Text(
-  //                     'Tinder',
-  //                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //           ElevatedButton.icon(
-  //             onPressed: () {
-  //               // Handle button action
-  //             },
-  //             icon: const Icon(Icons.settings),
-  //             label: const Text('设置'),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-  //   }
 }

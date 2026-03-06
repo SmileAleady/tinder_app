@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:tinder_app/model/user_profile_model.dart';
 import 'package:tinder_app/page/search_page.dart';
 
 class UserPage extends StatefulWidget {
-  const UserPage({Key? key}) : super(key: key);
+  final UserProfileModel userProfile;
+  const UserPage({Key? key, required this.userProfile});
 
   @override
   State<UserPage> createState() => _UserPageState();
@@ -14,11 +16,7 @@ class _UserPageState extends State<UserPage> {
   bool _expandMoreInfo = false;
 
   // Mock data
-  final List<String> mockImages = [
-    'https://image.baidu.com/search/detail?adpicid=0&b_applid=12309896238352905915&bdtype=0&commodity=&copyright=&cs=3340368743%2C2111391895&di=7607122379617075201&fr=click-pic&fromurl=http%253A%252F%252Fbaijiahao.baidu.com%252Fs%253Fid%253D1828119827109804296%2526wfr%253Dspider%2526for%253Dpc&gsm=1e&hd=&height=0&hot=&ic=&ie=utf-8&imgformat=&imgratio=&imgspn=0&is=0%2C0&isImgSet=&latest=&lid=93148c30001390d2&lm=&objurl=https%253A%252F%252Fpic.rmb.bdstatic.com%252Fbjh%252Fnews%252F228d54deb1cb6486a3d76051938ebdea.png&os=2671159052%2C8343876&pd=image_content&pi=0&pn=26&rn=1&simid=3340368743%2C2111391895&tn=baiduimagedetail&width=0&word=图片&z=',
-    'https://image.baidu.com/search/detail?adpicid=0&b_applid=9551403121037131581&bdtype=0&commodity=&copyright=&cs=3390391108%2C3499469929&di=7607122379617075201&fr=click-pic&fromurl=http%253A%252F%252Fnews.qq.com%252Frain%252Fa%252F20250608A01XKD00&gsm=1e&hd=&height=0&hot=&ic=&ie=utf-8&imgformat=&imgratio=&imgspn=0&is=0%2C0&isImgSet=&latest=&lid=93148c30001390d2&lm=&objurl=https%253A%252F%252Finews.gtimg.com%252Fom_bt%252FOojfJshW933jMkcFS1etYIHNEKv9fxrDnTJvz2NUD90igAA%252F641&os=685985916%2C3969941930&pd=image_content&pi=0&pn=26&rn=1&simid=4111454%2C815428065&tn=baiduimagedetail&width=0&word=图片&z=',
-    'https://image.baidu.com/search/detail?adpicid=0&b_applid=9551403121037131581&bdtype=0&commodity=&copyright=&cs=1407085667%2C2235482246&di=7607122379617075201&fr=click-pic&fromurl=http%253A%252F%252Fview.inews.qq.com%252Fa%252F20240712A04T1B00&gsm=1e&hd=&height=0&hot=&ic=&ie=utf-8&imgformat=&imgratio=&imgspn=0&is=0%2C0&isImgSet=&latest=&lid=93148c30001390d2&lm=&objurl=https%253A%252F%252Finews.gtimg.com%252Fom_bt%252FOMMYjdrtBShYNcTp0JN8N2DC2WZ5b7f58sIh1UU78BAW4AA%252F641&os=1074203596%2C1346334942&pd=image_content&pi=0&pn=27&rn=1&simid=3571706977%2C493267477&tn=baiduimagedetail&width=0&word=图片&z=',
-  ];
+  List<String> mockImages = [];
 
   final List<SectionItem> _sections = [
     SectionItem(
@@ -121,6 +119,11 @@ class _UserPageState extends State<UserPage> {
   @override
   void initState() {
     super.initState();
+    mockImages =
+        (widget.userProfile.mediaUrls != null &&
+            widget.userProfile.mediaUrls!.isNotEmpty)
+        ? widget.userProfile.mediaUrls!
+        : [];
     _pageController = PageController();
   }
 
