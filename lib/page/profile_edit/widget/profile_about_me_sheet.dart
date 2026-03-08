@@ -13,19 +13,19 @@ class _ProfileAboutMeSheetState extends State<ProfileAboutMeSheet> {
 
   final List<Map<String, String>> _pages = [
     {
-      'title': '社群规则',
-      'subtitle': '"关于我"的快速提示',
-      'content': '社交媒体用户名不能出现在个人介绍中，如有出现，它们将会被删除。',
+      'title': 'Community Guidelines',
+      'subtitle': 'Quick tips for "About Me"',
+      'content': 'Social media usernames must not appear in your bio. If included, they will be removed.',
     },
     {
-      'title': '社群规则',
-      'subtitle': '"关于我"的快速提示',
-      'content': '请勿在个人资料中提及自己的性癖好。仅在获得聊天对象的同意后才在对话中提及。',
+      'title': 'Community Guidelines',
+      'subtitle': 'Quick tips for "About Me"',
+      'content': 'Do not mention sexual kinks in your profile. Only discuss them in chat with consent.',
     },
     {
-      'title': '社群规则',
-      'subtitle': '"关于我"的快速提示',
-      'content': '在这里只能建立个人联系，不能建立业务联系。',
+      'title': 'Community Guidelines',
+      'subtitle': 'Quick tips for "About Me"',
+      'content': 'This space is for personal connections only, not business networking.',
     },
   ];
 
@@ -107,12 +107,12 @@ class _ProfileAboutMeSheetState extends State<ProfileAboutMeSheet> {
                           text: const TextSpan(
                             style: TextStyle(color: Colors.grey, fontSize: 14),
                             children: [
-                              TextSpan(text: '详细了解我们的'),
+                              TextSpan(text: 'Learn more about our '),
                               TextSpan(
-                                text: '社群规则',
+                                text: 'Community Guidelines',
                                 style: TextStyle(color: Colors.blue),
                               ),
-                              TextSpan(text: '。'),
+                              TextSpan(text: '.'),
                             ],
                           ),
                         ),

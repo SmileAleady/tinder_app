@@ -4,6 +4,28 @@ enum SafetySheetResult { none, unmatched, blocked, reported }
 
 enum _SafetyAction { unmatch, report, block, safetyCenter }
 
+Future<bool> showBlockConfirmDialog(
+  BuildContext context, {
+  required String peerName,
+  Future<void> Function()? onConfirmed,
+}) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    barrierDismissible: true,
+    builder: (ctx) => _ConfirmActionDialog(
+      title: '要屏蔽$peerName吗?',
+      message: '此操作无法撤销，确定要继续吗？',
+      dangerText: '是的，屏蔽',
+      cancelText: '不，不要屏蔽',
+      pillStyle: true,
+    ),
+  );
+  if (confirmed == true) {
+    await onConfirmed?.call();
+  }
+  return confirmed == true;
+}
+
 Future<SafetySheetResult> showSafetyToolboxSheet(
   BuildContext context, {
   required String peerName,

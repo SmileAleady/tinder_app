@@ -1,4 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:tinder_app/data/auth/user_auth_local_db.dart';
+import 'package:tinder_app/data/home/home_swipe_local_db.dart';
 import 'package:tinder_app/model/user_profile_model.dart';
 
 /// 选项类型枚举（对应11张图的分类）
@@ -1234,10 +1238,112 @@ class OptionDataManager {
       },
     ];
 
+    final random = math.Random();
+    final imagePool = List<String>.generate(19, (i) => 'assets/user/$i.png');
+
     List<UserProfileModel> userList = json.map((userData) {
       return UserProfileModel.fromJson(userData);
     }).toList();
+    for (final user in userList) {
+      final perUserPool = List<String>.from(imagePool)..shuffle(random);
+      final count = 3 + random.nextInt(3);
+      user.mediaUrls
+        ..clear()
+        ..addAll(perUserPool.take(count));
+    }
     return userList;
+  }
+
+  /// 根据探索类型生成用户列表
+  static List<UserProfileModel> getUserListBySearchType(
+    String searchType, {
+    int count = 12,
+  }) {
+    final random = math.Random();
+    final all = getUserList();
+    final filtered = all.where((user) {
+      final type = searchType.toLowerCase();
+      final relationship = (user.relationshipGoal?.title ?? '').toLowerCase();
+      final about = user.aboutMe.toLowerCase();
+      final interests = user.interests
+          .map((e) => e.name.toLowerCase())
+          .join(' ');
+      final lifestyle =
+          '${user.lifestyle.fitness} ${user.lifestyle.drinking} ${user.lifestyle.petPreference}'
+              .toLowerCase();
+
+      if (type.contains('长期')) {
+        return relationship.contains('伴侣') ||
+            relationship.contains('灵魂') ||
+            about.contains('长期');
+      }
+      if (type.contains('短期')) {
+        return relationship.contains('新朋友') ||
+            relationship.contains('伙伴') ||
+            about.contains('社交');
+      }
+      if (type.contains('朋友')) {
+        return relationship.contains('朋友') || about.contains('朋友');
+      }
+      if (type.contains('旅行') || type.contains('自然')) {
+        return interests.contains('旅行') ||
+            interests.contains('户外') ||
+            about.contains('旅行');
+      }
+      if (type.contains('运动') || type.contains('健身')) {
+        return interests.contains('健身') ||
+            interests.contains('篮球') ||
+            lifestyle.contains('健身');
+      }
+      if (type.contains('音乐')) {
+        return interests.contains('音乐') ||
+            (user.favoriteSong?.title.isNotEmpty ?? false);
+      }
+      if (type.contains('美食') || type.contains('咖啡')) {
+        return interests.contains('美食') ||
+            about.contains('咖啡') ||
+            about.contains('烘焙');
+      }
+      if (type.contains('游戏')) {
+        return interests.contains('游戏') || interests.contains('数码');
+      }
+      if (type.contains('宠物')) {
+        return lifestyle.contains('猫') ||
+            lifestyle.contains('狗') ||
+            lifestyle.contains('宠');
+      }
+      if (type.contains('创意')) {
+        return interests.contains('摄影') ||
+            about.contains('油画') ||
+            about.contains('作家');
+      }
+      if (type.contains('自我关怀')) {
+        return interests.contains('冥想') ||
+            interests.contains('瑜伽') ||
+            about.contains('热爱生活');
+      }
+      return true;
+    }).toList();
+
+    final base = filtered.isEmpty ? all : filtered;
+    base.shuffle(random);
+    final selected = <UserProfileModel>[];
+    for (var i = 0; i < count; i++) {
+      final source = base[i % base.length];
+      final raw = Map<String, dynamic>.from(source.toJson());
+      raw['userId'] = '${source.userId}_${searchType}_$i';
+      raw['distance'] = (1 + random.nextInt(30)).toDouble();
+      raw['age'] = 18 + random.nextInt(14);
+      selected.add(UserProfileModel.fromJson(raw));
+    }
+    return selected;
+  }
+
+  /// 当前用户点赞过的人（本地持久化）
+  static Future<List<UserProfileModel>> getUserlike() async {
+    final activeUser = await UserAuthLocalDb.instance.getActiveUser();
+    final activeUserId = activeUser?.userId ?? 'guest';
+    return HomeSwipeLocalDb.instance.getLikedUsers(activeUserId);
   }
 }
 

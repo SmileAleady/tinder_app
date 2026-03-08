@@ -35,9 +35,9 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   bool smartPhotoEnabled = true;
   String? selectedPrompt;
   String? selectedInterest;
-  String? relationshipGoal = '寻找长期的伴侣';
+  String? relationshipGoal = 'Looking for a long-term partner';
   String? height;
-  List<String> languages = ['English', '中文', '日本語'];
+  List<String> languages = ['English', 'Chinese', 'Japanese'];
   UserProfileModel? userProfileModel;
 
   @override
@@ -48,8 +48,8 @@ class _ProfileEditPageState extends State<ProfileEditPage>
 
     // 监听事件
     eventBus.on<PromptAnswerEvent>().listen((event) {
-      print('选择的提示: ${event.model.title}');
-      print('回答内容: ${event.model.content}');
+      print('Selected prompt: ${event.model.title}');
+      print('Response: ${event.model.content}');
       setState(() {
         // 根据需要处理文本，这里示例放到 aboutMe
         userProfileModel?.prompts.add(event.model);
@@ -110,7 +110,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
               ),
               const SizedBox(width: 12),
               const Text(
-                '编辑个人资料',
+                'Edit Profile',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
             ],
@@ -120,8 +120,8 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         UnderlineTabBar(
           controller: _tabController,
           tabs: const [
-            Tab(text: '编辑'),
-            Tab(text: '预览'),
+            Tab(text: 'Edit'),
+            Tab(text: 'Preview'),
           ],
         ),
       ],
@@ -167,9 +167,9 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           const SizedBox(height: 32),
           _buildLanguageSection(),
           const SizedBox(height: 32),
-          // 新增的“我的更多信息”和“生活方式”
+          // 新增的“More About Me”和“Lifestyle”
           _buildListInfoSection(
-            title: '我的更多信息',
+            title: 'More About Me',
             items: OptionDataManager.moreItems,
             onTap: (item) {
               _buildSheet(type: item.optionType);
@@ -177,7 +177,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           ),
           const SizedBox(height: 24),
           _buildListInfoSection(
-            title: '生活方式',
+            title: 'Lifestyle',
             items: OptionDataManager.lifestyleItems,
             onTap: (item) {
               _buildSheet(type: item.optionType);
@@ -185,7 +185,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           ),
           const SizedBox(height: 32),
           _buildListInfoSection(
-            title: '欢迎跟我聊天',
+            title: 'Talk to Me',
             items: OptionDataManager.welcomeChatItems,
             onTap: (item) {
               OutfitResult? initialResult;
@@ -228,7 +228,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 initialResult: initialResult,
                 onCompleted: (result) {
                   // 处理最终结果
-                  print('结果: ${result.combinedText}');
+                  print('Result: ${result.combinedText}');
                   setState(() {
                     if (item.optionType == SheetOptionType.goOut) {
                       userProfileModel?.chatPreference?.goingOut = [
@@ -256,7 +256,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 },
                 onDelete: () {
                   // 处理删除逻辑
-                  print('删除问答');
+                  print('Delete prompt');
                   setState(() {
                     if (item.optionType == SheetOptionType.goOut) {
                       userProfileModel?.chatPreference?.goingOut = [];
@@ -301,7 +301,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           Row(
             children: [
               const Text(
-                '媒体',
+                'Media',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: 4),
@@ -315,7 +315,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                   vertical: 4,
                 ),
                 child: const Text(
-                  '立即添加',
+                  'Add now',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -339,12 +339,12 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           // Media label and description
           const SizedBox(height: 8),
           const Text(
-            '最多上传9张照片。添加照片配文，彰显你的个性。',
+            'Upload up to 9 photos. Add captions to show your personality.',
             style: TextStyle(fontSize: 13, color: Colors.grey),
           ),
           const SizedBox(height: 8),
           const Text(
-            '查看如何选择照片，助你脱颖而出',
+            'See how to choose photos that help you stand out',
             style: TextStyle(fontSize: 13, color: Color(0xFF1E90FF)),
           ),
           const SizedBox(height: 16),
@@ -484,7 +484,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
             ),
             ListTile(
               leading: const Icon(Icons.photo_library, color: Colors.red),
-              title: const Text('从相册中选择'),
+              title: const Text('Choose from gallery'),
               onTap: () {
                 Navigator.pop(context);
                 _pickPhotoFromGallery(index);
@@ -492,7 +492,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt, color: Colors.red),
-              title: const Text('拍摄图片'),
+              title: const Text('Take photo'),
               onTap: () {
                 Navigator.pop(context);
                 _pickPhotoFromCamera(index);
@@ -501,7 +501,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
             const SizedBox(height: 8),
             ListTile(
               title: const Text(
-                '取消',
+                'Cancel',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey),
               ),
@@ -524,11 +524,11 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         });
       }
     } catch (e) {
-      debugPrint('相册选择失败: $e');
+      debugPrint('Failed to pick image from gallery: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('选择图片失败，请重试')));
+        ).showSnackBar(const SnackBar(content: Text('Failed to select image. Please try again.')));
       }
     }
   }
@@ -544,11 +544,11 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         });
       }
     } catch (e) {
-      debugPrint('拍摄图片失败: $e');
+      debugPrint('Failed to capture photo: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('拍摄图片失败，请重试')));
+        ).showSnackBar(const SnackBar(content: Text('Failed to capture photo. Please try again.')));
       }
     }
   }
@@ -575,7 +575,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
 
       return newPath;
     } catch (e) {
-      debugPrint('保存图片失败: $e');
+      debugPrint('Failed to save image: $e');
       rethrow;
     }
   }
@@ -695,13 +695,13 @@ class _ProfileEditPageState extends State<ProfileEditPage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSingleFieldSection('职位', '添加职位', important: true, percent: '+4%'),
+        _buildSingleFieldSection('Job Title', 'Add job title', important: true, percent: '+4%'),
         const SizedBox(height: 24),
-        _buildSingleFieldSection('公司', '添加公司', percent: '+2%'),
+        _buildSingleFieldSection('Company', 'Add company', percent: '+2%'),
         const SizedBox(height: 24),
-        _buildSingleFieldSection('学校', '添加学校', percent: '+4%'),
+        _buildSingleFieldSection('School', 'Add school', percent: '+4%'),
         const SizedBox(height: 24),
-        _buildSingleFieldSection('居住地', '添加城市'),
+        _buildSingleFieldSection('Living in', 'Add city'),
       ],
     );
   }
@@ -713,7 +713,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '照片选项',
+            'Photo Options',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 5),
@@ -727,7 +727,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  '智能照片',
+                  'Smart Photos',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
@@ -752,7 +752,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
 
           const SizedBox(height: 4),
           const Text(
-            '智能照片会一直测试你的所有个人资料\n照片，以找到最棒的一张。',
+            'Smart Photos keeps testing your profile photos to find the best-performing one.',
             style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
         ],
@@ -792,7 +792,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                     vertical: 2,
                   ),
                   child: const Text(
-                    '重要',
+                    'Important',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 11,
@@ -828,13 +828,13 @@ class _ProfileEditPageState extends State<ProfileEditPage>
               maxLines: 1,
               onChanged: (value) {
                 setState(() {
-                  if (title == '职位') {
+                  if (title == 'Job Title') {
                     userProfileModel?.jobTitle = value;
-                  } else if (title == '公司') {
+                  } else if (title == 'Company') {
                     userProfileModel?.company = value;
-                  } else if (title == '学校') {
+                  } else if (title == 'School') {
                     userProfileModel?.school = value;
-                  } else if (title == '居住地') {
+                  } else if (title == 'Living in') {
                     userProfileModel?.city = value;
                   }
                 });
@@ -855,7 +855,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           Row(
             children: [
               const Text(
-                '关于我',
+                'About Me',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: 8),
@@ -866,7 +866,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 child: const Text(
-                  '重要',
+                  'Important',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 11,
@@ -895,7 +895,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
             ),
             child: TextField(
               decoration: const InputDecoration(
-                hintText: '输入关于自己的内容',
+                hintText: 'Write something about yourself',
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
@@ -938,7 +938,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
               _buildAboutSheet();
             },
             child: const Text(
-              '“关于我”的快速提示',
+              'Quick prompts for "About Me"',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -948,7 +948,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           ),
           const SizedBox(height: 20),
 
-          // 第一行：关于我 + +10%
+          // 第一行：About Me + +10%
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: Row(
@@ -961,7 +961,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                       style: TextStyle(fontSize: 18, color: Colors.red),
                     ),
                     Text(
-                      '关于我',
+                      'About Me',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w500,
@@ -1022,9 +1022,9 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // 第二行：选择一条提示
+                      // 第二行：Choose a prompt
                       const Text(
-                        '选择一条提示',
+                        'Choose a prompt',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
@@ -1032,9 +1032,9 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                       ),
                       const SizedBox(height: 8),
 
-                      // 第三行：回答提示
+                      // 第三行：Answer prompt
                       const Text(
-                        '回答提示',
+                        'Answer prompt',
                         style: TextStyle(fontSize: 16, color: Colors.grey),
                       ),
                     ],
@@ -1123,7 +1123,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                   const SizedBox(height: 8),
                   // 副标题
                   Text(
-                    prompt.content ?? "暂无回答",
+                    prompt.content ?? "No answer yet",
                     style: const TextStyle(fontSize: 16, color: Colors.black54),
                   ),
                 ],
@@ -1170,7 +1170,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           .map((interest) => interest.name)
           .join(', ');
     } else {
-      showInterestsText = '添加兴趣';
+      showInterestsText = 'Add interests';
     }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -1180,7 +1180,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           Row(
             children: [
               const Text(
-                '兴趣',
+                'Interests',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
@@ -1243,7 +1243,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           const Text(
-            '交往目标',
+            'Relationship Goal',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
@@ -1277,7 +1277,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text(
-                    '我想要',
+                    'I want',
                     style: TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                   Expanded(child: SizedBox()),
@@ -1287,7 +1287,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                     (userProfileModel != null &&
                             userProfileModel!.relationshipGoal != null)
                         ? '${userProfileModel!.relationshipGoal!.emoji} ${userProfileModel!.relationshipGoal!.title}'
-                        : '寻找长期的伴侣',
+                        : 'Looking for a long-term partner',
                     style: const TextStyle(fontSize: 13, color: Colors.grey),
                   ),
                   const SizedBox(width: 8),
@@ -1314,13 +1314,13 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           (userProfileModel?.height?.cm != null &&
               userProfileModel?.height?.cm != 0)
           ? '${userProfileModel?.height?.cm ?? 0} cm'
-          : '未设置身高';
+          : 'Height not set';
     } else {
       showHeightText =
           (userProfileModel?.height?.feet != null &&
               userProfileModel?.height?.inch != null)
-          ? '${userProfileModel?.height?.feet} 英尺 ${userProfileModel?.height?.inch} 英寸'
-          : '未设置身高';
+          ? '${userProfileModel?.height?.feet} ft ${userProfileModel?.height?.inch} in'
+          : 'Height not set';
     }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -1328,13 +1328,13 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '身高',
+            'Height',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           GestureDetector(
             onTap: () {
-              // 一键唤起身高编辑弹窗
+              // 一键唤起HeightEdit弹窗
               ProfileHeightEditSheet.show(
                 context,
                 // 回显已保存的数值
@@ -1398,7 +1398,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           .map((language) => language.name)
           .join(', ');
     } else {
-      showLanguageText = '添加语言';
+      showLanguageText = 'Add languages';
     }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -1406,7 +1406,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '我会的语言',
+            'Languages I Speak',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
@@ -1457,7 +1457,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
       title = userProfileModel!.favoriteSong!.title;
       description = userProfileModel!.favoriteSong!.artist;
     } else {
-      title = '添加最爱歌曲';
+      title = 'Add favorite song';
       description = '';
     }
     return Padding(
@@ -1466,7 +1466,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '我的最爱歌曲',
+            'My favorite song',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
@@ -1477,13 +1477,13 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 MaterialPageRoute(
                   builder: (context) => ProfileSpotifySongSelectionWidget(
                     onNoFavoriteClick: (time) {
-                      print("点击'我不想要最爱歌曲'的时间: $time");
+                      print("Tapped 'I don't want a favorite song' at: $time");
                       setState(() {
                         userProfileModel?.favoriteSong = null;
                       });
                     },
                     onMusicSelected: (music) {
-                      print("选中的音乐: ${music.title} - ${music.artist}");
+                      print("Selected song: ${music.title} - ${music.artist}");
                       setState(() {
                         userProfileModel?.favoriteSong = music;
                       });
@@ -1553,7 +1553,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '我最喜欢的 Spotify 艺术家',
+            'My favorite Spotify artist',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
@@ -1565,7 +1565,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
             ),
             child: const TextField(
               decoration: InputDecoration(
-                hintText: '添加艺术家',
+                hintText: 'Add artist',
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
@@ -1577,7 +1577,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
             text: const TextSpan(
               children: [
                 TextSpan(
-                  text: '将 Spotify 添加进你的个人资料',
+                  text: 'Add Spotify to your profile',
                   style: TextStyle(fontSize: 12, color: Colors.red),
                 ),
               ],
@@ -1593,13 +1593,13 @@ class _ProfileEditPageState extends State<ProfileEditPage>
     if (userProfileModel != null && userProfileModel!.gender != null) {
       title = userProfileModel!.gender!.map((g) => g.name).join(', ');
     } else {
-      title = '添加性别';
+      title = 'Add gender';
     }
-    String description = '可见';
+    String description = 'Visible';
     if (userProfileModel != null && userProfileModel!.gender != null) {
-      //其中有一个可见，就为可见，否则为隐藏
+      //其中有一个Visible，就为Visible，否则为Hidden
       bool anyVisible = userProfileModel!.gender!.any((g) => g.isVisible);
-      description = anyVisible ? '可见' : '隐藏';
+      description = anyVisible ? 'Visible' : 'Hidden';
     } else {
       description = '';
     }
@@ -1609,7 +1609,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '性别',
+            'Gender',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
@@ -1619,11 +1619,11 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 context,
                 MaterialPageRoute(
                   builder: (context) => ProfileGenderSelectionPage(
-                    // 传入已选中的性别（回显）
+                    // 传入已选中的Gender（回显）
                     initialSelectedGenders: userProfileModel?.gender ?? [],
-                    // 接收选中的性别数组
+                    // 接收选中的Gender数组
                     onConfirm: (selectedGenders) {
-                      print('选中的性别：');
+                      print('Selected gender:');
                       setState(() {
                         userProfileModel?.gender = selectedGenders;
                       });
@@ -1677,16 +1677,16 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           .map((o) => o.name)
           .join(', ');
     } else {
-      title = '添加性取向';
+      title = 'Add sexual orientation';
     }
-    String description = '可见';
+    String description = 'Visible';
     if (userProfileModel != null &&
         userProfileModel!.sexualOrientation != null) {
-      //其中有一个可见，就为可见，否则为隐藏
+      //其中有一个Visible，就为Visible，否则为Hidden
       bool anyVisible = userProfileModel!.sexualOrientation!.any(
         (o) => o.isVisible,
       );
-      description = anyVisible ? '可见' : '隐藏';
+      description = anyVisible ? 'Visible' : 'Hidden';
     } else {
       description = '';
     }
@@ -1696,7 +1696,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            '性取向',
+            'Sexual orientation',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
@@ -1711,7 +1711,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                         userProfileModel?.sexualOrientation ?? [],
                     // 接收选中的性向数组
                     onConfirm: (selectedOrientations) {
-                      print('选中的性向：');
+                      print('Selected orientation:');
                       setState(() {
                         userProfileModel?.sexualOrientation =
                             selectedOrientations;
@@ -1767,7 +1767,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           Row(
             children: [
               const Text(
-                '管理您的个人资料',
+                'Manage your profile',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(width: 8),
@@ -1823,7 +1823,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      '不要显示我的年龄',
+                      'Do not show my age',
                       style: TextStyle(fontSize: 14, color: Colors.black),
                     ),
                     Transform.scale(
@@ -1862,7 +1862,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      '不显示我的距离',
+                      'Do not show my distance',
                       style: TextStyle(fontSize: 14, color: Colors.black),
                     ),
                     Transform.scale(
@@ -1912,7 +1912,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
       type: type, // 只需传枚举值
       // initialSelectedId: 'libra', // 可选：初始选中ID
       onCompleted: (selectedItem) {
-        print('选中的：${selectedItem.title}，ID：${selectedItem.id}');
+        print('Selected: ${selectedItem.title}, ID: ${selectedItem.id}');
         Navigator.pop(context);
       },
     );

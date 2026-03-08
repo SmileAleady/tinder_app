@@ -32,7 +32,7 @@ class _ProfileSpotifySongSelectionWidgetState
         ),
         title: const TextField(
           decoration: InputDecoration(
-            hintText: '搜索 Spotify 歌曲',
+            hintText: 'Search Spotify songs',
             border: InputBorder.none,
             prefixIcon: Icon(Icons.search),
           ),
@@ -41,10 +41,10 @@ class _ProfileSpotifySongSelectionWidgetState
       ),
       body: ListView(
         children: [
-          // 1. "我不想要最爱歌曲" 项
+          // 1. "I don't want a favorite song" item
           ListTile(
             leading: const Icon(Icons.not_interested),
-            title: const Text('我不想要最爱歌曲'),
+            title: const Text("I don't want a favorite song"),
             onTap: () {
               // 回调点击时间
               widget.onNoFavoriteClick(DateTime.now());
@@ -57,7 +57,7 @@ class _ProfileSpotifySongSelectionWidgetState
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Text(
-              'Spotify 上受欢迎',
+              'Popular on Spotify',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),

@@ -1,6 +1,8 @@
-import 'dart:ui';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:tinder_app/data/app_data.dart';
+import 'package:tinder_app/model/user_profile_model.dart';
 import 'package:tinder_app/page/upgrade/upgrade_page.dart';
 
 class LikePage extends StatefulWidget {
@@ -10,385 +12,947 @@ class LikePage extends StatefulWidget {
   State<LikePage> createState() => _LikePageState();
 }
 
-class _LikePageState extends State<LikePage> with TickerProviderStateMixin {
-  final List<String> tags = ['全部', '旅行', '电影', '音乐', '有个人标签'];
-  int selectedTag = 0;
-  late PageController _pageController;
+class _LikePageState extends State<LikePage> {
+  static const List<String> _likeTags = [
+    '全部',
+    '附近',
+    '有个人资料',
+    '照片已验证',
+    '旅行',
+    '电影',
+    '音乐',
+  ];
 
-  //是否需要升级
-  bool _isUpgrade = true;
+  int _tabIndex = 0;
+  String _selectedLikeTag = _likeTags.first;
+  bool _loading = true;
+  List<UserProfileModel> _likedUsers = <UserProfileModel>[];
+  _LikeFilterConfig _filter = _LikeFilterConfig.initial();
 
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _loadLikedUsers();
   }
 
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  void _onTagTap(int index) {
+  Future<void> _loadLikedUsers() async {
     setState(() {
-      selectedTag = index;
+      _loading = true;
     });
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 350),
-      curve: Curves.ease,
+    final users = await OptionDataManager.getUserlike();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _likedUsers = users;
+      _loading = false;
+    });
+  }
+
+  Future<void> _showFilterSheet() async {
+    final interestPool = <String>{
+      '旅行',
+      '电影',
+      '音乐',
+      ..._likedUsers.expand((u) => u.interests.map((e) => e.name)),
+    }.toList();
+
+    final result = await showModalBottomSheet<_LikeFilterConfig>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return _LikeFilterSheet(initial: _filter, allInterests: interestPool);
+      },
     );
+
+    if (result == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _filter = result;
+    });
+  }
+
+  bool _containsKeyword(String value, List<String> keywords) {
+    final lower = value.toLowerCase();
+    return keywords.any((k) => lower.contains(k.toLowerCase()));
+  }
+
+  bool _isVerified(UserProfileModel user) {
+    final hasVisibleGender =
+        (user.gender ?? <GenderModel>[]).any((item) => item.isVisible);
+    final hasVisibleOrientation =
+        (user.sexualOrientation ?? <SexualOrientationModel>[]).any(
+          (item) => item.isVisible,
+        );
+    return hasVisibleGender || hasVisibleOrientation;
+  }
+
+  bool _matchTag(UserProfileModel user) {
+    switch (_selectedLikeTag) {
+      case '全部':
+        return true;
+      case '附近':
+        return (user.distance ?? 999) <= 10;
+      case '有个人资料':
+        return user.aboutMe.trim().isNotEmpty;
+      case '照片已验证':
+        return _isVerified(user);
+      case '旅行':
+        return user.interests.any(
+          (i) => _containsKeyword(i.name, ['旅行', 'travel']),
+        );
+      case '电影':
+        return user.interests.any(
+          (i) => _containsKeyword(i.name, ['电影', 'movie', 'film']),
+        );
+      case '音乐':
+        return user.interests.any(
+          (i) => _containsKeyword(i.name, ['音乐', 'music']),
+        );
+      default:
+        return true;
+    }
+  }
+
+  bool _matchFilter(UserProfileModel user) {
+    final age = user.age ?? 18;
+    final distance = user.distance ?? 999;
+
+    if (distance > _filter.maxDistanceKm) {
+      return false;
+    }
+    if (age < _filter.minAge || age > _filter.maxAge) {
+      return false;
+    }
+    if (user.mediaUrls.length < _filter.minPhotos) {
+      return false;
+    }
+    if (_filter.onlyVerified && !_isVerified(user)) {
+      return false;
+    }
+    if (_filter.onlyHasProfile && user.aboutMe.trim().isEmpty) {
+      return false;
+    }
+    if (_filter.interests.isNotEmpty) {
+      final names = user.interests.map((e) => e.name).toList();
+      final ok = _filter.interests.any(
+        (selected) => names.any((item) => _containsKeyword(item, [selected])),
+      );
+      if (!ok) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  List<UserProfileModel> get _filteredLikeUsers {
+    return _likedUsers.where((u) => _matchTag(u) && _matchFilter(u)).toList();
+  }
+
+  List<UserProfileModel> get _topPickUsers {
+    final source = _likedUsers.where(_matchFilter).toList();
+    source.sort((a, b) {
+      final scoreA = (a.interests.length * 2) + (a.aboutMe.trim().isNotEmpty ? 2 : 0);
+      final scoreB = (b.interests.length * 2) + (b.aboutMe.trim().isNotEmpty ? 2 : 0);
+      return scoreB.compareTo(scoreA);
+    });
+    return source;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF101014),
+      backgroundColor: const Color(0xFFF5F6F8),
       body: SafeArea(
-        child: Stack(
-          children: [
-            Container(
-              child: Column(
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
                     child: Text(
-                      '20 次赞',
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      '赞',
+                      style: TextStyle(
+                        color: Color(0xFF1E2432),
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
-                  const Divider(color: Colors.white24, thickness: 1),
-                  SizedBox(
-                    height: 48,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      itemCount: tags.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final isSelected = selectedTag == index;
-                        return GestureDetector(
-                          onTap: () => _onTagTap(index),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: isSelected
-                                  ? Colors.white12
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: isSelected
-                                    ? Colors.white
-                                    : Colors.white24,
-                                width: 1.5,
-                              ),
-                            ),
-                            child: Text(
-                              tags[index],
-                              style: TextStyle(
-                                color: isSelected
-                                    ? Colors.white
-                                    : Colors.white70,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  if (_isUpgrade)
-                    Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Center(
-                        child: Text(
-                          textAlign: TextAlign.center,
-                          '升级至 Gold 来看看赞过你的人。',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (!_isUpgrade) const SizedBox(height: 12),
+                  _buildTabs(),
                   Expanded(
-                    child: PageView.builder(
-                      controller: _pageController,
-                      itemCount: tags.length,
-                      onPageChanged: (index) {
-                        setState(() {
-                          selectedTag = index;
-                        });
-                      },
-                      itemBuilder: (context, pageIndex) {
-                        // return _WaterfallGrid(tag: tags[pageIndex]);
-                        return _WaterfallGrid(tag: tags[pageIndex]);
-                      },
-                    ),
+                    child: _tabIndex == 0
+                        ? _buildLikeTab(_filteredLikeUsers)
+                        : _buildTopPickTab(_topPickUsers),
                   ),
                 ],
               ),
+      ),
+    );
+  }
+
+  Widget _buildTabs() {
+    return Container(
+      height: 58,
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFFD5D8DF))),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: _tabButton('20 次赞', 0)),
+          Container(width: 1, height: 36, color: const Color(0xFFD4D7DE)),
+          Expanded(child: _tabButton('最佳精选', 1)),
+        ],
+      ),
+    );
+  }
+
+  Widget _tabButton(String title, int index) {
+    final selected = _tabIndex == index;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _tabIndex = index;
+        });
+      },
+      child: Column(
+        children: [
+          const Spacer(),
+          Text(
+            title,
+            style: TextStyle(
+              color: selected ? const Color(0xFF1F2533) : const Color(0xFF778192),
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
             ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 16,
-              child: Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(32),
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFFE082), Color(0xFFFFC107)],
-                    ),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black26, blurRadius: 8),
+          ),
+          const Spacer(),
+          Container(
+            height: 2,
+            color: selected ? const Color(0xFFFF2D63) : Colors.transparent,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLikeTab(List<UserProfileModel> users) {
+    return Stack(
+      children: [
+        RefreshIndicator(
+          onRefresh: _loadLikedUsers,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(0, 8, 0, 104),
+            children: [
+              SizedBox(
+                height: 48,
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _likeTags.length + 1,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return InkWell(
+                        onTap: _showFilterSheet,
+                        borderRadius: BorderRadius.circular(24),
+                        child: Container(
+                          width: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: const Color(0xFFC4C9D3), width: 1.4),
+                          ),
+                          child: const Icon(Icons.tune, color: Color(0xFF7A8394), size: 22),
+                        ),
+                      );
+                    }
+
+                    final tag = _likeTags[index - 1];
+                    final selected = _selectedLikeTag == tag;
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedLikeTag = tag;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(24),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(
+                            color: selected ? const Color(0xFF8A93A3) : const Color(0xFFC4C9D3),
+                            width: 1.4,
+                          ),
+                          color: selected ? const Color(0xFFEDEFF3) : Colors.transparent,
+                        ),
+                        child: Center(
+                          child: Text(
+                            tag,
+                            style: const TextStyle(
+                              color: Color(0xFF667184),
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  '升级至 Gold 来查看给你点赞的人。',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF2D3444),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  '全部获赞',
+                  style: TextStyle(
+                    color: Color(0xFF1E2432),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildUserGrid(users, topPickMode: false),
+            ],
+          ),
+        ),
+        _bottomActionButton(
+          title: '查看给你点赞的人',
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const UpgradePage()),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTopPickTab(List<UserProfileModel> users) {
+    return Stack(
+      children: [
+        RefreshIndicator(
+          onRefresh: _loadLikedUsers,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(0, 8, 0, 104),
+            children: [
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  '升级至 Tinder Gold™ 以获得更多最佳精选!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF2D3444),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w500,
+                    height: 1.3,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+              _buildUserGrid(users, topPickMode: true),
+            ],
+          ),
+        ),
+        _bottomActionButton(
+          title: '解锁所有最佳精选',
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const UpgradePage()),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUserGrid(List<UserProfileModel> users, {required bool topPickMode}) {
+    if (users.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: Text(
+          '暂无用户数据',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Color(0xFF7A8292), fontSize: 16),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.72,
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+        ),
+        itemCount: users.length,
+        itemBuilder: (context, index) {
+          final user = users[index];
+          return _LikeUserCard(user: user, topPickMode: topPickMode);
+        },
+      ),
+    );
+  }
+
+  Widget _bottomActionButton({required String title, required VoidCallback onTap}) {
+    return Positioned(
+      left: 16,
+      right: 16,
+      bottom: 16,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          height: 50,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFCE06D), Color(0xFFF3C629)],
+            ),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: Color(0xFF232B3A),
+              fontSize: 17,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LikeUserCard extends StatelessWidget {
+  final UserProfileModel user;
+  final bool topPickMode;
+
+  const _LikeUserCard({required this.user, required this.topPickMode});
+
+  Widget _buildImage() {
+    if (user.mediaUrls.isNotEmpty) {
+      final path = user.mediaUrls.first;
+      if (path.startsWith('assets/')) {
+        return Image(image: AssetImage(path), fit: BoxFit.cover);
+      }
+      if (path.startsWith('http')) {
+        return Image.network(path, fit: BoxFit.cover);
+      }
+      return Image.file(File(path), fit: BoxFit.cover);
+    }
+
+    return Container(
+      color: const Color(0xFFC5C9D3),
+      alignment: Alignment.center,
+      child: Text(
+        user.nikeName.isNotEmpty ? user.nikeName[0] : 'U',
+        style: const TextStyle(
+          color: Color(0xFF4C5363),
+          fontSize: 17,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      child: Stack(
+        children: [
+          Positioned.fill(child: _buildImage()),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.05),
+                    Colors.black.withValues(alpha: 0.75),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            left: 10,
+            right: 10,
+            bottom: 10,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${user.nikeName.isEmpty ? 'User' : user.nikeName}, ${user.age ?? 20}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        topPickMode
+                            ? '剩余 5 小时'
+                            : '距离 ${(user.distance ?? 0).round()} 公里',
+                        style: TextStyle(
+                          color: topPickMode
+                              ? const Color(0xFFF3C62B)
+                              : Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ],
                   ),
-                  child: Center(
-                    child: Text(
-                      '查看给你点赞的人',
-                      style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                ),
+                if (topPickMode)
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF4F7FB),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.star, color: Color(0xFF20C5F5), size: 24),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LikeFilterConfig {
+  final double maxDistanceKm;
+  final int minAge;
+  final int maxAge;
+  final int minPhotos;
+  final Set<String> interests;
+  final bool onlyVerified;
+  final bool onlyHasProfile;
+
+  const _LikeFilterConfig({
+    required this.maxDistanceKm,
+    required this.minAge,
+    required this.maxAge,
+    required this.minPhotos,
+    required this.interests,
+    required this.onlyVerified,
+    required this.onlyHasProfile,
+  });
+
+  factory _LikeFilterConfig.initial() {
+    return const _LikeFilterConfig(
+      maxDistanceKm: 161,
+      minAge: 18,
+      maxAge: 100,
+      minPhotos: 1,
+      interests: <String>{},
+      onlyVerified: false,
+      onlyHasProfile: false,
+    );
+  }
+
+  _LikeFilterConfig copyWith({
+    double? maxDistanceKm,
+    int? minAge,
+    int? maxAge,
+    int? minPhotos,
+    Set<String>? interests,
+    bool? onlyVerified,
+    bool? onlyHasProfile,
+  }) {
+    return _LikeFilterConfig(
+      maxDistanceKm: maxDistanceKm ?? this.maxDistanceKm,
+      minAge: minAge ?? this.minAge,
+      maxAge: maxAge ?? this.maxAge,
+      minPhotos: minPhotos ?? this.minPhotos,
+      interests: interests ?? this.interests,
+      onlyVerified: onlyVerified ?? this.onlyVerified,
+      onlyHasProfile: onlyHasProfile ?? this.onlyHasProfile,
+    );
+  }
+}
+
+class _LikeFilterSheet extends StatefulWidget {
+  final _LikeFilterConfig initial;
+  final List<String> allInterests;
+
+  const _LikeFilterSheet({required this.initial, required this.allInterests});
+
+  @override
+  State<_LikeFilterSheet> createState() => _LikeFilterSheetState();
+}
+
+class _LikeFilterSheetState extends State<_LikeFilterSheet> {
+  late _LikeFilterConfig _draft;
+
+  @override
+  void initState() {
+    super.initState();
+    _draft = widget.initial;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final sortedInterests = widget.allInterests.toSet().toList()..sort();
+
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.88,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF5F6F8),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close, color: Color(0xFF7A8394), size: 30),
+                ),
+                const Expanded(
+                  child: Text(
+                    '点赞分组',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color(0xFF1E2432),
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 48),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: Color(0xFFD2D7E0)),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.only(bottom: 8),
+              children: [
+                _sectionTitle('最大距离', '${_draft.maxDistanceKm.round()}+ 公里'),
+                Slider(
+                  value: _draft.maxDistanceKm,
+                  min: 1,
+                  max: 161,
+                  activeColor: const Color(0xFFFF2D63),
+                  onChanged: (value) {
+                    setState(() {
+                      _draft = _draft.copyWith(maxDistanceKm: value);
+                    });
+                  },
+                ),
+                const Divider(height: 1, color: Color(0xFFD2D7E0)),
+                _sectionTitle('年龄范围', '${_draft.minAge}-${_draft.maxAge}+ 岁'),
+                RangeSlider(
+                  values: RangeValues(_draft.minAge.toDouble(), _draft.maxAge.toDouble()),
+                  min: 18,
+                  max: 100,
+                  activeColor: const Color(0xFFFF2D63),
+                  onChanged: (value) {
+                    setState(() {
+                      _draft = _draft.copyWith(
+                        minAge: value.start.round(),
+                        maxAge: value.end.round(),
+                      );
+                    });
+                  },
+                ),
+                const Divider(height: 1, color: Color(0xFFD2D7E0)),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Text(
+                    '最少照片数',
+                    style: TextStyle(
+                      color: Color(0xFF2A3141),
+                      fontSize: 17,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: List.generate(9, (idx) {
+                      final value = idx + 1;
+                      final selected = _draft.minPhotos == value;
+                      return InkWell(
+                        onTap: () {
+                          setState(() {
+                            _draft = _draft.copyWith(minPhotos: value);
+                          });
+                        },
+                        borderRadius: BorderRadius.circular(999),
+                        child: Container(
+                          width: 46,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: selected
+                                  ? const Color(0xFFFF2D63)
+                                  : const Color(0xFFC4C9D3),
+                              width: 1.5,
+                            ),
+                            color: selected ? const Color(0xFFFFE8EF) : Colors.transparent,
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '$value',
+                            style: const TextStyle(
+                              color: Color(0xFF5D6676),
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Divider(height: 1, color: Color(0xFFD2D7E0)),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Text(
+                    '兴趣',
+                    style: TextStyle(
+                      color: Color(0xFF2A3141),
+                      fontSize: 17,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: sortedInterests.take(9).map((interest) {
+                      final selected = _draft.interests.contains(interest);
+                      return InkWell(
+                        onTap: () {
+                          final next = Set<String>.from(_draft.interests);
+                          if (selected) {
+                            next.remove(interest);
+                          } else {
+                            next.add(interest);
+                          }
+                          setState(() {
+                            _draft = _draft.copyWith(interests: next);
+                          });
+                        },
+                        borderRadius: BorderRadius.circular(999),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: selected
+                                  ? const Color(0xFFFF2D63)
+                                  : const Color(0xFFC4C9D3),
+                              width: 1.5,
+                            ),
+                            color: selected ? const Color(0xFFFFE8EF) : Colors.transparent,
+                          ),
+                          child: Text(
+                            interest,
+                            style: const TextStyle(
+                              color: Color(0xFF657084),
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 10, 16, 8),
+                  child: Text(
+                    '查看所有兴趣',
+                    style: TextStyle(
+                      color: Color(0xFFFF2D63),
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const Divider(height: 1, color: Color(0xFFD2D7E0)),
+                _checkRow(
+                  title: '照片已验证',
+                  value: _draft.onlyVerified,
+                  onChanged: (value) {
+                    setState(() {
+                      _draft = _draft.copyWith(onlyVerified: value);
+                    });
+                  },
+                ),
+                const Divider(height: 1, color: Color(0xFFD2D7E0)),
+                _checkRow(
+                  title: '有个人资料',
+                  value: _draft.onlyHasProfile,
+                  onChanged: (value) {
+                    setState(() {
+                      _draft = _draft.copyWith(onlyHasProfile: value);
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, color: Color(0xFFD2D7E0)),
+          Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      _draft = _LikeFilterConfig.initial();
+                    });
+                  },
+                  child: const SizedBox(
+                    height: 60,
+                    child: Center(
+                      child: Text(
+                        '清空',
+                        style: TextStyle(
+                          color: Color(0xFF1E2432),
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
+              Container(width: 1, height: 60, color: const Color(0xFFD2D7E0)),
+              Expanded(
+                child: InkWell(
+                  onTap: () => Navigator.of(context).pop(_draft),
+                  child: const SizedBox(
+                    height: 60,
+                    child: Center(
+                      child: Text(
+                        '应用',
+                        style: TextStyle(
+                          color: Color(0xFF929BAA),
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: MediaQuery.of(context).padding.bottom),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionTitle(String left, String right) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Row(
+        children: [
+          Text(
+            left,
+            style: const TextStyle(
+              color: Color(0xFF2A3141),
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            right,
+            style: const TextStyle(
+              color: Color(0xFF2A3141),
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _checkRow({
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return SizedBox(
+      height: 62,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: Color(0xFF2A3141),
+                fontSize: 17,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const Spacer(),
+            Checkbox(
+              value: value,
+              onChanged: (v) => onChanged(v ?? false),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              side: const BorderSide(color: Color(0xFF8993A4), width: 2),
+              activeColor: const Color(0xFFFF2D63),
             ),
           ],
         ),
       ),
     );
-  }
-}
-
-class _WaterfallGrid extends StatelessWidget {
-  final String tag;
-  const _WaterfallGrid({required this.tag});
-
-  @override
-  Widget build(BuildContext context) {
-    // 模拟数据
-    final List<Map<String, String>> items = List.generate(
-      8,
-      (i) => {
-        'image': 'assets/user${i % 4 + 1}.jpg',
-        'title': '昵称${i + 1}',
-        'subtitle': '描述信息',
-      },
-    );
-
-    // return Container(
-    //   width: double.infinity,
-    //   height: double.infinity,
-    //   child: Column(
-    //     children: [
-    //       Padding(
-    //         padding: const EdgeInsets.symmetric(vertical: 16),
-    //         child: Text(
-    //           '升级至 Gold 来看看赞过你的人。',
-    //           style: const TextStyle(
-    //             color: Colors.white,
-    //             fontSize: 22,
-    //             fontWeight: FontWeight.bold,
-    //           ),
-    //         ),
-    //       ),
-
-    //       GridView.builder(
-    //         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-    //         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    //           crossAxisCount: 2,
-    //           crossAxisSpacing: 16,
-    //           mainAxisSpacing: 16,
-    //           childAspectRatio: 0.7,
-    //         ),
-    //         itemCount: items.length,
-    //         itemBuilder: (context, index) {
-    //           final item = items[index];
-    //           return _UserCard(item: item);
-    //         },
-    //       ),
-    //     ],
-    //   ),
-    // );
-
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      child: GridView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.7,
-        ),
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return _UserCard(item: item);
-        },
-      ),
-    );
-  }
-}
-
-class _UserCard extends StatelessWidget {
-  final Map<String, String> item;
-  const _UserCard({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (context) => const UpgradePage()));
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
-        child: SizedBox(
-          width: 328,
-          height: 408,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // 1. 背景层：可以替换为任意图片
-              Container(
-                color: Colors.grey[300],
-                child: const Center(child: FlutterLogo(size: 100)),
-              ),
-              // 2. 毛玻璃模糊层
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                child: Container(color: Colors.white.withOpacity(0.1)),
-              ),
-              // 3. 中心渐变暗区（模拟原图的模糊中心）
-              Center(
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        Colors.black.withOpacity(0.3),
-                        Colors.transparent,
-                      ],
-                      stops: const [0.0, 0.8],
-                    ),
-                  ),
-                ),
-              ),
-              // 4. 底部的两个圆角条
-              Positioned(
-                bottom: 30,
-                left: 20,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // 顶部白色条
-                    Container(
-                      width: 100,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    // 底部灰色条
-                    Container(
-                      width: 80,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[600],
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    // return Stack(
-    //   children: [
-    //     Container(
-    //       decoration: BoxDecoration(
-    //         color: Colors.white10,
-    //         borderRadius: BorderRadius.circular(18),
-    //         image: DecorationImage(
-    //           image: AssetImage(item['image']!),
-    //           fit: BoxFit.cover,
-    //           colorFilter: ColorFilter.mode(Colors.red, BlendMode.srcATop),
-    //         ),
-    //       ),
-    //     ),
-
-    //     Positioned(
-    //       bottom: 0,
-    //       left: 0,
-    //       right: 0,
-    //       child: Column(
-    //         mainAxisAlignment: MainAxisAlignment.end,
-    //         crossAxisAlignment: CrossAxisAlignment.start,
-    //         children: [
-    //           Padding(
-    //             padding: const EdgeInsets.symmetric(
-    //               horizontal: 12,
-    //               vertical: 8,
-    //             ),
-    //             child: Column(
-    //               crossAxisAlignment: CrossAxisAlignment.start,
-    //               children: [
-    //                 Container(
-    //                   height: 8,
-    //                   width: 80,
-    //                   decoration: BoxDecoration(
-    //                     color: Colors.white,
-    //                     borderRadius: BorderRadius.circular(8),
-    //                   ),
-    //                 ),
-    //                 const SizedBox(height: 8),
-    //                 Container(
-    //                   height: 8,
-    //                   width: 60,
-    //                   decoration: BoxDecoration(
-    //                     color: Colors.black26,
-    //                     borderRadius: BorderRadius.circular(8),
-    //                   ),
-    //                 ),
-    //               ],
-    //             ),
-    //           ),
-    //         ],
-    //       ),
-    //     ),
-    //   ],
-    // );
   }
 }

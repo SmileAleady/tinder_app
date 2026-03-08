@@ -235,7 +235,7 @@ class _ProfilePreviewWidgetState extends State<ProfilePreviewWidget> {
               ),
               const SizedBox(height: 16),
               // const Text(
-              //   "是的多多",
+              //   "Sample text",
               //   style: TextStyle(
               //     color: Colors.white,
               //     fontSize: 16,
@@ -258,7 +258,7 @@ class _ProfilePreviewWidgetState extends State<ProfilePreviewWidget> {
                   Icon(Icons.info_outline, color: Colors.white, size: 20),
                   SizedBox(width: 8),
                   Text(
-                    "基础和生活方式",
+                    "Basics and Lifestyle",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -321,7 +321,7 @@ class _ProfilePreviewWidgetState extends State<ProfilePreviewWidget> {
                   ),
                   SizedBox(width: 8),
                   Text(
-                    "Spotify 最爱歌曲",
+                    "Top Spotify Song",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -352,7 +352,7 @@ class _ProfilePreviewWidgetState extends State<ProfilePreviewWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _userProfile.favoriteSong?.title ?? "未知歌曲",
+                        _userProfile.favoriteSong?.title ?? "Unknown Song",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -361,7 +361,7 @@ class _ProfilePreviewWidgetState extends State<ProfilePreviewWidget> {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        _userProfile.favoriteSong?.artist ?? "未知艺术家",
+                        _userProfile.favoriteSong?.artist ?? "Unknown Artist",
                         style: TextStyle(color: Colors.white70, fontSize: 16),
                       ),
                       SizedBox(height: 8),
@@ -375,7 +375,7 @@ class _ProfilePreviewWidgetState extends State<ProfilePreviewWidget> {
                           ),
                           SizedBox(width: 4),
                           Text(
-                            "在 Spotify 上播放",
+                            "Play on Spotify",
                             style: TextStyle(
                               color: Color(0xFF1DB954),
                               fontSize: 14,

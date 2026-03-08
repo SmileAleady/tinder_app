@@ -1,129 +1,29 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:tinder_app/model/user_profile_model.dart';
-import 'package:tinder_app/page/search_page.dart';
+import 'package:tinder_app/page/chat/chat_safety_ui.dart';
+import 'package:tinder_app/widget/user_apply_page.dart';
+
+enum UserPageAction { close, dislike, like }
 
 class UserPage extends StatefulWidget {
   final UserProfileModel userProfile;
-  const UserPage({Key? key, required this.userProfile});
+  const UserPage({super.key, required this.userProfile});
 
   @override
   State<UserPage> createState() => _UserPageState();
 }
 
 class _UserPageState extends State<UserPage> {
-  late PageController _pageController;
-  int _currentImageIndex = 0;
-  bool _expandMoreInfo = false;
+  late final PageController _pageController;
+  int _currentImage = 0;
 
-  // Mock data
-  List<String> mockImages = [];
-
-  final List<SectionItem> _sections = [
-    SectionItem(
-      title: '我的更多信息',
-      array: [
-        CardItem(
-          title: '教育情况',
-          subtitle: '学士',
-          image: 'assets/long_term.png',
-          color: Colors.red.shade700,
-        ),
-        CardItem(
-          title: '人格类型',
-          subtitle: '水 ENTJ',
-          image: 'assets/short_term.png',
-          color: Colors.red.shade400,
-        ),
-        CardItem(
-          title: 'title - 3',
-          subtitle: '学士',
-          image: 'assets/long_term.png',
-          color: Colors.red.shade700,
-        ),
-        CardItem(
-          title: 'title - 4',
-          subtitle: '水 ENTJ',
-          image: 'assets/short_term.png',
-          color: Colors.red.shade400,
-        ),
-        CardItem(
-          title: 'title - 5',
-          subtitle: '学士',
-          image: 'assets/long_term.png',
-          color: Colors.red.shade700,
-        ),
-        CardItem(
-          title: 'title - 6',
-          subtitle: '水 ENTJ',
-          image: 'assets/short_term.png',
-          color: Colors.red.shade400,
-        ),
-        CardItem(
-          title: 'title - 7',
-          subtitle: '学士',
-          image: 'assets/long_term.png',
-          color: Colors.red.shade700,
-        ),
-        CardItem(
-          title: 'title - 8',
-          subtitle: '水 ENTJ',
-          image: 'assets/short_term.png',
-          color: Colors.red.shade400,
-        ),
-      ],
-    ),
-    SectionItem(
-      title: '生活方式',
-      array: [
-        CardItem(
-          title: '饮酒',
-          subtitle: '遇到特殊场合才喝',
-          image: 'assets/match_hobby.png',
-          color: Colors.green.shade700,
-        ),
-        CardItem(
-          title: '你多久抽一次烟？',
-          subtitle: '在社交时吸烟',
-          image: 'assets/match_hobby.png',
-          color: Colors.green.shade700,
-        ),
-        CardItem(
-          title: '健身情况',
-          subtitle: '每周锻炼3-4次',
-          image: 'assets/match_hobby.png',
-          color: Colors.green.shade700,
-        ),
-        CardItem(
-          title: '饮食偏好',
-          subtitle: '偏爱清淡口味',
-          image: 'assets/match_hobby.png',
-          color: Colors.green.shade700,
-        ),
-        CardItem(
-          title: '社交媒体活跃度',
-          subtitle: '◎ 不常上网',
-          image: 'assets/match_hobby.png',
-          color: Colors.green.shade700,
-        ),
-
-        CardItem(
-          title: '睡眠习惯',
-          subtitle: '时「',
-          image: 'assets/match_hobby.png',
-          color: Colors.green.shade700,
-        ),
-      ],
-    ),
-  ];
+  List<String> get _photos => widget.userProfile.mediaUrls;
 
   @override
   void initState() {
     super.initState();
-    mockImages =
-        (widget.userProfile.mediaUrls != null &&
-            widget.userProfile.mediaUrls!.isNotEmpty)
-        ? widget.userProfile.mediaUrls!
-        : [];
     _pageController = PageController();
   }
 
@@ -133,441 +33,562 @@ class _UserPageState extends State<UserPage> {
     super.dispose();
   }
 
-  void _onImageTap() {
-    int nextIndex = (_currentImageIndex + 1) % mockImages.length;
-    _pageController.animateToPage(
-      nextIndex,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+  void _close([UserPageAction action = UserPageAction.close]) {
+    Navigator.of(context).pop(action);
+  }
+
+  Future<void> _openApply(int initialIndex) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => UserApplyPage(
+          userProfile: widget.userProfile,
+          initialIndex: initialIndex,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openReport() async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => ReportFlowPage(peerName: widget.userProfile.nikeName),
+      ),
+    );
+  }
+
+  Future<void> _openBlockConfirm() async {
+    await showBlockConfirmDialog(
+      context,
+      peerName: widget.userProfile.nikeName,
+      onConfirmed: () async {
+        if (!mounted) {
+          return;
+        }
+        _close(UserPageAction.dislike);
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final user = widget.userProfile;
+
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: const Color(0xFFE9EAEC),
       body: Stack(
         children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                // 预留顶部空间
-                SizedBox(height: kToolbarHeight + 24),
-
-                // 轮播图
-                _buildCarouselBanner(),
-
-                // 基本信息及关键信息
-                _buildBasicInfo(),
-
-                // 更多信息部分
-                _buildMoreInfo(),
-                SizedBox(height: 80), // 底部按钮预留空间
-              ],
-            ),
-          ),
-
-          // 顶部固定AppBar
-          Positioned(top: 0, left: 0, right: 0, child: _buildTopBar()),
-
-          Positioned(
-            bottom: 16 + MediaQuery.of(context).padding.bottom,
-            left: 0,
-            right: 0,
-            child: // 底部操作按钮
-                _buildActionButtons(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTopBar() {
-    return Container(
-      color: const Color(0xFF1a1a1a),
-      padding: EdgeInsets.fromLTRB(
-        16,
-        MediaQuery.of(context).padding.top,
-        16,
-        0,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          // 左侧：日期和认证
-          Row(
-            children: [
-              const Text(
-                'Feb 27',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+          CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(child: _buildHeader(user)),
+              SliverToBoxAdapter(child: _buildPhotoCarousel()),
+              SliverToBoxAdapter(
+                child: _card(
+                  title: 'Looking For',
+                  replyIndex: 0,
+                  child: _titleLine(user.relationshipGoal?.title ?? 'Long-term'),
                 ),
               ),
-              const SizedBox(width: 8),
-              Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(50),
-                  border: Border.all(color: Colors.white, width: 2),
+              SliverToBoxAdapter(
+                child: _card(
+                  title: 'About Me',
+                  replyIndex: 1,
+                  child: _titleLine(user.aboutMe),
                 ),
-                child: const Icon(Icons.check, color: Colors.white, size: 16),
               ),
+              SliverToBoxAdapter(child: _buildKeyInfoCard(user)),
+              SliverToBoxAdapter(child: _buildLifestyleCard(user)),
+              SliverToBoxAdapter(child: _buildMoreInfoCard(user)),
+              ..._buildPromptCards(user),
+              if (user.favoriteSong != null)
+                SliverToBoxAdapter(child: _buildSongCard(user.favoriteSong!)),
+              SliverToBoxAdapter(
+                child: _actionRow('Share ${user.nikeName} profile'),
+              ),
+              SliverToBoxAdapter(
+                child: _actionRow(
+                  'Block ${user.nikeName}',
+                  onTap: () {
+                    _openBlockConfirm();
+                  },
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: _actionRow(
+                  'Report ${user.nikeName}',
+                  color: const Color(0xFFE8002A),
+                  onTap: () {
+                    _openReport();
+                  },
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 124)),
             ],
           ),
-          // 右侧：下载按钮
-          InkWell(
-            onTap: () {
-              // 关闭当前页
-              Navigator.of(context).pop();
-            },
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: const Color(0xFFFF4458),
-                borderRadius: BorderRadius.circular(50),
-              ),
-              child: const Icon(Icons.arrow_downward, color: Colors.white),
-            ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 16,
+            child: _buildBottomActions(),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildCarouselBanner() {
-    return Column(
-      children: [
-        // 顶部指示器
-        Padding(
-          padding: const EdgeInsets.only(top: 12, bottom: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(mockImages.length, (index) {
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                height: 3,
-                width: 20,
-                decoration: BoxDecoration(
-                  color: _currentImageIndex == index
-                      ? Colors.grey[400]
-                      : Colors.grey[700],
-                  borderRadius: BorderRadius.circular(2),
+  Widget _buildHeader(UserProfileModel user) {
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 6, 16, 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                '${user.nikeName}, ${user.age ?? 0}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF202633),
                 ),
-              );
-            }),
-          ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            InkWell(
+              onTap: () => _close(UserPageAction.close),
+              borderRadius: BorderRadius.circular(18),
+              child: const CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.black,
+                child: Icon(
+                  Icons.arrow_downward,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ),
+          ],
         ),
-        // 轮播图
-        SizedBox(
-          height: 400,
-          child: PageView.builder(
-            controller: _pageController,
-            itemCount: mockImages.length,
-            onPageChanged: (index) {
-              setState(() {
-                _currentImageIndex = index;
-              });
-            },
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: _onImageTap,
-                child: Container(
-                  color: Colors.grey[800],
-                  child: Image.network(
-                    mockImages[index],
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Center(
-                        child: Text(
-                          'Image ${index + 1}',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      );
+      ),
+    );
+  }
+
+  Widget _buildPhotoCarousel() {
+    final photos = _photos;
+    final total = photos.isEmpty ? 1 : photos.length;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: const Color(0xFFD9DADF),
+      ),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 480,
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: PageView.builder(
+                    controller: _pageController,
+                    itemCount: total,
+                    onPageChanged: (value) {
+                      setState(() {
+                        _currentImage = value;
+                      });
+                    },
+                    itemBuilder: (_, index) {
+                      if (photos.isEmpty) {
+                        return Container(color: const Color(0xFFBFC2CB));
+                      }
+                      final path = photos[index];
+                      if (path.startsWith('assets/')) {
+                        return Image(
+                          image: AssetImage(path),
+                          fit: BoxFit.cover,
+                        );
+                      }
+                      if (path.startsWith('http')) {
+                        return Image.network(path, fit: BoxFit.cover);
+                      }
+                      return Image.file(File(path), fit: BoxFit.cover);
                     },
                   ),
                 ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBasicInfo() {
-    return Container(
-      color: Colors.grey[900],
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 搜索栏：我想要
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.grey[800],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.search, color: Colors.grey[500], size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  '我想要',
-                  style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // 我还在思考
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.grey[800],
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                const Text('🤔', style: TextStyle(fontSize: 20)),
-                const SizedBox(width: 12),
-                const Text(
-                  '我还在思考',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // 关键信息
-          Text(
-            '关键信息',
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // 距离
-          _buildInfoItem('📍', '50 公里远'),
-          const SizedBox(height: 12),
-
-          // 身高
-          _buildInfoItem('📏', '170 厘米'),
-          const SizedBox(height: 12),
-
-          // 职业
-          _buildInfoItem('💼', '律师助理'),
-          const SizedBox(height: 12),
-
-          // 学校
-          _buildInfoItem('🎓', '东吴大学'),
-          const SizedBox(height: 12),
-
-          // 居住地
-          _buildInfoItem('🏠', '居住 某某市'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoItem(String icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[700]!, width: 0.5),
-        ),
-      ),
-      child: Row(
-        children: [
-          Text(icon, style: const TextStyle(fontSize: 18)),
-          const SizedBox(width: 12),
-          Text(text, style: const TextStyle(color: Colors.white, fontSize: 14)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButtons() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildActionButton('❌', Colors.grey[700]!),
-          const SizedBox(width: 20),
-          _buildActionButton('⭐', const Color(0xFF4444FF)),
-          const SizedBox(width: 20),
-          _buildActionButton('💚', const Color(0xFFAAFF00)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton(String emoji, Color bgColor) {
-    return Container(
-      width: 60,
-      height: 60,
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(50),
-      ),
-      child: Center(child: Text(emoji, style: const TextStyle(fontSize: 28))),
-    );
-  }
-
-  Widget _buildMoreInfo() {
-    // 计算总信息数量
-    int totalItems = _sections.fold(
-      0,
-      (sum, section) => sum + section.array.length,
-    );
-
-    return Container(
-      color: Colors.grey[900],
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 遍历 _sections 来生成内容
-          ..._sections
-              .expand(
-                (section) => [
-                  _buildSectionTitle(section.title),
-                  const SizedBox(height: 12),
-                  ...section.array
-                      .take(_expandMoreInfo ? section.array.length : 4)
-                      .expand(
-                        (item) => [
-                          _buildSectionSubtitle(item.title),
-                          _buildInfoText(item.subtitle),
-                          const SizedBox(height: 12),
-                        ],
-                      )
-                      .toList(),
-                  if (section.array.length > 4) const SizedBox(height: 12),
-                  // 查看所有信息
-                  if (section.array.length > 4)
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _expandMoreInfo = !_expandMoreInfo;
-                          });
-                        },
-                        child: Text(
-                          _expandMoreInfo
-                              ? '收起 ˄'
-                              : '查看所有 ${section.array.length} 项信息 ˅',
-                          style: TextStyle(
-                            color: Colors.grey[500],
-                            fontSize: 12,
+                Positioned(
+                  top: 10,
+                  left: 16,
+                  right: 16,
+                  child: Row(
+                    children: List.generate(
+                      total,
+                      (i) => Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
+                          height: 4,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(99),
+                            color: i == _currentImage
+                                ? Colors.white
+                                : Colors.black.withValues(alpha: 0.35),
                           ),
                         ),
                       ),
                     ),
-                ],
-              )
-              .toList(),
-
-          const SizedBox(height: 24),
-
-          // 屏蔽按钮
-          SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              onPressed: () {},
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                backgroundColor: Colors.grey[800],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-              ),
-              child: const Text(
-                '屏蔽Feb',
-                style: TextStyle(color: Colors.white, fontSize: 14),
-              ),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-
-          // 举报按钮
-          SizedBox(
-            width: double.infinity,
-            child: TextButton(
-              onPressed: () {},
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                backgroundColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                '举报 Feb',
-                style: TextStyle(
-                  color: Color(0xFFFF4458),
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
         ],
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Row(
+  Widget _buildKeyInfoCard(UserProfileModel user) {
+    final rows = <MapEntry<String, String>>[
+      MapEntry('Distance', '${user.distance?.round() ?? 0} km'),
+      MapEntry('Height', _heightText(user.height)),
+      MapEntry('City', user.city ?? '-'),
+      MapEntry('Gender', _join(user.gender?.map((e) => e.name).toList())),
+      MapEntry(
+        'Orientation',
+        _join(user.sexualOrientation?.map((e) => e.name).toList()),
+      ),
+      MapEntry('Language', _join(user.languages.map((e) => e.name).toList())),
+    ];
+
+    return _card(
+      title: 'Key Info',
+      replyIndex: 2,
+      child: Column(
+        children: [
+          for (var i = 0; i < rows.length; i++)
+            _infoRow(rows[i].key, rows[i].value, divider: i != rows.length - 1),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLifestyleCard(UserProfileModel user) {
+    final rows = <MapEntry<String, String>>[
+      MapEntry('Pet Preference', user.lifestyle.petPreference),
+      MapEntry('Drinking', user.lifestyle.drinking),
+      MapEntry('Smoking', user.lifestyle.smoking),
+      MapEntry('Fitness', user.lifestyle.fitness),
+    ];
+
+    return _card(
+      title: 'Lifestyle',
+      replyIndex: 4,
+      child: Column(
+        children: [
+          for (var i = 0; i < rows.length; i++)
+            _infoRow(rows[i].key, rows[i].value, divider: i != rows.length - 1),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMoreInfoCard(UserProfileModel user) {
+    final rows = <MapEntry<String, String>>[
+      MapEntry('Zodiac', user.moreInfo.zodiac ?? '-'),
+      MapEntry('Education', user.moreInfo.education ?? '-'),
+      MapEntry('Family Plan', user.moreInfo.familyPlan ?? '-'),
+      MapEntry('Communication Style', user.moreInfo.communicationStyle ?? '-'),
+      MapEntry('Love Language', user.moreInfo.loveLanguage ?? '-'),
+    ];
+
+    return _card(
+      title: 'More About Me',
+      replyIndex: 5,
+      child: Column(
+        children: [
+          for (var i = 0; i < rows.length; i++)
+            _infoRow(rows[i].key, rows[i].value, divider: i != rows.length - 1),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildPromptCards(UserProfileModel user) {
+    if (user.prompts.isEmpty) {
+      return const [];
+    }
+
+    return user.prompts
+        .where((e) => (e.content ?? '').trim().isNotEmpty)
+        .map(
+          (prompt) => SliverToBoxAdapter(
+            child: _card(
+              title: prompt.title,
+              replyIndex: 3,
+              child: _titleLine(prompt.content ?? '-'),
+            ),
+          ),
+        )
+        .toList();
+  }
+
+  Widget _buildSongCard(MusicModel song) {
+    return _card(
+      title: 'Top Song',
+      replyIndex: 7,
+      child: Row(
+        children: [
+          Container(
+            width: 76,
+            height: 76,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              color: const Color(0xFFC8CBD3),
+              image: song.coverImageUrl != null
+                  ? DecorationImage(
+                      image: NetworkImage(song.coverImageUrl!),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  song.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF212733),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  song.artist,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    color: Color(0xFF535B69),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _actionRow(
+    String text, {
+    Color color = const Color(0xFF202633),
+    VoidCallback? onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F4F6),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 17,
+              color: color,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _card({
+    required String title,
+    required Widget child,
+    int? replyIndex,
+  }) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF5F6877),
+            ),
+          ),
+          const SizedBox(height: 12),
+          child,
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: replyIndex == null
+                  ? null
+                  : () => _openApply(replyIndex),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(0xFFCAD0DB)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+              ),
+              icon: const Icon(Icons.send, size: 16, color: Color(0xFF1D9BC6)),
+              label: const Text(
+                'Reply',
+                style: TextStyle(
+                  fontSize: 17,
+                  color: Color(0xFF2A3242),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoRow(String label, String value, {bool divider = true}) {
+    return Column(
       children: [
-        Container(
-          width: 8,
-          height: 20,
-          decoration: BoxDecoration(
-            color: Colors.grey[600],
-            borderRadius: BorderRadius.circular(2),
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 17,
+                  color: Color(0xFF535B69),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 8),
-        Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                value.isEmpty ? '-' : value,
+                style: const TextStyle(
+                  fontSize: 17,
+                  color: Color(0xFF222834),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
+        if (divider) const Divider(height: 24, color: Color(0xFFD3D7DE)),
       ],
     );
   }
 
-  Widget _buildSectionSubtitle(String subtitle) {
+  Widget _titleLine(String text) {
     return Text(
-      subtitle,
-      style: TextStyle(color: Colors.grey[400], fontSize: 12),
+      text.trim().isEmpty ? '-' : text,
+      style: const TextStyle(
+        fontSize: 17,
+        color: Color(0xFF202633),
+        fontWeight: FontWeight.w700,
+      ),
     );
   }
 
-  Widget _buildInfoText(String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.white, fontSize: 13),
+  Widget _buildBottomActions() {
+    return SafeArea(
+      top: false,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _fab(
+            icon: Icons.close,
+            color: const Color(0xFFFF1A8F),
+            onTap: () => _close(UserPageAction.dislike),
+          ),
+          const SizedBox(width: 14),
+          // _fab(
+          //   icon: Icons.star,
+          //   color: const Color(0xFF00A9FF),
+          //   onTap: () => _close(UserPageAction.close),
+          //   small: true,
+          // ),
+          const SizedBox(width: 14),
+          _fab(
+            icon: Icons.favorite,
+            color: const Color(0xFF6BDB2D),
+            onTap: () => _close(UserPageAction.like),
+          ),
+        ],
       ),
     );
+  }
+
+  Widget _fab({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+    bool small = false,
+  }) {
+    final size = small ? 76.0 : 92.0;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: const Color(0xFFF3F4F6),
+          border: Border.all(color: const Color(0xFFD6DAE1)),
+        ),
+        child: Icon(icon, size: small ? 40 : 46, color: color),
+      ),
+    );
+  }
+
+  String _heightText(UserHeightModel? model) {
+    if (model == null) {
+      return '-';
+    }
+    if (model.unit == HeightUnit.cm && model.cm != null) {
+      return '${model.cm!.round()} cm';
+    }
+    if (model.feet != null && model.inch != null) {
+      return '${model.feet} ft ${model.inch} in';
+    }
+    return '-';
+  }
+
+  String _join(List<String>? list) {
+    if (list == null || list.isEmpty) {
+      return '-';
+    }
+    return list.where((e) => e.trim().isNotEmpty).join('，');
   }
 }
