@@ -1,453 +1,543 @@
 import 'package:flutter/material.dart';
 
-// ...existing code...
+enum UpgradeType { gold, platinum, plus }
+
 class UpgradePage extends StatefulWidget {
-  const UpgradePage({super.key});
+  final UpgradeType type;
+
+  const UpgradePage({super.key, required this.type});
 
   @override
   State<UpgradePage> createState() => _UpgradePageState();
 }
 
 class _UpgradePageState extends State<UpgradePage> {
-  final List<Map<String, dynamic>> plans = [
-    {'label': '热门', 'title': '1周', 'price': 'HK\$148.00/周', 'selected': true},
-    {'label': '', 'title': '1个月', 'price': 'HK\$388.00/月', 'selected': false},
-    {
-      'label': '',
-      'title': '6个月',
-      'price': 'HK\$1,488.00/6个月',
-      'selected': false,
-    },
-  ];
-  int selectedIndex = 0;
-  final ScrollController _scrollController = ScrollController();
-  bool _isBottom = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    if (!_scrollController.hasClients) return;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final current = _scrollController.offset;
-    final isBottom = (maxScroll - current).abs() < 20;
-    if (isBottom != _isBottom) {
-      setState(() {
-        _isBottom = isBottom;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
+  int _selectedPlan = 0;
 
   @override
   Widget build(BuildContext context) {
+    final config = _configFor(widget.type);
+    final selected = config.plans[_selectedPlan];
+
     return Scaffold(
-      backgroundColor: const Color(0xFF101014),
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              _buildAppBar(context),
-              Expanded(
-                child: SingleChildScrollView(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.only(bottom: 100),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        child: Text(
-                          '开通 Tinder Gold™ 可以查看给你点赞的人，然后快速和对方达成配对。',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 26,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 4,
-                        ),
-                        child: Text(
-                          '选择一个套餐',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 142,
-                        child: ListView.separated(
-                          scrollDirection: Axis.horizontal,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          itemCount: plans.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(width: 16),
-                          itemBuilder: (context, i) {
-                            final plan = plans[i];
-                            final isSelected = selectedIndex == i;
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() => selectedIndex = i);
-                              },
-                              child: Container(
-                                width: 210,
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? Colors.black
-                                      : const Color(0xFF181820),
-                                  border: Border.all(
-                                    color: isSelected
-                                        ? const Color(0xFFFFD700)
-                                        : Colors.white24,
-                                    width: 2,
-                                  ),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      if (plan['label'] != '')
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFFFD700),
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            plan['label'],
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14,
-                                            ),
-                                          ),
-                                        ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            plan['title'],
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          if (isSelected)
-                                            const Padding(
-                                              padding: EdgeInsets.only(left: 8),
-                                              child: Icon(
-                                                Icons.check,
-                                                color: Color(0xFFFFD700),
-                                                size: 28,
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                      Expanded(child: const SizedBox()),
-                                      Text(
-                                        plan['price'],
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 8,
-                        ),
-                        child: Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.white24),
-                            ),
-                            child: const Text(
-                              'Tinder Gold™ 专属特权',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 8,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildFeature(title: '无限点赞'),
-                            _buildFeature(title: '查看给你点赞的人'),
-                            _buildFeature(title: '无限倒回'),
-                            _buildFeature(
-                              title: '每月 1 个免费 Boost',
-                              sub: '购买一个月或更长时间的订阅，才可享受每月免费的 Boost。',
-                            ),
-                            _buildFeature(title: '每周免费 2 个 Super Like'),
-                            _buildFeature(
-                              title: '无限位置漫游模式',
-                              sub: '你可以和世界各地的用户配对聊天。*含限制条件',
-                            ),
-                            _buildFeature(title: '管理你的个人资', sub: '仅显示你想公布的信息'),
-                            _buildFeature(
-                              title: '限制谁可以看到你',
-                              sub: '你可以管理谁可以看到你',
-                            ),
-                            _buildFeature(
-                              title: '管理你的可见用',
-                              sub: '你可以选择你想要结识哪类用',
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+      backgroundColor: const Color(0xFFF3F4F6),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            ListView(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 152),
+              children: [
+                _UpgradeTopBar(config: config),
+                const SizedBox(height: 16),
+                Text(
+                  config.headline,
+                  style: const TextStyle(
+                    color: Color(0xFF1E2432),
+                    fontSize: 17,
+                    height: 1.45,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Choose a package',
+                  style: TextStyle(
+                    color: Color(0xFF1E2432),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 176,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: config.plans.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 10),
+                    itemBuilder: (context, i) {
+                      final plan = config.plans[i];
+                      final selectedPlan = i == _selectedPlan;
+                      return GestureDetector(
+                        onTap: () => setState(() => _selectedPlan = i),
+                        child: Container(
+                          width: 196,
+                          padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF6F7F9),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: selectedPlan
+                                  ? config.primary
+                                  : const Color(0xFFD1D5DF),
+                              width: selectedPlan ? 2.3 : 1.5,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    plan.tag,
+                                    style: TextStyle(
+                                      color: config.primary,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  if (selectedPlan)
+                                    Icon(
+                                      Icons.check,
+                                      size: 27,
+                                      color: config.primary,
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                plan.title,
+                                style: const TextStyle(
+                                  color: Color(0xFF1E2432),
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                plan.price,
+                                style: const TextStyle(
+                                  color: Color(0xFF1E2432),
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(config.plans.length, (i) {
+                    final active = i == _selectedPlan;
+                    return Container(
+                      width: 12,
+                      height: 12,
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: active
+                            ? const Color(0xFF202633)
+                            : const Color(0xFF9DA4B2),
+                        shape: BoxShape.circle,
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 14),
+                _FeaturePanel(config: config),
+              ],
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: _BottomCta(
+                colorStart: config.buttonStart,
+                colorEnd: config.buttonEnd,
+                total: selected.total,
               ),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                child: _isBottom
-                    ? _buildBottomBarImageStyle()
-                    : _buildBottomBarDefault(),
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
+}
 
-  Widget _buildAppBar(BuildContext context) {
+class _UpgradeTopBar extends StatelessWidget {
+  const _UpgradeTopBar({required this.config});
+
+  final _UpgradeConfig config;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.only(top: 16, left: 8, right: 8, bottom: 8),
+      height: 54,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [config.topTint, const Color(0xFFF3F4F6)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(Icons.close, color: Colors.white, size: 32),
             onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(
+              Icons.close,
+              size: 17 * 2,
+              color: Color(0xFF1D2331),
+            ),
           ),
-          const SizedBox(width: 8),
-          Image.asset('assets/tinder_logo.png', height: 32),
-          const SizedBox(width: 8),
+          const Spacer(),
+          Icon(
+            Icons.local_fire_department,
+            color: config.primary,
+            size: 17 * 1.6,
+          ),
+          const SizedBox(width: 4),
+          const Text(
+            'tinder',
+            style: TextStyle(
+              color: Color(0xFF1E2432),
+              fontSize: 17 * 1.2,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(width: 6),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFD700),
+              color: config.badgeBg,
               borderRadius: BorderRadius.circular(6),
             ),
-            child: const Text(
-              'GOLD',
+            child: Text(
+              config.badge,
               style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+                color: config.badgeText,
+                fontSize: 17 * 0.75,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ),
+          const Spacer(flex: 2),
         ],
       ),
     );
   }
+}
 
-  Widget _buildFeature({String? title, String? sub}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
+class _FeaturePanel extends StatelessWidget {
+  const _FeaturePanel({required this.config});
+
+  final _UpgradeConfig config;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 14, 12, 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF7F8FA),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFD1D5DF), width: 1.4),
+      ),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.check, color: Colors.white, size: 22),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title ?? '',
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
-                ),
-                if (sub != null)
-                  Text(
-                    sub,
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomBarDefault() {
-    return Container(
-      key: const ValueKey('default'),
-      padding: EdgeInsets.fromLTRB(
-        24,
-        16,
-        24,
-        16 + MediaQuery.of(context).padding.bottom,
-      ),
-      color: Colors.black,
-      child: Column(
-        children: [
-          const SizedBox(height: 8),
-          const Text(
-            '当您点击“继续”后，我们将向您收取费用，您的订阅会以相同的套餐期限和价格续订，直至您在账号设置中取消续订。点击即表示您同意我们的条款。',
-            style: TextStyle(color: Colors.white, fontSize: 14),
-          ),
-          const SizedBox(height: 8),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFFD700),
-              foregroundColor: Colors.black,
-              minimumSize: const Size.fromHeight(56),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(28),
-                side: const BorderSide(color: Colors.white, width: 2),
+          Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF7F8FA),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: const Color(0xFFD1D5DF), width: 1.2),
               ),
-              elevation: 2,
-            ),
-            onPressed: () {},
-            child: const Text(
-              '继续',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              child: Text(
+                config.featureTitle,
+                style: const TextStyle(
+                  color: Color(0xFF596071),
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomBarImageStyle() {
-    return Container(
-      key: const ValueKey('image'),
-      padding: EdgeInsets.fromLTRB(
-        24,
-        16,
-        24,
-        16 + MediaQuery.of(context).padding.bottom,
-      ),
-      color: Colors.black,
-      child: Column(
-        children: [
-          const Text(
-            '当您点击“继续”后，我们将向您收取费用，您的订阅会以相同的套餐期限和价格续订，直至您在账号设置中取消续订。点击即表示您同意我们的条款。',
-            style: TextStyle(color: Colors.white, fontSize: 14),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Padding(
-              //   padding: const EdgeInsets.only(left: 24),
-              //   child:
-              Column(
-                mainAxisSize: MainAxisSize.min,
+          const SizedBox(height: 4),
+          ...config.features.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.local_fire_department,
-                        color: Color(0xFFFFD700),
-                        size: 40,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        '1周',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  const Icon(
+                    Icons.check,
+                    color: Color(0xFF1E2432),
+                    size: 17 * 1.6,
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'HK\$148.00/周',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.title,
+                          style: const TextStyle(
+                            color: Color(0xFF1E2432),
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        if (item.desc != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            item.desc!,
+                            style: const TextStyle(
+                              color: Color(0xFF5E6576),
+                              fontSize: 17,
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ],
               ),
-              // ),
-              // Padding(
-              //   padding: const EdgeInsets.only(right: 24),
-              //   child:
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFD700),
-                  foregroundColor: Colors.black,
-                  minimumSize: const Size(120, 56),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28),
-                    side: const BorderSide(color: Colors.white, width: 2),
-                  ),
-                  elevation: 2,
-                ),
-                onPressed: () {},
-                child: const Text(
-                  '继续',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-              ),
-              // ),
-            ],
+            ),
           ),
         ],
       ),
     );
+  }
+}
+
+class _BottomCta extends StatelessWidget {
+  const _BottomCta({
+    required this.colorStart,
+    required this.colorEnd,
+    required this.total,
+  });
+
+  final Color colorStart;
+  final Color colorEnd;
+  final String total;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      color: const Color(0xFFF3F4F6),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        8,
+        16,
+        10 + MediaQuery.of(context).padding.bottom,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'When you click Continue, we will charge you and your subscription will be automatically renewed. By clicking, you agree to our terms.',
+            style: TextStyle(
+              color: Color(0xFF2F3646),
+              fontSize: 17,
+              height: 1.25,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            height: 56,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              gradient: LinearGradient(colors: [colorStart, colorEnd]),
+            ),
+            child: Center(
+              child: Text(
+                'Continue with the operation at a total price of $total',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _UpgradeConfig {
+  final String badge;
+  final Color topTint;
+  final Color primary;
+  final Color badgeBg;
+  final Color badgeText;
+  final String headline;
+  final String featureTitle;
+  final List<_UpgradeFeature> features;
+  final List<_UpgradePlan> plans;
+  final Color buttonStart;
+  final Color buttonEnd;
+
+  const _UpgradeConfig({
+    required this.badge,
+    required this.topTint,
+    required this.primary,
+    required this.badgeBg,
+    required this.badgeText,
+    required this.headline,
+    required this.featureTitle,
+    required this.features,
+    required this.plans,
+    required this.buttonStart,
+    required this.buttonEnd,
+  });
+}
+
+class _UpgradeFeature {
+  final String title;
+  final String? desc;
+
+  const _UpgradeFeature(this.title, [this.desc]);
+}
+
+class _UpgradePlan {
+  final String tag;
+  final String title;
+  final String price;
+  final String total;
+
+  const _UpgradePlan({
+    required this.tag,
+    required this.title,
+    required this.price,
+    required this.total,
+  });
+}
+
+_UpgradeConfig _configFor(UpgradeType type) {
+  switch (type) {
+    case UpgradeType.gold:
+      return const _UpgradeConfig(
+        badge: 'GOLD',
+        topTint: Color(0xFFF8EDC4),
+        primary: Color(0xFFC39A17),
+        badgeBg: Color(0xFFE8C048),
+        badgeText: Color(0xFF1E2432),
+        headline:
+            'By activating Tinder Gold™  you can view who has liked you and quickly match with them. ',
+        featureTitle: 'Tinder Gold® Exclusive Perks',
+        features: [
+          _UpgradeFeature('Unlimited Likes'),
+          _UpgradeFeature('View who has liked you'),
+          _UpgradeFeature('Unlimited Replay'),
+          _UpgradeFeature(
+            '1 free Boost per month',
+            'Enjoyable when purchasing a one-month or longer subscription.',
+          ),
+        ],
+        plans: [
+          _UpgradePlan(
+            tag: 'popular',
+            title: '1week',
+            price: 'HK\$148.00/week',
+            total: 'HK\$148.00',
+          ),
+          _UpgradePlan(
+            tag: '',
+            title: '1 month',
+            price: 'HK\$77.50/week',
+            total: 'HK\$310.00',
+          ),
+          _UpgradePlan(
+            tag: '',
+            title: '6 month',
+            price: 'HK\$47.30/week',
+            total: 'HK\$1,135.20',
+          ),
+        ],
+        buttonStart: Color(0xFFD7A824),
+        buttonEnd: Color(0xFFE8C94B),
+      );
+    case UpgradeType.platinum:
+      return const _UpgradeConfig(
+        badge: 'PLATINUM',
+        topTint: Color(0xFFDDE1E8),
+        primary: Color(0xFF1E2432),
+        badgeBg: Color(0xFF3B4352),
+        badgeText: Color(0xFFFFFFFF),
+        headline: 'Activate Platinum to upgrade your likes and Super Likes.',
+        featureTitle: 'Tinder Platinum Premium Features',
+        features: [
+          _UpgradeFeature('Unlimited Likes'),
+          _UpgradeFeature('View who has liked you'),
+          _UpgradeFeature(
+            'Top Praise',
+            'Top Praise allows the people you praise to see you faster.',
+          ),
+          _UpgradeFeature('Unlimited Replay'),
+        ],
+        plans: [
+          _UpgradePlan(
+            tag: 'Hot',
+            title: '1week',
+            price: 'HK\$233.00/week',
+            total: 'HK\$233.00',
+          ),
+          _UpgradePlan(
+            tag: '',
+            title: '1 month',
+            price: 'HK\$117.00/week',
+            total: 'HK\$468.00',
+          ),
+          _UpgradePlan(
+            tag: '',
+            title: '6 month',
+            price: 'HK\$74.80/week',
+            total: 'HK\$1,795.20',
+          ),
+        ],
+        buttonStart: Color(0xFF2A3140),
+        buttonEnd: Color(0xFF555F72),
+      );
+    case UpgradeType.plus:
+      return const _UpgradeConfig(
+        badge: 'PLUS',
+        topTint: Color(0xFFF7D3DB),
+        primary: Color(0xFFFF2B66),
+        badgeBg: Color(0xFFFF4C6E),
+        badgeText: Color(0xFFFFFFFF),
+        headline:
+            'Unlimited likes. Unlimited replays. Unlimited location roaming. No ads.',
+        featureTitle: 'Tinder Plus™  Premium Features',
+        features: [
+          _UpgradeFeature('Unlimited Likes'),
+          _UpgradeFeature('Unlimited Replay'),
+          _UpgradeFeature(
+            'Unlimited Location Roaming Mode*',
+            'You can pair and chat with users from all over the world. *Restrictions apply.',
+          ),
+          _UpgradeFeature('Manage your personal profile'),
+        ],
+        plans: [
+          _UpgradePlan(
+            tag: 'Hot',
+            title: '1 week',
+            price: 'HK\$100.00/week',
+            total: 'HK\$100.00',
+          ),
+          _UpgradePlan(
+            tag: '',
+            title: '1 month',
+            price: 'HK\$48.20/week',
+            total: 'HK\$192.80',
+          ),
+          _UpgradePlan(
+            tag: '',
+            title: '6 month',
+            price: 'HK\$30.10/ week',
+            total: 'HK\$722.40',
+          ),
+        ],
+        buttonStart: Color(0xFFFF2D65),
+        buttonEnd: Color(0xFFFF5D55),
+      );
   }
 }

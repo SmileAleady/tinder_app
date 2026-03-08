@@ -20,9 +20,15 @@ class UserAuthLocalDb {
   Future<List<UserProfileModel>> getAllUsers() async {
     final data = await _readRaw();
     final list = data['users'] as List<dynamic>? ?? <dynamic>[];
-    return list
+    final users = list
         .map((item) => UserProfileModel.fromJson(item as Map<String, dynamic>))
         .toList();
+    return _ensureDefaultContactAccountInList(users);
+  }
+
+  Future<void> ensureDefaultContactAccount() async {
+    final users = await getAllUsers();
+    await _ensureDefaultContactAccountInList(users);
   }
 
   Future<UserProfileModel?> getActiveUser() async {
@@ -242,5 +248,89 @@ class UserAuthLocalDb {
       return '新用户';
     }
     return normalized.substring(0, index);
+  }
+
+  Future<List<UserProfileModel>> _ensureDefaultContactAccountInList(
+    List<UserProfileModel> users,
+  ) async {
+    const defaultUserId = '666666';
+    const defaultEmail = '666666@gmail.com';
+    const defaultPassword = '666666';
+    const defaultName = '666666';
+
+    final indexById = users.indexWhere((u) => u.userId == defaultUserId);
+    final indexByEmail = users.indexWhere(
+      (u) => u.email.trim().toLowerCase() == defaultEmail,
+    );
+    final targetIndex = indexById >= 0 ? indexById : indexByEmail;
+
+    var changed = false;
+    if (targetIndex < 0) {
+      users.add(
+        UserProfileModel(
+          userId: defaultUserId,
+          email: defaultEmail,
+          phone: '',
+          password: defaultPassword,
+          nikeName: defaultName,
+          mediaUrls: const [],
+          smartPhotosEnabled: true,
+          aboutMe: '',
+          personalProfile: '',
+          chatPreference: null,
+          prompts: const [],
+          interests: const [],
+          relationshipGoal: const UserRelationshipGoalItem(
+            id: 0,
+            title: 'new user',
+            emoji: '✨',
+          ),
+          height: null,
+          languages: const [],
+          moreInfo: UserMoreInfo(),
+          lifestyle: UserLifestyle(
+            petPreference: '',
+            drinking: '',
+            smoking: '',
+            fitness: '',
+          ),
+          jobTitle: null,
+          company: null,
+          school: null,
+          city: null,
+          favoriteSong: null,
+          spotifyArtist: null,
+          gender: const [],
+          sexualOrientation: const [],
+          privacySettings: UserPrivacySettings(
+            hideAge: false,
+            hideDistance: false,
+          ),
+          age: null,
+          distance: null,
+          isActive: false,
+        ),
+      );
+      changed = true;
+    } else {
+      final current = users[targetIndex];
+      if (current.userId != defaultUserId ||
+          current.email.trim().toLowerCase() != defaultEmail ||
+          current.password != defaultPassword ||
+          current.nikeName != defaultName) {
+        final raw = Map<String, dynamic>.from(current.toJson());
+        raw['userId'] = defaultUserId;
+        raw['email'] = defaultEmail;
+        raw['password'] = defaultPassword;
+        raw['nikeName'] = defaultName;
+        users[targetIndex] = UserProfileModel.fromJson(raw);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      await _saveUsers(users);
+    }
+    return users;
   }
 }

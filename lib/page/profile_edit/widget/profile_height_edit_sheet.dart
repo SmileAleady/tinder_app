@@ -184,7 +184,7 @@ class _ProfileHeightEditSheetState extends State<ProfileHeightEditSheet> {
                   minimumSize: const Size(60, 32),
                 ),
                 child: const Text(
-                  '完成',
+                  'complete',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                 ),
               ),
@@ -193,7 +193,7 @@ class _ProfileHeightEditSheetState extends State<ProfileHeightEditSheet> {
           const SizedBox(height: 8),
           // 提示文案
           Text(
-            '现在你可以在个人资料中添加身高哦。',
+            'Now you can add your height to your profile.',
             style: TextStyle(
               fontSize: 15,
               color: Colors.grey[600],
@@ -220,7 +220,7 @@ class _ProfileHeightEditSheetState extends State<ProfileHeightEditSheet> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                '身高单位',
+                'height unit',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.black87,
@@ -255,7 +255,7 @@ class _ProfileHeightEditSheetState extends State<ProfileHeightEditSheet> {
                 ),
               ),
               child: Text(
-                '删除身高',
+                'Delete height',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.black87,
@@ -280,7 +280,7 @@ class _ProfileHeightEditSheetState extends State<ProfileHeightEditSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                '英尺',
+                'foot',
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.black87,
@@ -320,7 +320,7 @@ class _ProfileHeightEditSheetState extends State<ProfileHeightEditSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                '英寸',
+                'inch',
                 style: TextStyle(
                   fontSize: 15,
                   color: Colors.black87,
@@ -364,7 +364,7 @@ class _ProfileHeightEditSheetState extends State<ProfileHeightEditSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '厘米',
+          'centimeter',
           style: TextStyle(
             fontSize: 15,
             color: Colors.black87,

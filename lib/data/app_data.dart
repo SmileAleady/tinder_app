@@ -5,30 +5,30 @@ import 'package:tinder_app/data/auth/user_auth_local_db.dart';
 import 'package:tinder_app/data/home/home_swipe_local_db.dart';
 import 'package:tinder_app/model/user_profile_model.dart';
 
-/// 选项类型枚举（对应11张图的分类）
+/// English(EN11EN)
 enum SheetOptionType {
-  constellation, // 星座
-  education, // 教育情况
-  petPreference, // 宠物喜好
-  smoking, // 吸烟情况
-  drinking, // 饮酒情况
-  jobStatus, // 工作状态
-  income, // 收入水平
-  residence, // 居住情况
-  car, // 车辆情况
-  relationshipStatus, // 婚恋状态
-  socialMediaActivity, // 社交媒体活跃度
-  fitness, // 锻炼情况
-  wantChildren, // 生育计划
-  communicationStyle, // 沟通方式
-  loveLanguage, // 爱的方式
+  constellation, // English
+  education, // English
+  petPreference, // English
+  smoking, // English
+  drinking, // English
+  jobStatus, // English
+  income, // English
+  residence, // English
+  car, // English
+  relationshipStatus, // English
+  socialMediaActivity, // English
+  fitness, // English
+  wantChildren, // English
+  communicationStyle, // English
+  loveLanguage, // English
   //
   goOut,
   weekend,
   phoneUsage,
 }
 
-/// 通用选项数据模型
+/// English
 class OptionItem {
   final String id;
   final String title;
@@ -36,7 +36,7 @@ class OptionItem {
   const OptionItem({required this.id, required this.title});
 }
 
-/// 选项配置模型
+/// English
 class OptionConfig {
   final String title;
   final String hintText;
@@ -51,66 +51,70 @@ class OptionConfig {
   });
 }
 
-/// 全局选项数据管理类
+/// English
 class OptionDataManager {
   static final List<SexualOrientationModel> sexualOrientations = [
     const SexualOrientationModel(
       id: 'heterosexual',
-      name: '异性恋',
-      desc: '仅会被相反性别吸引的人士',
+      name: 'Heterosexual',
+      desc: 'Text 2',
     ),
     const SexualOrientationModel(
       id: 'gay',
-      name: '男同性恋',
-      desc: '这是一个统称术语，指会被同性吸引的人士',
+      name: 'Gay',
+      desc: 'Text 3, Text 4',
     ),
     const SexualOrientationModel(
       id: 'lesbian',
-      name: '女同性恋',
-      desc: '对其他女性产生爱慕感、能建立浪漫关系或认为其他女性具有性吸引力的女士',
+      name: 'Lesbian',
+      desc: 'Text 5, Text 6YesText 7',
     ),
     const SexualOrientationModel(
       id: 'bisexual',
-      name: '双性恋',
-      desc: '对一种以上的性别者有可能产生爱慕感、建立浪漫关系或认为这些性别者具有性吸引力的人士',
+      name: 'Bisexual',
+      desc: 'Text 8YesText 9, Text 10YesText 11',
     ),
     const SexualOrientationModel(
       id: 'asexual',
-      name: '无性恋',
-      desc: '感受不到性吸引力的人士',
+      name: 'Asexual',
+      desc: 'Text 12',
     ),
     const SexualOrientationModel(
       id: 'demisexual',
-      name: '半性恋',
-      desc: '只有与他人建立深厚的情感联系才能感受到性吸引力的人士',
+      name: 'Demisexual',
+      desc: 'Text 13YesText 14',
     ),
     const SexualOrientationModel(
       id: 'pansexual',
-      name: '泛性恋',
-      desc: '对任意性别者均有可能产生爱慕感、建立浪漫关系或认为任意性别者均具有性吸引力的人士',
+      name: 'Pansexual',
+      desc: 'Text 15YesText 9, Text 16YesText 11',
     ),
     const SexualOrientationModel(
       id: 'queer',
-      name: '酷儿',
-      desc: '这是一个用于指代一系列性向和性别的统称，它往往涵盖不属于完全异性恋的性别或性向',
+      name: 'Queer',
+      desc: 'Text 17, Text 18',
     ),
     const SexualOrientationModel(
       id: 'questioning',
-      name: '疑性恋',
-      desc: '正在探索自身性向和/或性别的人士',
+      name: 'Questioning',
+      desc: 'Text 19/Text 20',
     ),
     const SexualOrientationModel(
       id: 'other',
-      name: '未列出',
-      desc: '请告知我们还缺什么性别。',
+      name: 'Not listed',
+      desc: 'Text 21.',
     ),
   ];
 
-  // 初始化性别选项（与参考图一致）
+  // English(English)
   static final List<GenderModel> genders = [
-    const GenderModel(id: 'male', name: '男性'),
-    const GenderModel(id: 'female', name: '女性'),
-    const GenderModel(id: 'non_binary', name: '二元性别以外', desc: '包含跨性别、非二元性别等'),
+    const GenderModel(id: 'male', name: 'Male'),
+    const GenderModel(id: 'female', name: 'Female'),
+    const GenderModel(
+      id: 'non_binary',
+      name: 'Text 22',
+      desc: 'Text 23, Text 24',
+    ),
   ];
 
   static final List<MusicModel> songs = [
@@ -161,327 +165,330 @@ class OptionDataManager {
     ),
   ];
 
-  // 枚举 -> 配置映射表
+  // English -> English
   static const Map<SheetOptionType, OptionConfig> _optionConfigs = {
-    // 1. 星座
+    // 1. English
     SheetOptionType.constellation: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你是什么星座?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'What is your zodiac sign?',
       options: [
-        OptionItem(id: 'capricorn', title: '摩羯座'),
-        OptionItem(id: 'aquarius', title: '水瓶座'),
-        OptionItem(id: 'pisces', title: '双鱼座'),
-        OptionItem(id: 'aries', title: '白羊座'),
-        OptionItem(id: 'taurus', title: '金牛座'),
-        OptionItem(id: 'gemini', title: '双子座'),
-        OptionItem(id: 'cancer', title: '巨蟹座'),
-        OptionItem(id: 'leo', title: '狮子座'),
-        OptionItem(id: 'virgo', title: '处女座'),
-        OptionItem(id: 'libra', title: '天秤座'),
-        OptionItem(id: 'scorpio', title: '天蝎座'),
-        OptionItem(id: 'sagittarius', title: '射手座'),
+        OptionItem(id: 'capricorn', title: 'capricorn'),
+        OptionItem(id: 'aquarius', title: 'aquarius'),
+        OptionItem(id: 'pisces', title: 'pisces'),
+        OptionItem(id: 'aries', title: 'aries'),
+        OptionItem(id: 'taurus', title: 'taurus'),
+        OptionItem(id: 'gemini', title: 'gemini'),
+        OptionItem(id: 'cancer', title: 'cancer'),
+        OptionItem(id: 'leo', title: 'leo'),
+        OptionItem(id: 'virgo', title: 'virgo'),
+        OptionItem(id: 'libra', title: 'libra'),
+        OptionItem(id: 'scorpio', title: 'scorpio'),
+        OptionItem(id: 'sagittarius', title: 'sagittarius'),
       ],
     ),
 
-    // 2. 教育情况
+    // 2. English
     SheetOptionType.education: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你的教育情况是?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'What is your education level?',
       options: [
-        OptionItem(id: 'high_school', title: '高中/中专及以下'),
-        OptionItem(id: 'college', title: '大专'),
-        OptionItem(id: 'bachelor', title: '本科'),
-        OptionItem(id: 'master', title: '硕士'),
-        OptionItem(id: 'doctor', title: '博士及以上'),
-        OptionItem(id: 'prefer_not_say', title: '不愿透露'),
+        OptionItem(id: 'high_school', title: 'high school'),
+        OptionItem(id: 'college', title: 'college'),
+        OptionItem(id: 'bachelor', title: 'bachelor'),
+        OptionItem(id: 'master', title: 'master'),
+        OptionItem(id: 'doctor', title: 'doctor'),
+        OptionItem(id: 'prefer_not_say', title: 'Prefer not to say'),
       ],
     ),
 
-    // 3. 宠物喜好
+    // 3. English
     SheetOptionType.petPreference: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你对宠物的喜好是?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'What is your pet preference?',
       options: [
-        OptionItem(id: 'love_pets', title: '喜欢宠物，自己也养'),
-        OptionItem(id: 'like_pets_no_keep', title: '喜欢宠物，但自己不养'),
-        OptionItem(id: 'neutral_pets', title: '对宠物无感'),
-        OptionItem(id: 'dislike_pets', title: '不喜欢宠物'),
-        OptionItem(id: 'allergic_pets', title: '对宠物过敏'),
+        OptionItem(id: 'love_pets', title: 'love pets'),
+        OptionItem(id: 'like_pets_no_keep', title: 'like pets no keep'),
+        OptionItem(id: 'neutral_pets', title: 'neutral pets'),
+        OptionItem(id: 'dislike_pets', title: 'dislike pets'),
+        OptionItem(id: 'allergic_pets', title: 'allergic pets'),
       ],
     ),
 
-    // 4. 吸烟情况
+    // 4. English
     SheetOptionType.smoking: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你吸烟吗?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'Do you smoke?',
       options: [
-        OptionItem(id: 'smoke_often', title: '经常'),
-        OptionItem(id: 'smoke_sometimes', title: '偶尔'),
-        OptionItem(id: 'smoke_never', title: '从不'),
-        OptionItem(id: 'smoke_quit', title: '已戒烟'),
-        OptionItem(id: 'smoke_prefer_not_say', title: '不愿透露'),
+        OptionItem(id: 'smoke_often', title: 'Often'),
+        OptionItem(id: 'smoke_sometimes', title: 'Sometimes'),
+        OptionItem(id: 'smoke_never', title: 'Never'),
+        OptionItem(id: 'smoke_quit', title: 'Quit smoking'),
+        OptionItem(id: 'smoke_prefer_not_say', title: 'Prefer not to say'),
       ],
     ),
 
-    // 5. 饮酒情况
+    // 5. English
     SheetOptionType.drinking: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你饮酒吗?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'Do you drink?',
       options: [
-        OptionItem(id: 'drink_often', title: '经常'),
-        OptionItem(id: 'drink_sometimes', title: '社交场合偶尔'),
-        OptionItem(id: 'drink_rarely', title: '很少'),
-        OptionItem(id: 'drink_never', title: '从不'),
-        OptionItem(id: 'drink_prefer_not_say', title: '不愿透露'),
+        OptionItem(id: 'drink_often', title: 'Often'),
+        OptionItem(id: 'drink_sometimes', title: 'Socially sometimes'),
+        OptionItem(id: 'drink_rarely', title: 'Rarely'),
+        OptionItem(id: 'drink_never', title: 'Never'),
+        OptionItem(id: 'drink_prefer_not_say', title: 'Prefer not to say'),
       ],
     ),
 
-    // 6. 工作状态
+    // 6. English
     SheetOptionType.jobStatus: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你的工作状态是?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'What is your employment status?',
       options: [
-        OptionItem(id: 'job_full_time', title: '全职'),
-        OptionItem(id: 'job_part_time', title: '兼职'),
-        OptionItem(id: 'job_self_employed', title: '自由职业'),
-        OptionItem(id: 'job_student', title: '学生'),
-        OptionItem(id: 'job_unemployed', title: '待业'),
-        OptionItem(id: 'job_retired', title: '退休'),
-        OptionItem(id: 'job_prefer_not_say', title: '不愿透露'),
+        OptionItem(id: 'job_full_time', title: 'Full-time'),
+        OptionItem(id: 'job_part_time', title: 'Part-time'),
+        OptionItem(id: 'job_self_employed', title: 'Self-employed'),
+        OptionItem(id: 'job_student', title: 'Student'),
+        OptionItem(id: 'job_unemployed', title: 'Unemployed'),
+        OptionItem(id: 'job_retired', title: 'Retired'),
+        OptionItem(id: 'job_prefer_not_say', title: 'Prefer not to say'),
       ],
     ),
 
-    // 7. 收入水平
+    // 7. English
     SheetOptionType.income: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你的收入水平是?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'What is your income level?',
       options: [
-        OptionItem(id: 'income_10k_below', title: '10k以下'),
+        OptionItem(id: 'income_10k_below', title: '10kText 49'),
         OptionItem(id: 'income_10k_20k', title: '10k-20k'),
         OptionItem(id: 'income_20k_30k', title: '20k-30k'),
         OptionItem(id: 'income_30k_50k', title: '30k-50k'),
         OptionItem(id: 'income_50k_100k', title: '50k-100k'),
-        OptionItem(id: 'income_100k_above', title: '100k以上'),
-        OptionItem(id: 'income_prefer_not_say', title: '不愿透露'),
+        OptionItem(id: 'income_100k_above', title: '100kText 50'),
+        OptionItem(id: 'income_prefer_not_say', title: 'Prefer not to say'),
       ],
     ),
 
-    // 8. 居住情况
+    // 8. English
     SheetOptionType.residence: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你的居住情况是?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'What is your living situation?',
       options: [
-        OptionItem(id: 'residence_own', title: '自有住房'),
-        OptionItem(id: 'residence_rent', title: '租房'),
-        OptionItem(id: 'residence_with_parents', title: '与父母同住'),
-        OptionItem(id: 'residence_other', title: '其他'),
-        OptionItem(id: 'residence_prefer_not_say', title: '不愿透露'),
+        OptionItem(id: 'residence_own', title: 'Text 51YesText 52'),
+        OptionItem(id: 'residence_rent', title: 'Text 53'),
+        OptionItem(id: 'residence_with_parents', title: 'Text 54'),
+        OptionItem(id: 'residence_other', title: 'Text 55'),
+        OptionItem(id: 'residence_prefer_not_say', title: 'Prefer not to say'),
       ],
     ),
 
-    // 9. 车辆情况
+    // 9. English
     SheetOptionType.car: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你有车吗?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'Do you have a car?',
       options: [
-        OptionItem(id: 'car_yes', title: '有'),
-        OptionItem(id: 'car_no', title: '没有'),
-        OptionItem(id: 'car_planning', title: '计划购买'),
-        OptionItem(id: 'car_prefer_not_say', title: '不愿透露'),
+        OptionItem(id: 'car_yes', title: 'Yes'),
+        OptionItem(id: 'car_no', title: 'No'),
+        OptionItem(id: 'car_planning', title: 'Planning to buy'),
+        OptionItem(id: 'car_prefer_not_say', title: 'Prefer not to say'),
       ],
     ),
 
-    // 10. 婚恋状态
+    // 10. English
     SheetOptionType.relationshipStatus: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你的婚恋状态是?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'What is your relationship status?',
       options: [
-        OptionItem(id: 'relationship_single', title: '单身'),
-        OptionItem(id: 'relationship_casual', title: '暧昧中'),
-        OptionItem(id: 'relationship_dating', title: '恋爱中'),
-        OptionItem(id: 'relationship_engaged', title: '订婚'),
-        OptionItem(id: 'relationship_married', title: '已婚'),
-        OptionItem(id: 'relationship_divorced', title: '离异'),
-        OptionItem(id: 'relationship_widowed', title: '丧偶'),
-        OptionItem(id: 'relationship_prefer_not_say', title: '不愿透露'),
+        OptionItem(id: 'relationship_single', title: 'Single'),
+        OptionItem(id: 'relationship_casual', title: 'Text 56'),
+        OptionItem(id: 'relationship_dating', title: 'In a relationship'),
+        OptionItem(id: 'relationship_engaged', title: 'Engaged'),
+        OptionItem(id: 'relationship_married', title: 'Married'),
+        OptionItem(id: 'relationship_divorced', title: 'Divorced'),
+        OptionItem(id: 'relationship_widowed', title: 'Widowed'),
+        OptionItem(
+          id: 'relationship_prefer_not_say',
+          title: 'Prefer not to say',
+        ),
       ],
     ),
 
-    // 11. 社交媒体活跃度
+    // 11. English
     SheetOptionType.socialMediaActivity: OptionConfig(
-      title: '生活方式',
-      hintText: '添加你的生活方式，展现出自己最好的一面。',
-      question: '你在社交媒体上有多活跃?',
+      title: 'Lifestyle',
+      hintText: 'Add your lifestyle details to show your best self.',
+      question: 'How active are you on social media?',
       options: [
-        OptionItem(id: 'social_status', title: '社交状态'),
-        OptionItem(id: 'social_active', title: '社交活跃'),
-        OptionItem(id: 'not_online_often', title: '不常上网'),
-        OptionItem(id: 'lurk', title: '潜水'),
+        OptionItem(id: 'social_status', title: 'Social mode'),
+        OptionItem(id: 'social_active', title: 'Socially active'),
+        OptionItem(id: 'not_online_often', title: 'Not often online'),
+        OptionItem(id: 'lurk', title: 'Lurker'),
       ],
     ),
 
-    // 5. 锻炼情况 (你锻炼吗?)
+    // 5. English (English?)
     SheetOptionType.fitness: OptionConfig(
-      title: '生活方式',
-      hintText: '添加你的生活方式，展现出自己最好的一面。',
-      question: '你锻炼吗?',
+      title: 'Lifestyle',
+      hintText: 'Add your lifestyle details to show your best self.',
+      question: 'Do you exercise?',
       options: [
-        OptionItem(id: 'every_day', title: '每天'),
-        OptionItem(id: 'often', title: '时常'),
-        OptionItem(id: 'occasionally', title: '偶尔'),
-        OptionItem(id: 'never', title: '从不'),
+        OptionItem(id: 'every_day', title: 'Every day'),
+        OptionItem(id: 'often', title: 'Text 57'),
+        OptionItem(id: 'occasionally', title: 'Sometimes'),
+        OptionItem(id: 'never', title: 'Never'),
       ],
     ),
 
-    // 6. 生育计划 (你想要孩子吗?)
+    // 6. English (English?)
     SheetOptionType.wantChildren: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你想要孩子吗?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'Do you want children?',
       options: [
-        OptionItem(id: 'want', title: '我想要孩子'),
-        OptionItem(id: 'dont_want', title: '我不想要孩子'),
-        OptionItem(id: 'have_and_more', title: '我有孩子，我还想继续生'),
-        OptionItem(id: 'have_and_stop', title: '我有孩子，我不想再生了'),
-        OptionItem(id: 'unsure', title: '还不确定'),
+        OptionItem(id: 'want', title: 'Want children'),
+        OptionItem(id: 'dont_want', title: 'Do not want children'),
+        OptionItem(id: 'have_and_more', title: 'Have children, want more'),
+        OptionItem(id: 'have_and_stop', title: 'Have children, no more'),
+        OptionItem(id: 'unsure', title: 'Not sure yet'),
       ],
     ),
 
-    // 7. 沟通方式 (你喜欢的沟通方式是?)
+    // 7. English (English?)
     SheetOptionType.communicationStyle: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你喜欢的沟通方式是?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'What is your communication style?',
       options: [
-        OptionItem(id: 'active_msg', title: '热衷发消息'),
-        OptionItem(id: 'call', title: '喜欢打电话'),
-        OptionItem(id: 'video_call', title: '喜欢视频聊天'),
-        OptionItem(id: 'not_active_msg', title: '不热衷发消息'),
-        OptionItem(id: 'in_person', title: '最好当面'),
+        OptionItem(id: 'active_msg', title: 'Active texter'),
+        OptionItem(id: 'call', title: 'Prefer calls'),
+        OptionItem(id: 'video_call', title: 'Prefer video chat'),
+        OptionItem(id: 'not_active_msg', title: 'Not into texting'),
+        OptionItem(id: 'in_person', title: 'Prefer in person'),
       ],
     ),
 
-    // 8. 爱的方式 (你通过什么方式来感受爱?)
+    // 8. English (English?)
     SheetOptionType.loveLanguage: OptionConfig(
-      title: '我的更多信息',
-      hintText: '添加有关你的更多信息，展现出自己最好的一面。',
-      question: '你通过什么方式来感受爱?',
+      title: 'More About Me',
+      hintText: 'Add more details to show your best self.',
+      question: 'How do you feel loved?',
       options: [
-        OptionItem(id: 'caring', title: '体贴的表示'),
-        OptionItem(id: 'gifts', title: '礼物'),
-        OptionItem(id: 'touch', title: '身体碰触'),
-        OptionItem(id: 'praise', title: '赞美'),
-        OptionItem(id: 'time', title: '共度时光'),
+        OptionItem(id: 'caring', title: 'Acts of care'),
+        OptionItem(id: 'gifts', title: 'Gifts'),
+        OptionItem(id: 'touch', title: 'Physical touch'),
+        OptionItem(id: 'praise', title: 'Words of affirmation'),
+        OptionItem(id: 'time', title: 'Quality time'),
       ],
     ),
   };
 
-  /// 根据枚举值获取对应的配置
+  /// English
   static OptionConfig getConfig(SheetOptionType type) {
     return _optionConfigs[type]!;
   }
 
-  //界面
-  // 更多信息项
+  //English
+  // English
   static final List<ProfileItem> moreItems = [
     ProfileItem(
       icon: Icons.nights_stay,
-      label: '星座',
-      value: '空',
+      label: 'Zodiac',
+      value: 'Empty',
       optionType: SheetOptionType.constellation,
     ),
     ProfileItem(
       icon: Icons.school,
-      label: '教育情况',
-      value: '空',
+      label: 'Education',
+      value: 'Empty',
       optionType: SheetOptionType.education,
     ),
     ProfileItem(
       icon: Icons.family_restroom,
-      label: '家庭计划',
-      value: '空',
+      label: 'family restroom',
+      value: 'Empty',
       optionType: SheetOptionType.wantChildren,
     ),
     ProfileItem(
       icon: Icons.chat,
-      label: '沟通风格',
-      value: '空',
+      label: 'communication style',
+      value: 'Empty',
       optionType: SheetOptionType.communicationStyle,
     ),
     ProfileItem(
       icon: Icons.favorite,
-      label: '爱的方式',
-      value: '空',
+      label: 'Love Language',
+      value: 'Empty',
       optionType: SheetOptionType.loveLanguage,
     ),
   ];
 
-  // 生活方式项
+  // English
   static final List<ProfileItem> lifestyleItems = [
     ProfileItem(
       icon: Icons.pets,
-      label: '宠物喜好',
-      value: '鱼类',
+      label: 'Pet Preference',
+      value: 'Fish',
       optionType: SheetOptionType.petPreference,
     ),
     ProfileItem(
       icon: Icons.local_bar,
-      label: '饮酒',
-      value: '少喝或不喝',
+      label: 'Drinking',
+      value: 'Rarely or never',
       optionType: SheetOptionType.drinking,
     ),
     ProfileItem(
       icon: Icons.smoke_free,
-      label: '你多久抽一次烟?',
-      value: '不吸烟',
+      label: 'How often do you smoke',
+      value: 'Non-smoker',
       optionType: SheetOptionType.smoking,
     ),
     ProfileItem(
       icon: Icons.fitness_center,
-      label: '健身情况',
-      value: '每天',
+      label: 'fitness status',
+      value: 'Every day',
       optionType: SheetOptionType.fitness,
     ),
     ProfileItem(
       icon: Icons.alternate_email,
-      label: '社交媒体活跃度',
-      value: '空',
+      label: 'Social Media Activity',
+      value: 'Empty',
       optionType: SheetOptionType.socialMediaActivity,
     ),
   ];
-  // 欢迎聊天项
+  // English
   static final List<ProfileItem> welcomeChatItems = [
     ProfileItem(
       icon: Icons.nights_stay,
-      label: '外出',
-      value: '正在跳舞, 盛装打扮, ...',
+      label: 'Going Out',
+      value: 'Dancing, dressing up, ...',
       optionType: SheetOptionType.goOut,
     ),
     ProfileItem(
       icon: Icons.weekend,
-      label: '我的周末',
-      value: '添加问答',
+      label: 'My Weekend',
+      value: 'Add Prompt',
       optionType: SheetOptionType.weekend,
     ),
     ProfileItem(
       icon: Icons.phone_iphone,
-      label: '我和我的手机',
-      value: '添加问答',
+      label: 'Me and My Phone',
+      value: 'Add Prompt',
       optionType: SheetOptionType.phoneUsage,
     ),
   ];
 
-  /// 用户
+  /// English
   static List<UserProfileModel> getUserList() {
     var json = [
       {
@@ -492,29 +499,29 @@ class OptionDataManager {
         "email": "alice@example.com",
         "phone": "13800138000",
         "password": "encrypted_123",
-        "nikeName": "Alice的小世界",
+        "nikeName": "AliceText 62",
         "mediaUrls": [
           "https://example.com/photo1.jpg",
           "https://example.com/photo2.jpg",
         ],
         "smartPhotosEnabled": true,
-        "aboutMe": "热爱旅行和美食，喜欢探索未知的世界",
+        "aboutMe": "Text 63, Text 64",
         "chatPreference": {
-          "title": "欢迎跟我聊旅行",
-          "goingOut": ["徒步", "露营", "自驾游"],
-          "myWeekend": ["探店", "看展", "和朋友小聚"],
-          "myPhone": ["刷旅行攻略", "拍照", "听播客"],
+          "title": "Text 65",
+          "goingOut": ["Text 66", "Text 67", "Text 68"],
+          "myWeekend": ["Text 69", "Text 70", "Text 71"],
+          "myPhone": ["Text 72", "Text 73", "Text 74"],
         },
         "prompts": [
-          {"title": "外出", "content": "最喜欢去海边城市，吹海风吃海鲜"},
-          {"title": "周末", "content": "周末喜欢去城市周边的小众景点"},
+          {"title": "Going Out", "content": "Text 75, Text 76"},
+          {"title": "Text 77", "content": "Text 78"},
         ],
         "interests": [
-          {"id": "interest_001", "name": "旅行"},
-          {"id": "interest_002", "name": "美食"},
-          {"id": "interest_003", "name": "摄影"},
+          {"id": "interest_001", "name": "Travel"},
+          {"id": "interest_002", "name": "Food"},
+          {"id": "interest_003", "name": "Photography"},
         ],
-        "relationshipGoal": {"id": 1, "title": "寻找灵魂伴侣", "emoji": "❤️"},
+        "relationshipGoal": {"id": 1, "title": "Text 79", "emoji": "❤️"},
         "height": {
           "unit": "HeightUnit.cm",
           "cm": 165.5,
@@ -522,41 +529,46 @@ class OptionDataManager {
           "inch": null,
         },
         "languages": [
-          {"id": "lang_001", "name": "中文"},
-          {"id": "lang_002", "name": "英语"},
+          {"id": "lang_001", "name": "Chinese"},
+          {"id": "lang_002", "name": "English"},
         ],
         "moreInfo": {
-          "zodiac": "天秤座",
-          "education": "本科",
-          "familyPlan": "3年内考虑结婚",
-          "communicationStyle": "直接坦率",
-          "loveLanguage": "陪伴和礼物",
+          "zodiac": "Text 34",
+          "education": "Text 40",
+          "familyPlan": "3Text 80",
+          "communicationStyle": "Text 81",
+          "loveLanguage": "Text 82Gifts",
         },
         "lifestyle": {
-          "petPreference": "喜欢猫",
-          "drinking": "偶尔喝红酒",
-          "smoking": "不吸烟",
-          "fitness": "每周健身3次",
-          "socialMediaActivity": "每天刷30分钟",
+          "petPreference": "Text 83",
+          "drinking": "SometimesText 84",
+          "smoking": "Non-smoker",
+          "fitness": "Text 853Text 86",
+          "socialMediaActivity": "Text 8730Text 88",
         },
-        "jobTitle": "产品经理",
-        "company": "互联网科技公司",
-        "school": "北京邮电大学",
-        "city": "北京市",
+        "jobTitle": "Text 89",
+        "company": "Text 90",
+        "school": "Text 91",
+        "city": "Text 92",
         "favoriteSong": {
-          "title": "旅行的意义",
-          "artist": "陈绮贞",
+          "title": "Text 93",
+          "artist": "Text 94",
           "coverImageUrl": "https://example.com/song1.jpg",
         },
         "spotifyArtist": "Taylor Swift",
         "gender": [
-          {"id": "gender_001", "name": "女", "desc": "女性", "isVisible": true},
+          {
+            "id": "gender_001",
+            "name": "Text 95",
+            "desc": "Female",
+            "isVisible": true,
+          },
         ],
         "sexualOrientation": [
           {
             "id": "so_001",
-            "name": "异性恋",
-            "desc": "只对异性感兴趣",
+            "name": "Heterosexual",
+            "desc": "Text 96",
             "isVisible": false,
           },
         ],
@@ -570,25 +582,25 @@ class OptionDataManager {
         "email": "bob@example.com",
         "phone": "13900139000",
         "password": "encrypted_456",
-        "nikeName": "Bob的健身日常",
+        "nikeName": "BobText 97",
         "mediaUrls": ["https://example.com/photo3.jpg"],
         "smartPhotosEnabled": false,
-        "aboutMe": "健身教练，热爱运动，追求健康生活",
+        "aboutMe": "Text 98, Text 99, Text 100",
         "chatPreference": {
-          "title": "欢迎跟我聊健身",
-          "goingOut": ["健身房", "跑步", "打篮球"],
-          "myWeekend": ["私教课", "户外训练", "看比赛"],
-          "myPhone": ["看健身教程", "记录训练数据", "听健身播客"],
+          "title": "Text 101",
+          "goingOut": ["Text 102", "Text 103", "Text 104"],
+          "myWeekend": ["Text 105", "Text 106", "Text 107"],
+          "myPhone": ["Text 108", "Text 109", "Text 110"],
         },
         "prompts": [
-          {"title": "健身", "content": "每周5次训练，专注增肌和核心"},
+          {"title": "Fitness", "content": "Text 1115Text 112, Text 113"},
         ],
         "interests": [
-          {"id": "interest_004", "name": "健身"},
-          {"id": "interest_005", "name": "篮球"},
-          {"id": "interest_006", "name": "营养"},
+          {"id": "interest_004", "name": "Fitness"},
+          {"id": "interest_005", "name": "Text 114"},
+          {"id": "interest_006", "name": "Text 115"},
         ],
-        "relationshipGoal": {"id": 2, "title": "结交运动伙伴", "emoji": "🏋️"},
+        "relationshipGoal": {"id": 2, "title": "Text 116", "emoji": "🏋️"},
         "height": {
           "unit": "HeightUnit.feetInch",
           "cm": null,
@@ -596,27 +608,27 @@ class OptionDataManager {
           "inch": 1,
         },
         "languages": [
-          {"id": "lang_001", "name": "中文"},
-          {"id": "lang_003", "name": "西班牙语"},
+          {"id": "lang_001", "name": "Chinese"},
+          {"id": "lang_003", "name": "Text 117"},
         ],
         "moreInfo": {
-          "zodiac": "白羊座",
-          "education": "大专",
-          "familyPlan": "暂无计划",
-          "communicationStyle": "热情直接",
-          "loveLanguage": "行动和鼓励",
+          "zodiac": "Text 28",
+          "education": "Text 39",
+          "familyPlan": "Text 118",
+          "communicationStyle": "Text 119",
+          "loveLanguage": "Text 120",
         },
         "lifestyle": {
-          "petPreference": "喜欢狗",
-          "drinking": "从不喝酒",
-          "smoking": "偶尔吸烟",
-          "fitness": "每天健身",
-          "socialMediaActivity": "每天刷1小时",
+          "petPreference": "Text 121",
+          "drinking": "NeverText 122",
+          "smoking": "SometimesText 123",
+          "fitness": "Text 124",
+          "socialMediaActivity": "Text 871Text 125",
         },
-        "jobTitle": "健身教练",
-        "company": "金仕堡健身中心",
-        "school": "上海体育学院",
-        "city": "上海市",
+        "jobTitle": "Text 98",
+        "company": "Text 126",
+        "school": "Text 127",
+        "city": "Text 128",
         "favoriteSong": {
           "title": "Stronger",
           "artist": "Kanye West",
@@ -624,13 +636,18 @@ class OptionDataManager {
         },
         "spotifyArtist": "Eminem",
         "gender": [
-          {"id": "gender_002", "name": "男", "desc": "男性", "isVisible": true},
+          {
+            "id": "gender_002",
+            "name": "Text 129",
+            "desc": "Male",
+            "isVisible": true,
+          },
         ],
         "sexualOrientation": [
           {
             "id": "so_001",
-            "name": "异性恋",
-            "desc": "只对异性感兴趣",
+            "name": "Heterosexual",
+            "desc": "Text 96",
             "isVisible": false,
           },
         ],
@@ -644,29 +661,29 @@ class OptionDataManager {
         "email": "charlie@example.com",
         "phone": "13700137000",
         "password": "encrypted_789",
-        "nikeName": "Charlie的书斋",
+        "nikeName": "CharlieText 130",
         "mediaUrls": [
           "https://example.com/photo4.jpg",
           "https://example.com/photo5.jpg",
           "https://example.com/photo6.jpg",
         ],
         "smartPhotosEnabled": true,
-        "aboutMe": "文学爱好者，兼职作家，喜欢安静的时光",
+        "aboutMe": "Text 131, Part-timeText 132, Text 133",
         "chatPreference": {
-          "title": "欢迎跟我聊书籍",
-          "goingOut": ["图书馆", "书店", "文学沙龙"],
-          "myWeekend": ["写作", "阅读", "喝茶"],
-          "myPhone": ["看电子书", "写随笔", "听有声书"],
+          "title": "Text 134",
+          "goingOut": ["Text 135", "Text 136", "Text 137"],
+          "myWeekend": ["Text 138", "Text 139", "Text 140"],
+          "myPhone": ["Text 141", "Text 142", "Text 143YesText 144"],
         },
         "prompts": [
-          {"title": "周末", "content": "周末通常宅家阅读，每月参加一次文学沙龙"},
+          {"title": "Text 77", "content": "Text 145, Text 146"},
         ],
         "interests": [
-          {"id": "interest_007", "name": "阅读"},
-          {"id": "interest_008", "name": "写作"},
-          {"id": "interest_009", "name": "茶道"},
+          {"id": "interest_007", "name": "Text 139"},
+          {"id": "interest_008", "name": "Text 138"},
+          {"id": "interest_009", "name": "Text 147"},
         ],
-        "relationshipGoal": {"id": 3, "title": "寻找聊得来的朋友", "emoji": "📚"},
+        "relationshipGoal": {"id": 3, "title": "Text 148", "emoji": "📚"},
         "height": {
           "unit": "HeightUnit.cm",
           "cm": 178.0,
@@ -674,39 +691,49 @@ class OptionDataManager {
           "inch": null,
         },
         "languages": [
-          {"id": "lang_001", "name": "中文"},
-          {"id": "lang_004", "name": "日语"},
-          {"id": "lang_005", "name": "法语"},
+          {"id": "lang_001", "name": "Chinese"},
+          {"id": "lang_004", "name": "Japanese"},
+          {"id": "lang_005", "name": "Text 149"},
         ],
         "moreInfo": {
-          "zodiac": "处女座",
-          "education": "硕士",
-          "familyPlan": "5年内考虑",
-          "communicationStyle": "温和耐心",
-          "loveLanguage": "倾听和理解",
+          "zodiac": "Text 33",
+          "education": "Text 41",
+          "familyPlan": "5Text 150",
+          "communicationStyle": "Text 151",
+          "loveLanguage": "Text 152",
         },
         "lifestyle": {
-          "petPreference": "喜欢仓鼠",
-          "drinking": "偶尔喝清茶",
-          "smoking": "不吸烟",
-          "fitness": "每周散步2次",
-          "socialMediaActivity": "每天刷15分钟",
+          "petPreference": "Text 153",
+          "drinking": "SometimesText 154",
+          "smoking": "Non-smoker",
+          "fitness": "Text 1552Text 86",
+          "socialMediaActivity": "Text 8715Text 88",
         },
-        "jobTitle": "自由撰稿人",
+        "jobTitle": "Text 156",
         "company": null,
-        "school": "南京大学",
-        "city": "南京市",
+        "school": "Text 157",
+        "city": "Text 158",
         "favoriteSong": {
-          "title": "平凡之路",
-          "artist": "朴树",
+          "title": "Text 159",
+          "artist": "Text 160",
           "coverImageUrl": "https://example.com/song3.jpg",
         },
-        "spotifyArtist": "李健",
+        "spotifyArtist": "Text 161",
         "gender": [
-          {"id": "gender_002", "name": "男", "desc": "男性", "isVisible": true},
+          {
+            "id": "gender_002",
+            "name": "Text 129",
+            "desc": "Male",
+            "isVisible": true,
+          },
         ],
         "sexualOrientation": [
-          {"id": "so_002", "name": "双性恋", "desc": "对男女都感兴趣", "isVisible": true},
+          {
+            "id": "so_002",
+            "name": "Bisexual",
+            "desc": "Text 162",
+            "isVisible": true,
+          },
         ],
         "privacySettings": {"hideAge": false, "hideDistance": false},
       },
@@ -718,25 +745,28 @@ class OptionDataManager {
         "email": "diana@example.com",
         "phone": "13600136000",
         "password": "encrypted_000",
-        "nikeName": "Diana的喵星球",
+        "nikeName": "DianaText 163",
         "mediaUrls": ["https://example.com/photo7.jpg"],
         "smartPhotosEnabled": false,
-        "aboutMe": "宠物博主，家里有3只猫，热爱小动物",
+        "aboutMe": "Text 164, Text 165Yes3Text 166, Text 167",
         "chatPreference": {
-          "title": "欢迎跟我聊宠物",
-          "goingOut": ["宠物乐园", "宠物医院", "宠物用品店"],
-          "myWeekend": ["陪猫咪玩", "给猫咪拍照", "做猫饭"],
-          "myPhone": ["刷宠物视频", "记录猫咪日常", "和猫友交流"],
+          "title": "Text 168",
+          "goingOut": ["Text 169", "Text 170", "Text 171"],
+          "myWeekend": ["Text 172", "Text 173", "Text 174"],
+          "myPhone": ["Text 175", "Text 176", "Text 177"],
         },
         "prompts": [
-          {"title": "宠物", "content": "养了美短、布偶、英短各一只，都是我的宝贝"},
+          {
+            "title": "Pets",
+            "content": "Text 178, Text 179, Text 180, Text 181",
+          },
         ],
         "interests": [
-          {"id": "interest_010", "name": "养猫"},
-          {"id": "interest_011", "name": "宠物美容"},
-          {"id": "interest_012", "name": "手工猫窝"},
+          {"id": "interest_010", "name": "Text 182"},
+          {"id": "interest_011", "name": "Text 183"},
+          {"id": "interest_012", "name": "Text 184"},
         ],
-        "relationshipGoal": {"id": 4, "title": "寻找爱猫的伴侣", "emoji": "🐱"},
+        "relationshipGoal": {"id": 4, "title": "Text 185", "emoji": "🐱"},
         "height": {
           "unit": "HeightUnit.cm",
           "cm": 162.0,
@@ -744,40 +774,45 @@ class OptionDataManager {
           "inch": null,
         },
         "languages": [
-          {"id": "lang_001", "name": "中文"},
+          {"id": "lang_001", "name": "Chinese"},
         ],
         "moreInfo": {
-          "zodiac": "巨蟹座",
-          "education": "本科",
-          "familyPlan": "暂时不考虑",
-          "communicationStyle": "温柔细心",
-          "loveLanguage": "陪伴和照顾",
+          "zodiac": "Text 31",
+          "education": "Text 40",
+          "familyPlan": "Text 186",
+          "communicationStyle": "Text 187",
+          "loveLanguage": "Text 188",
         },
         "lifestyle": {
-          "petPreference": "只喜欢猫",
-          "drinking": "从不喝酒",
-          "smoking": "不吸烟",
-          "fitness": "偶尔瑜伽",
-          "socialMediaActivity": "每天刷2小时",
+          "petPreference": "Text 189",
+          "drinking": "NeverText 122",
+          "smoking": "Non-smoker",
+          "fitness": "SometimesText 190",
+          "socialMediaActivity": "Text 872Text 125",
         },
-        "jobTitle": "宠物博主",
-        "company": "自媒体",
-        "school": "浙江传媒学院",
-        "city": "杭州市",
+        "jobTitle": "Text 164",
+        "company": "Text 191",
+        "school": "Text 192",
+        "city": "Text 193",
         "favoriteSong": {
-          "title": "学不会",
-          "artist": "林俊杰",
+          "title": "Text 194",
+          "artist": "Text 195",
           "coverImageUrl": null,
         },
-        "spotifyArtist": "邓紫棋",
+        "spotifyArtist": "Text 196",
         "gender": [
-          {"id": "gender_001", "name": "女", "desc": "女性", "isVisible": true},
+          {
+            "id": "gender_001",
+            "name": "Text 95",
+            "desc": "Female",
+            "isVisible": true,
+          },
         ],
         "sexualOrientation": [
           {
             "id": "so_001",
-            "name": "异性恋",
-            "desc": "只对异性感兴趣",
+            "name": "Heterosexual",
+            "desc": "Text 96",
             "isVisible": false,
           },
         ],
@@ -791,28 +826,28 @@ class OptionDataManager {
         "email": "eric@example.com",
         "phone": "13500135000",
         "password": "encrypted_111",
-        "nikeName": "Eric的咖啡时光",
+        "nikeName": "EricText 197",
         "mediaUrls": [
           "https://example.com/photo8.jpg",
           "https://example.com/photo9.jpg",
         ],
         "smartPhotosEnabled": true,
-        "aboutMe": "咖啡师，喜欢研究咖啡豆和拉花技巧",
+        "aboutMe": "Text 198, Text 199",
         "chatPreference": {
-          "title": "欢迎跟我聊咖啡",
-          "goingOut": ["咖啡馆探店", "咖啡豆市场", "咖啡展会"],
-          "myWeekend": ["练习拉花", "烘焙咖啡豆", "和咖啡友交流"],
-          "myPhone": ["看咖啡教程", "记录配方", "订咖啡豆"],
+          "title": "Text 200",
+          "goingOut": ["Text 201", "Text 202", "Text 203"],
+          "myWeekend": ["Text 204", "Text 205", "Text 206"],
+          "myPhone": ["Text 207", "Text 208", "Text 209"],
         },
         "prompts": [
-          {"title": "爱好", "content": "最喜欢手冲咖啡，能品尝到咖啡豆的原味"},
+          {"title": "Text 210", "content": "Text 211, Text 212"},
         ],
         "interests": [
-          {"id": "interest_013", "name": "咖啡"},
-          {"id": "interest_014", "name": "烘焙"},
-          {"id": "interest_015", "name": "拉花"},
+          {"id": "interest_013", "name": "Coffee"},
+          {"id": "interest_014", "name": "Text 213"},
+          {"id": "interest_015", "name": "Text 214"},
         ],
-        "relationshipGoal": {"id": 5, "title": "随缘交友", "emoji": "☕"},
+        "relationshipGoal": {"id": 5, "title": "Text 215", "emoji": "☕"},
         "height": {
           "unit": "HeightUnit.feetInch",
           "cm": null,
@@ -820,42 +855,47 @@ class OptionDataManager {
           "inch": 11,
         },
         "languages": [
-          {"id": "lang_001", "name": "中文"},
-          {"id": "lang_002", "name": "英语"},
-          {"id": "lang_006", "name": "意大利语"},
+          {"id": "lang_001", "name": "Chinese"},
+          {"id": "lang_002", "name": "English"},
+          {"id": "lang_006", "name": "Italian"},
         ],
         "moreInfo": {
-          "zodiac": "金牛座",
-          "education": "大专",
-          "familyPlan": "4年内考虑结婚",
-          "communicationStyle": "沉稳务实",
-          "loveLanguage": "美食和陪伴",
+          "zodiac": "Text 29",
+          "education": "Text 39",
+          "familyPlan": "4Text 80",
+          "communicationStyle": "Text 216",
+          "loveLanguage": "Text 217",
         },
         "lifestyle": {
-          "petPreference": "喜欢狗",
-          "drinking": "偶尔喝精酿啤酒",
-          "smoking": "不吸烟",
-          "fitness": "每周健身1次",
-          "socialMediaActivity": "每天刷40分钟",
+          "petPreference": "Text 121",
+          "drinking": "SometimesText 218",
+          "smoking": "Non-smoker",
+          "fitness": "Text 851Text 86",
+          "socialMediaActivity": "Text 8740Text 88",
         },
-        "jobTitle": "高级咖啡师",
-        "company": "星巴克臻选店",
-        "school": "上海旅游高等专科学校",
-        "city": "广州市",
+        "jobTitle": "Text 219",
+        "company": "Text 220",
+        "school": "Text 221",
+        "city": "Text 222",
         "favoriteSong": {
-          "title": "咖啡",
-          "artist": "张学友",
+          "title": "Coffee",
+          "artist": "Text 223",
           "coverImageUrl": "https://example.com/song4.jpg",
         },
-        "spotifyArtist": "周杰伦",
+        "spotifyArtist": "Text 224",
         "gender": [
-          {"id": "gender_002", "name": "男", "desc": "男性", "isVisible": true},
+          {
+            "id": "gender_002",
+            "name": "Text 129",
+            "desc": "Male",
+            "isVisible": true,
+          },
         ],
         "sexualOrientation": [
           {
             "id": "so_001",
-            "name": "异性恋",
-            "desc": "只对异性感兴趣",
+            "name": "Heterosexual",
+            "desc": "Text 96",
             "isVisible": false,
           },
         ],
@@ -869,29 +909,29 @@ class OptionDataManager {
         "email": "fiona@example.com",
         "phone": "13400134000",
         "password": "encrypted_222",
-        "nikeName": "Fiona的艺术空间",
+        "nikeName": "FionaText 225",
         "mediaUrls": [
           "https://example.com/photo10.jpg",
           "https://example.com/photo11.jpg",
           "https://example.com/photo12.jpg",
         ],
         "smartPhotosEnabled": true,
-        "aboutMe": "油画师，专注风景创作，喜欢逛美术馆",
+        "aboutMe": "Text 226, Text 227, Text 228",
         "chatPreference": {
-          "title": "欢迎跟我聊艺术",
-          "goingOut": ["美术馆", "画廊", "艺术区"],
-          "myWeekend": ["画画", "看艺术展", "写生"],
-          "myPhone": ["看艺术作品", "找灵感", "和画友交流"],
+          "title": "Text 229",
+          "goingOut": ["Text 230", "Text 231", "Text 232"],
+          "myWeekend": ["Text 233", "Text 234", "Text 235"],
+          "myPhone": ["Text 236", "Text 237", "Text 238"],
         },
         "prompts": [
-          {"title": "创作", "content": "擅长油画风景，最喜欢画日落和海边"},
+          {"title": "Text 239", "content": "Text 240, Text 241"},
         ],
         "interests": [
-          {"id": "interest_016", "name": "油画"},
-          {"id": "interest_017", "name": "写生"},
-          {"id": "interest_018", "name": "艺术鉴赏"},
+          {"id": "interest_016", "name": "Oil Painting"},
+          {"id": "interest_017", "name": "Text 235"},
+          {"id": "interest_018", "name": "Text 242"},
         ],
-        "relationshipGoal": {"id": 6, "title": "寻找艺术同好", "emoji": "🎨"},
+        "relationshipGoal": {"id": 6, "title": "Text 243", "emoji": "🎨"},
         "height": {
           "unit": "HeightUnit.cm",
           "cm": 168.5,
@@ -899,39 +939,49 @@ class OptionDataManager {
           "inch": null,
         },
         "languages": [
-          {"id": "lang_001", "name": "中文"},
-          {"id": "lang_002", "name": "英语"},
-          {"id": "lang_007", "name": "意大利语"},
+          {"id": "lang_001", "name": "Chinese"},
+          {"id": "lang_002", "name": "English"},
+          {"id": "lang_007", "name": "Italian"},
         ],
         "moreInfo": {
-          "zodiac": "双鱼座",
-          "education": "本科",
-          "familyPlan": "暂时不考虑",
-          "communicationStyle": "感性细腻",
-          "loveLanguage": "理解和赞美",
+          "zodiac": "Text 27",
+          "education": "Text 40",
+          "familyPlan": "Text 186",
+          "communicationStyle": "Text 244",
+          "loveLanguage": "Text 245Words of affirmation",
         },
         "lifestyle": {
-          "petPreference": "喜欢兔子",
-          "drinking": "偶尔喝起泡酒",
-          "smoking": "不吸烟",
-          "fitness": "每周瑜伽2次",
-          "socialMediaActivity": "每天刷50分钟",
+          "petPreference": "Text 246",
+          "drinking": "SometimesText 247",
+          "smoking": "Non-smoker",
+          "fitness": "Text 2482Text 86",
+          "socialMediaActivity": "Text 8750Text 88",
         },
-        "jobTitle": "自由油画师",
+        "jobTitle": "Text 249",
         "company": null,
-        "school": "中央美术学院",
-        "city": "成都市",
+        "school": "Text 250",
+        "city": "Text 251",
         "favoriteSong": {
-          "title": "梵高先生",
-          "artist": "李志",
+          "title": "Text 252",
+          "artist": "Text 253",
           "coverImageUrl": "https://example.com/song5.jpg",
         },
-        "spotifyArtist": "陈粒",
+        "spotifyArtist": "Text 254",
         "gender": [
-          {"id": "gender_001", "name": "女", "desc": "女性", "isVisible": true},
+          {
+            "id": "gender_001",
+            "name": "Text 95",
+            "desc": "Female",
+            "isVisible": true,
+          },
         ],
         "sexualOrientation": [
-          {"id": "so_003", "name": "同性恋", "desc": "只对同性感兴趣", "isVisible": true},
+          {
+            "id": "so_003",
+            "name": "Text 255",
+            "desc": "Text 256",
+            "isVisible": true,
+          },
         ],
         "privacySettings": {"hideAge": true, "hideDistance": false},
       },
@@ -943,25 +993,25 @@ class OptionDataManager {
         "email": "george@example.com",
         "phone": "13300133000",
         "password": "encrypted_333",
-        "nikeName": "George的数码世界",
+        "nikeName": "GeorgeText 257",
         "mediaUrls": ["https://example.com/photo13.jpg"],
         "smartPhotosEnabled": false,
-        "aboutMe": "数码博主，测评各类电子产品，喜欢折腾新科技",
+        "aboutMe": "Text 258, Text 259, Text 260",
         "chatPreference": {
-          "title": "欢迎跟我聊数码",
-          "goingOut": ["数码城", "科技展会", "体验店"],
-          "myWeekend": ["测评产品", "修手机", "玩游戏机"],
-          "myPhone": ["刷数码资讯", "测试新功能", "和机友交流"],
+          "title": "Text 261",
+          "goingOut": ["Text 262", "Text 263", "Text 264"],
+          "myWeekend": ["Text 265", "Text 266", "Text 267"],
+          "myPhone": ["Text 268", "Text 269", "Text 270"],
         },
         "prompts": [
-          {"title": "数码", "content": "最喜欢折腾安卓手机，擅长刷机和优化"},
+          {"title": "Tech", "content": "Text 271, Text 272"},
         ],
         "interests": [
-          {"id": "interest_019", "name": "数码产品"},
-          {"id": "interest_020", "name": "游戏机"},
-          {"id": "interest_021", "name": "编程"},
+          {"id": "interest_019", "name": "Text 273"},
+          {"id": "interest_020", "name": "Text 274"},
+          {"id": "interest_021", "name": "Text 275"},
         ],
-        "relationshipGoal": {"id": 7, "title": "寻找科技爱好者", "emoji": "📱"},
+        "relationshipGoal": {"id": 7, "title": "Text 276", "emoji": "📱"},
         "height": {
           "unit": "HeightUnit.feetInch",
           "cm": null,
@@ -969,42 +1019,47 @@ class OptionDataManager {
           "inch": 2,
         },
         "languages": [
-          {"id": "lang_001", "name": "中文"},
-          {"id": "lang_002", "name": "英语"},
-          {"id": "lang_008", "name": "韩语"},
+          {"id": "lang_001", "name": "Chinese"},
+          {"id": "lang_002", "name": "English"},
+          {"id": "lang_008", "name": "Text 277"},
         ],
         "moreInfo": {
-          "zodiac": "水瓶座",
-          "education": "本科",
-          "familyPlan": "6年内考虑",
-          "communicationStyle": "理性客观",
-          "loveLanguage": "共同探讨和分享",
+          "zodiac": "Text 26",
+          "education": "Text 40",
+          "familyPlan": "6Text 150",
+          "communicationStyle": "Text 278",
+          "loveLanguage": "Text 279",
         },
         "lifestyle": {
-          "petPreference": "喜欢乌龟",
-          "drinking": "偶尔喝啤酒",
-          "smoking": "偶尔吸烟",
-          "fitness": "每周打羽毛球1次",
-          "socialMediaActivity": "每天刷1.5小时",
+          "petPreference": "Text 280",
+          "drinking": "SometimesText 281",
+          "smoking": "SometimesText 123",
+          "fitness": "Text 2821Text 86",
+          "socialMediaActivity": "Text 871.5Text 125",
         },
-        "jobTitle": "数码博主",
-        "company": "自媒体",
-        "school": "电子科技大学",
-        "city": "深圳市",
+        "jobTitle": "Text 258",
+        "company": "Text 191",
+        "school": "Text 283",
+        "city": "Text 284",
         "favoriteSong": {
-          "title": "数码宝贝主题曲",
-          "artist": "和田光司",
+          "title": "Text 285",
+          "artist": "Text 286",
           "coverImageUrl": "https://example.com/song6.jpg",
         },
-        "spotifyArtist": "周杰伦",
+        "spotifyArtist": "Text 224",
         "gender": [
-          {"id": "gender_002", "name": "男", "desc": "男性", "isVisible": true},
+          {
+            "id": "gender_002",
+            "name": "Text 129",
+            "desc": "Male",
+            "isVisible": true,
+          },
         ],
         "sexualOrientation": [
           {
             "id": "so_001",
-            "name": "异性恋",
-            "desc": "只对异性感兴趣",
+            "name": "Heterosexual",
+            "desc": "Text 96",
             "isVisible": false,
           },
         ],
@@ -1018,28 +1073,28 @@ class OptionDataManager {
         "email": "hannah@example.com",
         "phone": "13200132000",
         "password": "encrypted_444",
-        "nikeName": "Hannah的烘焙日记",
+        "nikeName": "HannahText 287",
         "mediaUrls": [
           "https://example.com/photo14.jpg",
           "https://example.com/photo15.jpg",
         ],
         "smartPhotosEnabled": true,
-        "aboutMe": "烘焙师，擅长甜品制作，喜欢分享美食配方",
+        "aboutMe": "Text 288, Text 289, Text 290",
         "chatPreference": {
-          "title": "欢迎跟我聊烘焙",
-          "goingOut": ["烘焙原料店", "甜品店探店", "烘焙课程"],
-          "myWeekend": ["做甜品", "研发新配方", "和朋友分享"],
-          "myPhone": ["看烘焙教程", "记录配方", "和烘焙友交流"],
+          "title": "Text 291",
+          "goingOut": ["Text 292", "Text 293", "Text 294"],
+          "myWeekend": ["Text 295", "Text 296", "Text 297"],
+          "myPhone": ["Text 298", "Text 208", "Text 299"],
         },
         "prompts": [
-          {"title": "烘焙", "content": "最擅长做马卡龙和芝士蛋糕，成功率90%以上"},
+          {"title": "Text 213", "content": "Text 300, Text 30190%Text 50"},
         ],
         "interests": [
-          {"id": "interest_022", "name": "烘焙"},
-          {"id": "interest_023", "name": "甜品"},
-          {"id": "interest_024", "name": "美食摄影"},
+          {"id": "interest_022", "name": "Text 213"},
+          {"id": "interest_023", "name": "Text 302"},
+          {"id": "interest_024", "name": "Text 303"},
         ],
-        "relationshipGoal": {"id": 8, "title": "寻找爱吃甜品的伴侣", "emoji": "🍰"},
+        "relationshipGoal": {"id": 8, "title": "Text 304", "emoji": "🍰"},
         "height": {
           "unit": "HeightUnit.cm",
           "cm": 158.0,
@@ -1047,41 +1102,46 @@ class OptionDataManager {
           "inch": null,
         },
         "languages": [
-          {"id": "lang_001", "name": "中文"},
-          {"id": "lang_009", "name": "德语"},
+          {"id": "lang_001", "name": "Chinese"},
+          {"id": "lang_009", "name": "German"},
         ],
         "moreInfo": {
-          "zodiac": "摩羯座",
-          "education": "本科",
-          "familyPlan": "2年内考虑结婚",
-          "communicationStyle": "踏实靠谱",
-          "loveLanguage": "美食和陪伴",
+          "zodiac": "Text 25",
+          "education": "Text 40",
+          "familyPlan": "2Text 80",
+          "communicationStyle": "Text 305",
+          "loveLanguage": "Text 217",
         },
         "lifestyle": {
-          "petPreference": "喜欢龙猫",
-          "drinking": "偶尔喝果酒",
-          "smoking": "不吸烟",
-          "fitness": "每周跳操1次",
-          "socialMediaActivity": "每天刷1小时",
+          "petPreference": "Text 306",
+          "drinking": "SometimesText 307",
+          "smoking": "Non-smoker",
+          "fitness": "Text 3081Text 86",
+          "socialMediaActivity": "Text 871Text 125",
         },
-        "jobTitle": "甜品师",
-        "company": "好利来",
-        "school": "蓝带厨艺学院",
-        "city": "重庆市",
+        "jobTitle": "Text 309",
+        "company": "Text 310",
+        "school": "Text 311",
+        "city": "Text 312",
         "favoriteSong": {
-          "title": "甜甜的",
-          "artist": "周杰伦",
+          "title": "Text 313",
+          "artist": "Text 224",
           "coverImageUrl": "https://example.com/song7.jpg",
         },
-        "spotifyArtist": "孙燕姿",
+        "spotifyArtist": "Text 314",
         "gender": [
-          {"id": "gender_001", "name": "女", "desc": "女性", "isVisible": true},
+          {
+            "id": "gender_001",
+            "name": "Text 95",
+            "desc": "Female",
+            "isVisible": true,
+          },
         ],
         "sexualOrientation": [
           {
             "id": "so_001",
-            "name": "异性恋",
-            "desc": "只对异性感兴趣",
+            "name": "Heterosexual",
+            "desc": "Text 96",
             "isVisible": false,
           },
         ],
@@ -1095,29 +1155,33 @@ class OptionDataManager {
         "email": "ian@example.com",
         "phone": "13100131000",
         "password": "encrypted_555",
-        "nikeName": "Ian的户外探险",
+        "nikeName": "IanText 315",
         "mediaUrls": [
           "https://example.com/photo16.jpg",
           "https://example.com/photo17.jpg",
           "https://example.com/photo18.jpg",
         ],
         "smartPhotosEnabled": false,
-        "aboutMe": "户外探险家，喜欢登山、潜水，挑战极限运动",
+        "aboutMe": "Text 316, Text 317, Lurker, Text 318",
         "chatPreference": {
-          "title": "欢迎跟我聊户外",
-          "goingOut": ["登山", "潜水", "攀岩"],
-          "myWeekend": ["户外训练", "整理装备", "规划路线"],
-          "myPhone": ["看户外攻略", "记录轨迹", "和驴友交流"],
+          "title": "Text 319",
+          "goingOut": ["Text 320", "Lurker", "Text 321"],
+          "myWeekend": ["Text 106", "Text 322", "Text 323"],
+          "myPhone": ["Text 324", "Text 325", "Text 326"],
         },
         "prompts": [
-          {"title": "户外", "content": "登顶过5座5000米以上的山峰，潜水证到AOW级别"},
+          {
+            "title": "Text 327",
+            "content":
+                "Text 3285Text 3295000Text 330, LurkerText 331AOWText 332",
+          },
         ],
         "interests": [
-          {"id": "interest_025", "name": "登山"},
-          {"id": "interest_026", "name": "潜水"},
-          {"id": "interest_027", "name": "攀岩"},
+          {"id": "interest_025", "name": "Text 320"},
+          {"id": "interest_026", "name": "Lurker"},
+          {"id": "interest_027", "name": "Text 321"},
         ],
-        "relationshipGoal": {"id": 9, "title": "寻找户外搭档", "emoji": "⛰️"},
+        "relationshipGoal": {"id": 9, "title": "Text 333", "emoji": "⛰️"},
         "height": {
           "unit": "HeightUnit.feetInch",
           "cm": null,
@@ -1125,39 +1189,49 @@ class OptionDataManager {
           "inch": 3,
         },
         "languages": [
-          {"id": "lang_001", "name": "中文"},
-          {"id": "lang_002", "name": "英语"},
-          {"id": "lang_010", "name": "葡萄牙语"},
+          {"id": "lang_001", "name": "Chinese"},
+          {"id": "lang_002", "name": "English"},
+          {"id": "lang_010", "name": "Text 334"},
         ],
         "moreInfo": {
-          "zodiac": "射手座",
-          "education": "本科",
-          "familyPlan": "暂无计划",
-          "communicationStyle": "豪爽直接",
-          "loveLanguage": "共同冒险和鼓励",
+          "zodiac": "Text 36",
+          "education": "Text 40",
+          "familyPlan": "Text 118",
+          "communicationStyle": "Text 335",
+          "loveLanguage": "Text 336",
         },
         "lifestyle": {
-          "petPreference": "喜欢牧羊犬",
-          "drinking": "偶尔喝威士忌",
-          "smoking": "偶尔吸烟",
-          "fitness": "每天训练",
-          "socialMediaActivity": "每天刷30分钟",
+          "petPreference": "Text 337",
+          "drinking": "SometimesText 338",
+          "smoking": "SometimesText 123",
+          "fitness": "Text 339",
+          "socialMediaActivity": "Text 8730Text 88",
         },
-        "jobTitle": "户外教练",
-        "company": "户外探险俱乐部",
-        "school": "北京体育大学",
-        "city": "拉萨市",
+        "jobTitle": "Text 340",
+        "company": "Text 341",
+        "school": "Text 342",
+        "city": "Text 343",
         "favoriteSong": {
-          "title": "蓝莲花",
-          "artist": "许巍",
+          "title": "Text 344",
+          "artist": "Text 345",
           "coverImageUrl": "https://example.com/song8.jpg",
         },
-        "spotifyArtist": "许巍",
+        "spotifyArtist": "Text 345",
         "gender": [
-          {"id": "gender_002", "name": "男", "desc": "男性", "isVisible": true},
+          {
+            "id": "gender_002",
+            "name": "Text 129",
+            "desc": "Male",
+            "isVisible": true,
+          },
         ],
         "sexualOrientation": [
-          {"id": "so_002", "name": "双性恋", "desc": "对男女都感兴趣", "isVisible": true},
+          {
+            "id": "so_002",
+            "name": "Bisexual",
+            "desc": "Text 162",
+            "isVisible": true,
+          },
         ],
         "privacySettings": {"hideAge": false, "hideDistance": true},
       },
@@ -1169,25 +1243,25 @@ class OptionDataManager {
         "email": "julia@example.com",
         "phone": "13000130000",
         "password": "encrypted_666",
-        "nikeName": "Julia的瑜伽馆",
+        "nikeName": "JuliaText 346",
         "mediaUrls": ["https://example.com/photo19.jpg"],
         "smartPhotosEnabled": true,
-        "aboutMe": "瑜伽教练，专注正念冥想，帮助他人缓解压力",
+        "aboutMe": "Text 347, Text 348, Text 349",
         "chatPreference": {
-          "title": "欢迎跟我聊瑜伽",
-          "goingOut": ["瑜伽馆", "户外瑜伽", "冥想中心"],
-          "myWeekend": ["上瑜伽课", "冥想", "练习阿斯汤加"],
-          "myPhone": ["看瑜伽教程", "听冥想音频", "和学员交流"],
+          "title": "Text 350",
+          "goingOut": ["Text 351", "Text 352", "Text 353"],
+          "myWeekend": ["Text 354", "Meditation", "Text 355"],
+          "myPhone": ["Text 356", "Text 357", "Text 358"],
         },
         "prompts": [
-          {"title": "瑜伽", "content": "拥有RYT500认证，擅长流瑜伽和阴瑜伽"},
+          {"title": "Yoga", "content": "Text 359YesRYT500Text 360, Text 361"},
         ],
         "interests": [
-          {"id": "interest_028", "name": "瑜伽"},
-          {"id": "interest_029", "name": "冥想"},
-          {"id": "interest_030", "name": "普拉提"},
+          {"id": "interest_028", "name": "Yoga"},
+          {"id": "interest_029", "name": "Meditation"},
+          {"id": "interest_030", "name": "Text 362"},
         ],
-        "relationshipGoal": {"id": 10, "title": "寻找热爱生活的伴侣", "emoji": "🧘"},
+        "relationshipGoal": {"id": 10, "title": "Text 363", "emoji": "🧘"},
         "height": {
           "unit": "HeightUnit.cm",
           "cm": 170.0,
@@ -1195,42 +1269,47 @@ class OptionDataManager {
           "inch": null,
         },
         "languages": [
-          {"id": "lang_001", "name": "中文"},
-          {"id": "lang_002", "name": "英语"},
-          {"id": "lang_011", "name": "印地语"},
+          {"id": "lang_001", "name": "Chinese"},
+          {"id": "lang_002", "name": "English"},
+          {"id": "lang_011", "name": "Hindi"},
         ],
         "moreInfo": {
-          "zodiac": "天蝎座",
-          "education": "硕士",
-          "familyPlan": "3年内考虑",
-          "communicationStyle": "温柔有耐心",
-          "loveLanguage": "陪伴和倾听",
+          "zodiac": "Text 35",
+          "education": "Text 41",
+          "familyPlan": "3Text 150",
+          "communicationStyle": "Text 364YesText 365",
+          "loveLanguage": "Text 366",
         },
         "lifestyle": {
-          "petPreference": "喜欢鹦鹉",
-          "drinking": "从不喝酒",
-          "smoking": "不吸烟",
-          "fitness": "每天瑜伽",
-          "socialMediaActivity": "每天刷20分钟",
+          "petPreference": "Text 367",
+          "drinking": "NeverText 122",
+          "smoking": "Non-smoker",
+          "fitness": "Text 368",
+          "socialMediaActivity": "Text 8720Text 88",
         },
-        "jobTitle": "资深瑜伽教练",
-        "company": "lululemon瑜伽中心",
-        "school": "印度瑜伽学院",
-        "city": "西安市",
+        "jobTitle": "Text 369",
+        "company": "lululemonText 370",
+        "school": "Text 371",
+        "city": "Text 372",
         "favoriteSong": {
-          "title": "万物生",
-          "artist": "萨顶顶",
+          "title": "Text 373",
+          "artist": "Text 374",
           "coverImageUrl": "https://example.com/song9.jpg",
         },
-        "spotifyArtist": "王菲",
+        "spotifyArtist": "Text 375",
         "gender": [
-          {"id": "gender_001", "name": "女", "desc": "女性", "isVisible": true},
+          {
+            "id": "gender_001",
+            "name": "Text 95",
+            "desc": "Female",
+            "isVisible": true,
+          },
         ],
         "sexualOrientation": [
           {
             "id": "so_001",
-            "name": "异性恋",
-            "desc": "只对异性感兴趣",
+            "name": "Heterosexual",
+            "desc": "Text 96",
             "isVisible": false,
           },
         ],
@@ -1254,7 +1333,7 @@ class OptionDataManager {
     return userList;
   }
 
-  /// 根据探索类型生成用户列表
+  /// English
   static List<UserProfileModel> getUserListBySearchType(
     String searchType, {
     int count = 12,
@@ -1272,55 +1351,55 @@ class OptionDataManager {
           '${user.lifestyle.fitness} ${user.lifestyle.drinking} ${user.lifestyle.petPreference}'
               .toLowerCase();
 
-      if (type.contains('长期')) {
-        return relationship.contains('伴侣') ||
-            relationship.contains('灵魂') ||
-            about.contains('长期');
+      if (type.contains('Long-term')) {
+        return relationship.contains('Partner') ||
+            relationship.contains('Soul') ||
+            about.contains('Long-term');
       }
-      if (type.contains('短期')) {
-        return relationship.contains('新朋友') ||
-            relationship.contains('伙伴') ||
-            about.contains('社交');
+      if (type.contains('Short-term')) {
+        return relationship.contains('New friends') ||
+            relationship.contains('Companion') ||
+            about.contains('Text 376');
       }
-      if (type.contains('朋友')) {
-        return relationship.contains('朋友') || about.contains('朋友');
+      if (type.contains('Friends')) {
+        return relationship.contains('Friends') || about.contains('Friends');
       }
-      if (type.contains('旅行') || type.contains('自然')) {
-        return interests.contains('旅行') ||
-            interests.contains('户外') ||
-            about.contains('旅行');
+      if (type.contains('Travel') || type.contains('Nature')) {
+        return interests.contains('Travel') ||
+            interests.contains('Text 327') ||
+            about.contains('Travel');
       }
-      if (type.contains('运动') || type.contains('健身')) {
-        return interests.contains('健身') ||
-            interests.contains('篮球') ||
-            lifestyle.contains('健身');
+      if (type.contains('Sports') || type.contains('Fitness')) {
+        return interests.contains('Fitness') ||
+            interests.contains('Text 114') ||
+            lifestyle.contains('Fitness');
       }
-      if (type.contains('音乐')) {
-        return interests.contains('音乐') ||
+      if (type.contains('Music')) {
+        return interests.contains('Music') ||
             (user.favoriteSong?.title.isNotEmpty ?? false);
       }
-      if (type.contains('美食') || type.contains('咖啡')) {
-        return interests.contains('美食') ||
-            about.contains('咖啡') ||
-            about.contains('烘焙');
+      if (type.contains('Food') || type.contains('Coffee')) {
+        return interests.contains('Food') ||
+            about.contains('Coffee') ||
+            about.contains('Text 213');
       }
-      if (type.contains('游戏')) {
-        return interests.contains('游戏') || interests.contains('数码');
+      if (type.contains('Gaming')) {
+        return interests.contains('Gaming') || interests.contains('Tech');
       }
-      if (type.contains('宠物')) {
-        return lifestyle.contains('猫') ||
-            lifestyle.contains('狗') ||
-            lifestyle.contains('宠');
+      if (type.contains('Pets')) {
+        return lifestyle.contains('Cat') ||
+            lifestyle.contains('Dog') ||
+            lifestyle.contains('Text 377');
       }
-      if (type.contains('创意')) {
-        return interests.contains('摄影') ||
-            about.contains('油画') ||
-            about.contains('作家');
+      if (type.contains('Creative')) {
+        return interests.contains('Photography') ||
+            about.contains('Oil Painting') ||
+            about.contains('Writer');
       }
-      if (type.contains('自我关怀')) {
-        return interests.contains('冥想') ||
-            interests.contains('瑜伽') ||
-            about.contains('热爱生活');
+      if (type.contains('Self-care')) {
+        return interests.contains('Meditation') ||
+            interests.contains('Yoga') ||
+            about.contains('Love life');
       }
       return true;
     }).toList();
@@ -1339,7 +1418,7 @@ class OptionDataManager {
     return selected;
   }
 
-  /// 当前用户点赞过的人（本地持久化）
+  /// English(English)
   static Future<List<UserProfileModel>> getUserlike() async {
     final activeUser = await UserAuthLocalDb.instance.getActiveUser();
     final activeUserId = activeUser?.userId ?? 'guest';
@@ -1348,16 +1427,16 @@ class OptionDataManager {
 }
 
 class ProfileItem {
-  /// 图标
+  /// English
   final IconData icon;
 
-  /// 标签文案
+  /// English
   final String label;
 
-  /// 当前选中值
+  /// English
   final String value;
 
-  /// 关联的选项类型枚举（可选，用于唤起对应弹窗）
+  /// English(English, English)
   final SheetOptionType optionType;
 
   const ProfileItem({

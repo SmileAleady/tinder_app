@@ -207,16 +207,16 @@ class _SettingPageState extends State<SettingPage> {
                   _membershipCard(
                     'PLATINUM',
                     const Color(0xFF171C24),
-                    '你可以使用置顶赞，查看谁给你点了赞，同时享受更多高级功能',
+                    'You can use the pinned likes feature to see who has liked you, and enjoy more advanced functions at the same time',
                   ),
                   const SizedBox(height: 10),
                   _membershipCard(
                     'GOLD',
                     const Color(0xFFE4B025),
-                    '查看给你点赞的人及更多信息！',
+                    'View the people who have liked you and more information! ',
                   ),
                   const SizedBox(height: 10),
-                  _membershipCard('PLUS', _pink, '无限点赞次数和更多！'),
+                  _membershipCard('PLUS', _pink, 'Unlimited likes and more!'),
                   const SizedBox(height: 10),
                   Row(
                     children: [
@@ -232,7 +232,7 @@ class _SettingPageState extends State<SettingPage> {
                           child: _quickAction(
                             Icons.star,
                             const Color(0xFF20B7F2),
-                            '获取 Super Like',
+                            'Get Super Like',
                           ),
                         ),
                       ),
@@ -243,7 +243,7 @@ class _SettingPageState extends State<SettingPage> {
                           child: _quickAction(
                             Icons.bolt,
                             const Color(0xFFA03DFF),
-                            '获得 Boost',
+                            'Gain Boost',
                           ),
                         ),
                       ),
@@ -256,22 +256,26 @@ class _SettingPageState extends State<SettingPage> {
                         child: _quickAction(
                           Icons.visibility_off,
                           _text,
-                          '开启隐身模式',
+                          'Enable stealth mode',
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: _quickAction(Icons.flight, _pink, '位置漫游模式'),
+                        child: _quickAction(
+                          Icons.flight,
+                          _pink,
+                          'Location Roaming Mode',
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  _sectionTitle('账号设置'),
+                  _sectionTitle('Account Settings'),
                   _card(
                     child: Column(
                       children: [
                         _valueRow(
-                          '电话号码',
+                          'Phone number',
                           _user?.phone.isNotEmpty == true
                               ? _user!.phone
                               : '86 198 8201 7769',
@@ -281,17 +285,17 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    '验证手机号码，以帮助保护你的账号。',
+                    'Verify your mobile phone number to help protect your account.',
                     style: TextStyle(color: _sub, fontSize: 13),
                   ),
                   const SizedBox(height: 16),
-                  _sectionTitle('发现设置'),
+                  _sectionTitle('Discovery Settings'),
                   _card(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          '位置',
+                          'Location',
                           style: TextStyle(
                             color: _text,
                             fontSize: 17,
@@ -320,7 +324,7 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                         const SizedBox(height: 10),
                         const Text(
-                          '添加一个新位置',
+                          'Add a new location',
                           style: TextStyle(
                             color: _pink,
                             fontSize: 17,
@@ -332,7 +336,7 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    '更改位置，随地配对。',
+                    'Change location, pair up anywhere.',
                     style: TextStyle(color: _sub, fontSize: 17),
                   ),
                   const SizedBox(height: 10),
@@ -341,7 +345,7 @@ class _SettingPageState extends State<SettingPage> {
                       children: [
                         const Expanded(
                           child: Text(
-                            '搜索全球',
+                            'Search globally',
                             style: TextStyle(color: _text, fontSize: 17),
                           ),
                         ),
@@ -354,7 +358,7 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    '开启“搜索全球”模式，你将会看到来自附近和全球各地的朋友。',
+                    'Activate the ‘Search Global’ mode, and you will see friends from nearby and all over the world.',
                     style: TextStyle(color: _sub, fontSize: 17, height: 1.3),
                   ),
                   const SizedBox(height: 10),
@@ -365,7 +369,7 @@ class _SettingPageState extends State<SettingPage> {
                         Row(
                           children: [
                             const Text(
-                              '最大距离',
+                              'Maximum distance',
                               style: TextStyle(
                                 color: _text,
                                 fontSize: 17,
@@ -395,7 +399,7 @@ class _SettingPageState extends State<SettingPage> {
                           children: [
                             const Expanded(
                               child: Text(
-                                '当我将可看的个人资料浏览完后向我显示超出距离范围的用户',
+                                'Show me users beyond the distance range after I have browsed through the viewable personal profiles',
                                 style: TextStyle(
                                   color: _text,
                                   fontSize: 17,
@@ -423,12 +427,12 @@ class _SettingPageState extends State<SettingPage> {
                   _card(
                     child: Column(
                       children: [
-                        _entryRow('感兴趣', trailing: _firstGender()),
+                        _entryRow('Interested', trailing: _firstGender()),
                         const SizedBox(height: 12),
                         Row(
                           children: [
                             const Text(
-                              '年龄范围',
+                              'Age range',
                               style: TextStyle(
                                 color: _text,
                                 fontSize: 17,
@@ -457,7 +461,7 @@ class _SettingPageState extends State<SettingPage> {
                           children: [
                             const Expanded(
                               child: Text(
-                                '当我将可看的个人资料浏览完毕后向我显示略微超出偏好范围的用户。',
+                                'After I have browsed through the viewable profiles, show me users who are slightly outside my preference range.',
                                 style: TextStyle(
                                   color: _text,
                                   fontSize: 17,
@@ -492,7 +496,7 @@ class _SettingPageState extends State<SettingPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          '解锁更多\n偏好设置',
+                          'Unlock more\nPreference settings',
                           style: TextStyle(
                             color: Color(0xFF8B6803),
                             fontSize: 17,
@@ -501,7 +505,7 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                         const SizedBox(height: 12),
                         const Text(
-                          '想要更多独特体验？设置高级偏好，查看对你口味的个人资料，但又不会错过其他的有缘人。',
+                          'Want more unique experiences? Set advanced preferences, view profiles tailored to your tastes, and still connect with other compatible individuals. ',
                           style: TextStyle(
                             color: _sub,
                             fontSize: 17,
@@ -520,7 +524,7 @@ class _SettingPageState extends State<SettingPage> {
                             ),
                             child: const Center(
                               child: Text(
-                                '解锁',
+                                'Unlock',
                                 style: TextStyle(
                                   color: _text,
                                   fontSize: 17,
@@ -540,7 +544,7 @@ class _SettingPageState extends State<SettingPage> {
                         Row(
                           children: [
                             const Text(
-                              '最少照片数',
+                              'Minimum number of photos',
                               style: TextStyle(
                                 color: _text,
                                 fontSize: 17,
@@ -564,7 +568,7 @@ class _SettingPageState extends State<SettingPage> {
                           onChanged: (v) => setState(() => _minPhotos = v),
                         ),
                         _entryRow(
-                          '有个人资料',
+                          'There is a personal profile',
                           trailingWidget: _tinySwitch(
                             value: _hasProfile,
                             onChanged: (v) => setState(() => _hasProfile = v),
@@ -572,19 +576,19 @@ class _SettingPageState extends State<SettingPage> {
                         ),
                         const SizedBox(height: 8),
                         ...[
-                          ('兴趣', '选择'),
-                          ('我想要', '选择'),
-                          ('添加语言', '选择'),
-                          ('星座', '选择'),
-                          ('教育情况', '选择'),
-                          ('家庭计划', '选择'),
-                          ('沟通风格', '选择'),
-                          ('爱的方式', '选择'),
-                          ('宠物喜好', '选择'),
-                          ('饮酒', '选择'),
-                          ('你多久抽一次烟?', '选择'),
-                          ('健身情况', '选择'),
-                          ('社交媒体活跃度', '选择'),
+                          ('Interest', 'Choice'),
+                          ('I want', 'choose'),
+                          ('Add Language', 'Select'),
+                          ('constellation', 'select'),
+                          ('Education status', 'Select'),
+                          ('Family Plan', 'Select'),
+                          ('Communication style', 'Selection'),
+                          ('Way of love', 'Choice'),
+                          ('Pet preference', 'Selection'),
+                          ('drinking', 'choice'),
+                          ('How often do you smoke?', 'Select'),
+                          ('Fitness status', 'Select'),
+                          ('Social media activity', 'Choice'),
                         ].map(
                           (item) => _entryRow(
                             item.$1,
@@ -598,7 +602,7 @@ class _SettingPageState extends State<SettingPage> {
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      _sectionTitle('管理您的访客'),
+                      _sectionTitle('Manage your visitors'),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -623,34 +627,46 @@ class _SettingPageState extends State<SettingPage> {
                   _card(
                     child: Column(
                       children: [
-                        _choiceRow('均衡的推荐', '看看和你最相关的人（默认设置）', selected: true),
-                        const SizedBox(height: 10),
-                        _choiceRow('最近活跃', '先看看最近活跃的人', selected: false),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _sectionTitle('管理我的可见设置'),
-                  _card(
-                    child: Column(
-                      children: [
-                        _choiceRow('标准', '你将在卡片集中对其他会员可见', selected: true),
+                        _choiceRow(
+                          'Balanced recommendation',
+                          'Check the people most relevant to you (default setting)',
+                          selected: true,
+                        ),
                         const SizedBox(height: 10),
                         _choiceRow(
-                          '隐身   Tinder Plus™',
-                          '你只对赞过的会员可见',
+                          'Recently Active',
+                          'Let‘s first take a look at the recently active people',
                           selected: false,
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _sectionTitle('启用发现'),
+                  _sectionTitle('Manage my visibility settings'),
+                  _card(
+                    child: Column(
+                      children: [
+                        _choiceRow(
+                          'standard',
+                          'You will be visible to other members in the card collection',
+                          selected: true,
+                        ),
+                        const SizedBox(height: 10),
+                        _choiceRow(
+                          'Invisible   Tinder Plus™',
+                          'It is only visible to members you have liked',
+                          selected: false,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  _sectionTitle('Enable Discovery'),
                   _card(
                     child: Row(
                       children: [
                         const Text(
-                          '启用发现',
+                          'Enable discovery',
                           style: TextStyle(
                             color: _text,
                             fontSize: 17,
@@ -669,11 +685,11 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    '如关闭此功能，你的个人资料将不会显示在卡片集中，并且发现功能将被禁用。你赞过的会员也许仍然能看到你并与你达成配对。',
+                    "If you turn off this feature, your profile will not be displayed in the card collection, and the discovery function will be disabled. Members you have liked may still be able to see you and match with you. ",
                     style: TextStyle(color: _sub, fontSize: 17, height: 1.3),
                   ),
                   const SizedBox(height: 16),
-                  _sectionTitle('管理信息接收'),
+                  _sectionTitle('Managing Information Receipt'),
                   _card(
                     child: Column(
                       children: [
@@ -689,7 +705,7 @@ class _SettingPageState extends State<SettingPage> {
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: const Text(
-                              '必须通过验证',
+                              'Must pass verification',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 15,
@@ -706,7 +722,7 @@ class _SettingPageState extends State<SettingPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '通过照片验证才可聊天',
+                                    'Chatting is only allowed after photo verification',
                                     style: TextStyle(
                                       color: _text,
                                       fontSize: 17,
@@ -715,7 +731,7 @@ class _SettingPageState extends State<SettingPage> {
                                   ),
                                   SizedBox(height: 8),
                                   Text(
-                                    '通过照片验证的会员可以启用此功能，仅接收已验证会员发来的信息。',
+                                    'Members who have verified their identities through photos can enable this feature, which allows them to only receive messages from verified members. ',
                                     style: TextStyle(
                                       color: _sub,
                                       fontSize: 17,
@@ -737,18 +753,18 @@ class _SettingPageState extends State<SettingPage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  _card(child: _entryRow('屏蔽联系人')),
+                  _card(child: _entryRow('Block contact')),
                   const SizedBox(height: 16),
-                  _sectionTitle('外观'),
-                  _card(child: _entryRow('使用系统设置')),
+                  _sectionTitle('Appearance'),
+                  _card(child: _entryRow('Use System Settings')),
                   const SizedBox(height: 16),
-                  _sectionTitle('数据使用情况'),
-                  _card(child: _entryRow('自动播放视频')),
+                  _sectionTitle('Data Usage'),
+                  _card(child: _entryRow('Auto-play video')),
                   const SizedBox(height: 10),
                   _card(
                     child: const Center(
                       child: Text(
-                        '申请 Tinder U',
+                        'Apply for Tinder U',
                         style: TextStyle(
                           color: _pink,
                           fontSize: 17,
@@ -758,13 +774,13 @@ class _SettingPageState extends State<SettingPage> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  _sectionTitle('网页版个人资料'),
+                  _sectionTitle('Web Profile'),
                   _card(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          '创建用户名。并分享用户名。世界各地的用户将相聚在 Tinder，与你配对。',
+                          'Create a username. Share it. Users from all over the world will meet and match with you on Tinder.',
                           style: TextStyle(
                             color: _sub,
                             fontSize: 17,
@@ -772,52 +788,89 @@ class _SettingPageState extends State<SettingPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _entryRow('用户名', trailing: '申请用户名'),
+                        _entryRow('User Name', trailing: 'Request User Name'),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _sectionTitle('问答活动'),
-                  _card(child: _entryRow('管理问答活动', trailing: '设置')),
+                  _sectionTitle('Q&A Activity'),
+                  _card(
+                    child: _entryRow(
+                      'Manage Q&A Activities',
+                      trailing: 'Settings',
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  _sectionTitle('媒人'),
-                  _card(child: _entryRow('管理媒人', trailing: '设置')),
+                  _sectionTitle('Matchmaker'),
+                  _card(
+                    child: _entryRow(
+                      'Matchmaker Management',
+                      trailing: 'Settings',
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  _sectionTitle('最佳精选'),
-                  _card(child: _entryRow('管理最佳精选', trailing: '设置')),
+                  _sectionTitle('Best Selection'),
+                  _card(
+                    child: _entryRow(
+                      'Manage Best Selections',
+                      trailing: 'Settings',
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  _sectionTitle('抱团约会'),
-                  _card(child: _entryRow('管理抱团约会功能', trailing: '设置')),
+                  _sectionTitle('Group Dating'),
+                  _card(
+                    child: _entryRow(
+                      'Manage group dating function',
+                      trailing: 'Settings',
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  _sectionTitle('星座板块'),
-                  _card(child: _entryRow('管理星座板块', trailing: '设置')),
+                  _sectionTitle('Zodiac Section'),
+                  _card(
+                    child: _entryRow(
+                      'Manage constellation board',
+                      trailing: 'Settings',
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  _sectionTitle('音乐'),
-                  _card(child: _entryRow('管理音乐模式', trailing: '设置')),
+                  _sectionTitle('Music'),
+                  _card(
+                    child: _entryRow('Manage music mode', trailing: 'Settings'),
+                  ),
                   const SizedBox(height: 16),
-                  _sectionTitle('滑动热潮'),
-                  _card(child: _entryRow('管理滑动热潮', trailing: '设置')),
+                  _sectionTitle('Swipe Fever'),
+                  _card(
+                    child: _entryRow(
+                      'Manage Slide Fever',
+                      trailing: 'Settings',
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  _sectionTitle('活跃状态'),
-                  _card(child: _entryRow('管理活跃状态', trailing: '设置')),
+                  _sectionTitle('Active State'),
+                  _card(
+                    child: _entryRow(
+                      'Manage Active Status',
+                      trailing: 'Settings',
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  _sectionTitle('共同好友'),
-                  _card(child: _entryRow('共同好友')),
+                  _sectionTitle('Mutual Friends'),
+                  _card(child: _entryRow('mutual friend')),
                   const SizedBox(height: 8),
                   const Text(
-                    '查看与潜在配对对象共享多少好友。',
+                    "Check how many mutual friends you share with potential match partners.",
                     style: TextStyle(color: _sub, fontSize: 17),
                   ),
                   const SizedBox(height: 16),
-                  _sectionTitle('应用程序设置'),
+                  _sectionTitle('Application Settings'),
                   _card(
                     child: Column(
                       children: [
-                        _entryRow('通知'),
-                        _entryRow('电子邮件地址'),
-                        _entryRow('推送通知'),
-                        _entryRow('短信'),
-                        _entryRow('Tinder 团队'),
+                        _entryRow('Notice'),
+                        _entryRow('Email address'),
+                        _entryRow('Push notification'),
+                        _entryRow('SMS'),
+                        _entryRow('Tinder Team'),
                       ],
                     ),
                   ),
@@ -828,7 +881,7 @@ class _SettingPageState extends State<SettingPage> {
                         Row(
                           children: [
                             const Text(
-                              '显示距离范围为',
+                              'The display distance range is',
                               style: TextStyle(
                                 color: _text,
                                 fontSize: 17,
@@ -837,7 +890,7 @@ class _SettingPageState extends State<SettingPage> {
                             ),
                             const Spacer(),
                             Text(
-                              _useKm ? '公里' : '英里',
+                              _useKm ? 'km' : 'mi',
                               style: const TextStyle(color: _sub, fontSize: 17),
                             ),
                           ],
@@ -865,7 +918,7 @@ class _SettingPageState extends State<SettingPage> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        '公里',
+                                        'km',
                                         style: TextStyle(
                                           color: _useKm ? Colors.white : _text,
                                           fontSize: 17,
@@ -888,7 +941,7 @@ class _SettingPageState extends State<SettingPage> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        '英里',
+                                        'mi',
                                         style: TextStyle(
                                           color: !_useKm ? Colors.white : _text,
                                           fontSize: 17,
@@ -906,53 +959,74 @@ class _SettingPageState extends State<SettingPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _sectionTitle('付款账户'),
+                  _sectionTitle('Payment Account'),
                   _card(
                     child: Column(
                       children: [
-                        _entryRow('管理付款账户'),
+                        _entryRow('Manage Payment Accounts'),
                         const Divider(height: 20),
-                        _entryRow('管理 Google Play 账号'),
+                        _entryRow('Manage Google Play Account'),
                         const Divider(height: 20),
-                        _entryRow('恢复购买'),
+                        _entryRow('Restore Purchase'),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _sectionTitle('联系我们'),
+                  _sectionTitle('Contact Us'),
                   _card(
                     child: Column(
-                      children: [_entryRow('帮助和支持'), _entryRow('进行举报')],
+                      children: [
+                        _entryRow('Help and Support'),
+                        _entryRow('Report'),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _sectionTitle('社区'),
+                  _sectionTitle('Community'),
                   _card(
                     child: Column(
-                      children: [_entryRow('社群规则'), _entryRow('安全贴士')],
+                      children: [
+                        _entryRow('Community Rules'),
+                        _entryRow('Safety Tips'),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 10),
-                  _card(child: _entryRow('分享 Tinder')),
+                  _card(child: _entryRow('Share Tinder')),
                   const SizedBox(height: 16),
-                  _sectionTitle('隐私'),
+                  _sectionTitle('Privacy'),
                   _card(
                     child: Column(
                       children: [
-                        _entryRow('Cookie 政策', onTap: _openCookiePolicyPage),
-                        _entryRow('隐私政策', onTap: _openPrivacyPolicyPage),
-                        _entryRow('隐私偏好', onTap: _openPrivacyPreferencePage),
-                        _entryRow('来自 Match Group', onTap: _openMatchGroupPage),
+                        _entryRow(
+                          'Cookie Policy',
+                          onTap: _openCookiePolicyPage,
+                        ),
+                        _entryRow(
+                          'Privacy Policy',
+                          onTap: _openPrivacyPolicyPage,
+                        ),
+                        _entryRow(
+                          'Privacy Preferences',
+                          onTap: _openPrivacyPreferencePage,
+                        ),
+                        _entryRow(
+                          'From Match Group',
+                          onTap: _openMatchGroupPage,
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
-                  _sectionTitle('合法'),
+                  _sectionTitle('Legality'),
                   _card(
                     child: Column(
                       children: [
-                        _entryRow('许可证', onTap: _openLicensePage),
-                        _entryRow('服务条款', onTap: _openServiceTermsPage),
+                        _entryRow('License', onTap: _openLicensePage),
+                        _entryRow(
+                          'Service Terms',
+                          onTap: _openServiceTermsPage,
+                        ),
                       ],
                     ),
                   ),
@@ -963,7 +1037,7 @@ class _SettingPageState extends State<SettingPage> {
                     child: _card(
                       child: Center(
                         child: Text(
-                          _processingAuthAction ? '处理中...' : '登出',
+                          _processingAuthAction ? 'Processing...' : 'Logout',
                           style: const TextStyle(
                             color: _text,
                             fontSize: 17,
@@ -991,7 +1065,9 @@ class _SettingPageState extends State<SettingPage> {
                     child: _card(
                       child: Center(
                         child: Text(
-                          _processingAuthAction ? '处理中...' : '删除账户',
+                          _processingAuthAction
+                              ? 'Processing...'
+                              : 'Deleting account',
                           style: const TextStyle(
                             color: _text,
                             fontSize: 17,
@@ -1298,7 +1374,7 @@ class _SettingPageState extends State<SettingPage> {
                 ),
               ),
               const Text(
-                '我的 Boost',
+                'My Boost',
                 style: TextStyle(fontSize: 68 / 4, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
@@ -1327,7 +1403,7 @@ class _SettingPageState extends State<SettingPage> {
                 ),
                 child: const Center(
                   child: Text(
-                    '获得更多 Boost',
+                    'get more Boost',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 64 / 4,
@@ -1492,40 +1568,47 @@ class ServiceTermsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _TextDocPage(
-      title: '服务条款',
+      title: 'Terms of Service',
       sections: const [
         _DocSectionData(
-          title: '欢迎使用 Tinder 聊天服务',
-          body: '本服务条款适用于你通过 Tinder App 使用匹配、聊天、举报与账号管理功能。继续使用即表示你同意遵守本条款。',
-        ),
-        _DocSectionData(
-          title: '账号与安全',
-          body: '你需要提供真实、完整的信息并妥善保管登录凭据。你应对账号下发生的行为负责。如发现异常登录，请立即修改密码并联系我们。',
-        ),
-        _DocSectionData(
-          title: '使用规范',
-          body: '你不得发布违法、骚扰、歧视、仇恨、欺诈或侵犯他人权利的内容。不得冒充他人，不得绕过平台安全机制，不得批量抓取或滥用接口。',
-        ),
-        _DocSectionData(
-          title: '聊天与内容',
-          body: '你对自己发送的消息负责。我们可能基于风控、举报或法律要求对内容进行审核、限制或下架，以保障平台与用户安全。',
-        ),
-        _DocSectionData(
-          title: '订阅与虚拟权益',
-          body: 'Boost、Super Like、订阅套餐等功能以购买页面说明为准。除法律另有规定，已消耗权益通常不可退回。',
-        ),
-        _DocSectionData(
-          title: '封禁与终止',
-          body: '若你违反本条款，我们可根据违规程度采取警告、限制、封禁、删除内容或终止服务。你可随时停止使用并申请删除账户。',
-        ),
-        _DocSectionData(
-          title: '免责声明',
+          title: 'Welcome to Tinder Chat Service',
           body:
-              '我们努力保证服务稳定，但不对持续不中断、绝对无误作保证。因网络、设备、第三方服务导致的问题，平台在法律允许范围内承担有限责任。',
+              'These Terms of Service apply to your use of the Tinder App, including the matching, chatting, reporting, and account management functions. By continuing to use the App, you agree to be bound by these Terms. ',
         ),
         _DocSectionData(
-          title: '条款更新',
-          body: '我们可能更新本条款。重大变更会通过应用内提示等方式通知。更新后继续使用即视为接受新条款。',
+          title: 'Account and Security',
+          body:
+              'You need to provide authentic and complete information and keep your login credentials safe. You are responsible for all actions taken under your account. If you notice any abnormal login activity, please change your password immediately and contact us. ',
+        ),
+        _DocSectionData(
+          title: 'Usage Guidelines',
+          body:
+              'You are prohibited from posting content that is illegal, harassing, discriminatory, hateful, fraudulent, or infringes on the rights of others. You are also prohibited from impersonating others, bypassing the platform’s security mechanisms, and batch crawling or abusing interfaces. ',
+        ),
+        _DocSectionData(
+          title: 'Chat and Content',
+          body:
+              'You are responsible for the messages you send. We may review, restrict, or remove content based on risk control, reports, or legal requirements to ensure the safety of the platform and its users. ',
+        ),
+        _DocSectionData(
+          title: 'Subscription and Virtual Rights',
+          body:
+              'The functions such as Boost, Super Like, and subscription packages are subject to the instructions on the purchase page. Except as otherwise provided by law, consumed benefits are generally non-refundable. ',
+        ),
+        _DocSectionData(
+          title: 'Ban and Termination',
+          body:
+              'If you violate these terms, we may take actions such as warning, restricting, banning, deleting content, or terminating services based on the severity of the violation. You may stop using the service at any time and apply for deletion of your account.',
+        ),
+        _DocSectionData(
+          title: 'Disclaimer',
+          body:
+              "We strive to ensure stable service, but we cannot guarantee continuous uninterrupted and absolutely error-free service. For issues caused by network, equipment, or third-party services, the platform bears limited liability within the scope permitted by law.",
+        ),
+        _DocSectionData(
+          title: 'Terms Update',
+          body:
+              'We may update these terms. Major changes will be notified through in-app prompts or other means. Continued use after the update will be deemed as acceptance of the new terms.',
         ),
       ],
     );
@@ -1541,32 +1624,39 @@ class PrivacyPolicyPage extends StatelessWidget {
       title: '隐私政策',
       sections: const [
         _DocSectionData(
-          title: '我们收集的信息',
-          body: '我们会收集你提供的账号信息（邮箱、昵称、头像等）、使用信息（操作日志、设备信息）和聊天相关元数据，用于提供与优化服务。',
+          title: 'The information we collect',
+          body:
+              'We will collect the account information (email, nickname, avatar, etc.), usage information (operation logs, device information), and chat-related metadata you provide, which will be used to provide and optimize services. ',
         ),
         _DocSectionData(
-          title: '信息使用目的',
-          body: '我们使用信息来完成账号登录、匹配推荐、消息投递、反作弊风控、问题排查和体验改进，也可能用于向你展示与你相关的功能推荐。',
+          title: 'Purpose of information usage',
+          body:
+              'We use information to complete account login, matching and recommendation, message delivery, anti-cheating risk control, problem investigation, and experience improvement. It may also be used to show you relevant function recommendations. ',
         ),
         _DocSectionData(
-          title: '信息共享',
-          body: '除法律要求或你明确授权外，我们不会向无关第三方出售你的个人信息。必要时我们会与受托服务商共享最少必要信息。',
+          title: 'Information Sharing',
+          body:
+              'Except as required by law or with your explicit authorization, we will not sell your personal information to unrelated third parties. When necessary, we will share the minimum necessary information with entrusted service providers. ',
         ),
         _DocSectionData(
-          title: '存储与安全',
-          body: '我们采取合理安全措施保护你的数据，包括访问控制、加密传输、最小权限等。你也应保护好账号密码与设备安全。',
+          title: 'Storage and Security',
+          body:
+              'We take reasonable security measures to protect your data, including access control, encrypted transmission, and least privilege. You should also protect your account password and device security. ',
         ),
         _DocSectionData(
-          title: '你的权利',
-          body: '你可以访问、修改或删除个人资料，管理隐私偏好，注销账户并删除本地数据。你也可以联系支持渠道行使合法权利。',
+          title: 'Your rights',
+          body:
+              'You can access, modify, or delete your personal information, manage privacy preferences, log out of your account, and delete local data. You can also contact our support channels to exercise your legal rights. ',
         ),
         _DocSectionData(
-          title: '未成年人保护',
-          body: '本服务仅面向符合当地法律年龄要求的用户。若发现未成年人违规使用，我们会采取限制或删除账号等措施。',
+          title: 'Protection of minors',
+          body:
+              'This service is only available to users who meet the local legal age requirements. If we discover any unauthorized use by minors, we will take measures such as restricting or deleting their accounts. ',
         ),
         _DocSectionData(
-          title: '政策更新与联系',
-          body: '如政策发生变化，我们会在应用内更新并标注生效日期。若你有隐私问题，可通过“设置-帮助和支持”联系平台。',
+          title: 'Policy Updates and Contacts',
+          body:
+              'If there are any policy changes, we will update them within the app and indicate the effective date. If you have any privacy concerns, you can contact the platform through "Settings - Help and Support". ',
         ),
       ],
     );
@@ -1583,7 +1673,7 @@ class CookiePolicyPage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          'Cookie 政策',
+          'Cookie Policy',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
         ),
         leading: IconButton(
@@ -1598,7 +1688,7 @@ class CookiePolicyPage extends StatelessWidget {
           const _WebHeader(),
           const SizedBox(height: 16),
           const Text(
-            '会话和持久 cookie',
+            'Session and persistent cookies',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -1607,7 +1697,7 @@ class CookiePolicyPage extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            'Cookie 还可分为会话 cookie 和持久 cookie。会话 cookie 在你关闭浏览器后会失效，持久 cookie 可在一段时间内保留，以便记住偏好与提升体验。',
+            'Cookies can also be divided into session cookies and persistent cookies. Session cookies expire after you close your browser, while persistent cookies can be retained for a period of time to remember preferences and enhance the experience.',
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF566072),
@@ -1616,7 +1706,7 @@ class CookiePolicyPage extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            '网络信标和 SDK 的用途',
+            "The purposes of web beacons and SDKs",
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -1625,7 +1715,7 @@ class CookiePolicyPage extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            '网络信标（像素标签）和 SDK 可帮助我们了解页面访问、消息送达与功能稳定性。它们不会单独识别你的真实身份，但会与服务性能分析配合使用。',
+            "Web beacons (pixel tags) and SDKs help us understand page visits, message delivery, and functional stability. They do not individually identify your true identity, but are used in conjunction with service performance analysis.",
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF566072),
@@ -1634,7 +1724,7 @@ class CookiePolicyPage extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            '我们使用 cookie 做什么？',
+            'What do we use cookies for? ',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -1645,7 +1735,7 @@ class CookiePolicyPage extends StatelessWidget {
           _cookieTypeTable(),
           const SizedBox(height: 16),
           const Text(
-            '您如何控制 cookie？',
+            'How do you control cookies? ',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -1654,7 +1744,7 @@ class CookiePolicyPage extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            '你可以在设置中管理 Cookie 偏好。关闭某些类型可能影响个性化体验、推荐准确性或部分功能可用性。',
+            "You can manage your cookie preferences in the settings. Disabling certain types may affect your personalized experience, recommendation accuracy, or the availability of certain features.",
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF566072),
@@ -1663,7 +1753,7 @@ class CookiePolicyPage extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            '基于兴趣的广告工具',
+            'Interest-based advertising tool',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -1672,7 +1762,7 @@ class CookiePolicyPage extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            '我们可能通过行业自律工具提供广告偏好管理入口。你可选择拒绝个性化广告，但并不意味着不再看到广告。',
+            "We may provide access to ad preference management through industry self-regulatory tools. You can choose to opt out of personalized ads, but it doesn't mean you won't see ads anymore.",
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF566072),
@@ -1690,7 +1780,7 @@ class CookiePolicyPage extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            '我们使用 Google Analytics 了解功能使用趋势。你可通过浏览器插件或设备设置来限制相关统计。',
+            'We use Google Analytics to understand usage trends. You can limit related statistics through browser plugins or device settings. ',
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF566072),
@@ -1699,7 +1789,7 @@ class CookiePolicyPage extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const Text(
-            '如何联系我们？',
+            'How to contact us? ',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -1708,7 +1798,7 @@ class CookiePolicyPage extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Text(
-            '如你对 Cookie 政策有疑问，请在应用“帮助和支持”中提交请求，我们会尽快处理。',
+            'If you have any questions about the Cookie Policy, please submit a request in the “Help and Support” section of the app, and we will handle it as soon as possible',
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF566072),
@@ -1742,30 +1832,41 @@ class CookiePolicyPage extends StatelessWidget {
       columnWidths: const {0: FlexColumnWidth(1), 1: FlexColumnWidth(1)},
       children: [
         TableRow(
-          children: [cell('Cookie 类型', strong: true), cell('描述', strong: true)],
+          children: [
+            cell('Cookie Type', strong: true),
+            cell('description', strong: true),
+          ],
         ),
         TableRow(
           children: [
             cell('必要 cookie', strong: true),
-            cell('用于登录验证、会话安全和基础功能运行。'),
+            cell(
+              'Used for login verification, session security, and basic function operation. ',
+            ),
           ],
         ),
         TableRow(
           children: [
-            cell('分析 cookie', strong: true),
-            cell('用于统计功能使用、提升性能与稳定性。'),
+            cell('necessary cookies', strong: true),
+            cell(
+              'Used for statistical function usage, performance improvement, and stability enhancement. ',
+            ),
           ],
         ),
         TableRow(
           children: [
-            cell('广告营销 cookie', strong: true),
-            cell('用于衡量营销活动效果，并减少重复展示。'),
+            cell('advertising marketing cookie', strong: true),
+            cell(
+              'Used to measure the effectiveness of marketing activities and reduce duplicate impressions. ',
+            ),
           ],
         ),
         TableRow(
           children: [
-            cell('社交网络 cookie', strong: true),
-            cell('支持分享内容及第三方社交场景联动。'),
+            cell('social network cookie', strong: true),
+            cell(
+              'Supports sharing content and integration with third-party social scenarios. ',
+            ),
           ],
         ),
       ],
@@ -1944,7 +2045,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
       appBar: AppBar(
         centerTitle: true,
         title: const Text(
-          '来自 Match Group',
+          'From Match Group',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
         ),
         leading: IconButton(

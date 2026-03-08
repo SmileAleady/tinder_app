@@ -13,6 +13,7 @@ class ChatLocalDb {
   static final ChatLocalDb instance = ChatLocalDb._();
 
   static const String _dbFileName = 'chat_local_db.json';
+  static const String _defaultContactUserId = '666666';
 
   Future<File> _dbFile() async {
     final dir = await getApplicationDocumentsDirectory();
@@ -61,8 +62,32 @@ class ChatLocalDb {
     final matches = _readMatches(raw);
     final messages = _readMessages(raw);
 
+    if (activeUserId != _defaultContactUserId) {
+      final hasDefaultPeer = matches.any((m) {
+        if (!m.includes(activeUserId)) {
+          return false;
+        }
+        return m.peerIdFor(activeUserId) == _defaultContactUserId;
+      });
+      if (!hasDefaultPeer) {
+        final defaultUser = allUsers.where((u) => u.userId == _defaultContactUserId);
+        if (defaultUser.isNotEmpty) {
+          matches.add(
+            ChatMatchRecord(
+              pairId: _pairId(activeUserId, _defaultContactUserId),
+              userA: activeUserId,
+              userB: _defaultContactUserId,
+              matchedAtIso: DateTime.now().toIso8601String(),
+              openedBy: <String>[],
+            ),
+          );
+        }
+      }
+    }
+
     final existed = matches.where((m) => m.includes(activeUserId)).toList();
     if (existed.isNotEmpty) {
+      await _save(raw, matches, messages);
       return;
     }
 

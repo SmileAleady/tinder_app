@@ -1,4 +1,7 @@
 
+1.tinder_app/lib/main.dart 文件中_buildBottomNav方法中，赞的数量需要跟OptionDataManager中getUserlike的数据同步，当首页HomePage中出发_onLikeTap添加了卡片进入数据库，赞的数量也要增加
+2.聊天列表默认都会有一个联系人，该默认联系人个人信息UserProfileModel中的一下参数为固定userId=666666 email=666666@gmail.com password=666666 name=666666
+3.该默认联系人，我是在登陆界面通过登陆账号为666666@gmail.com 密码为666666，可以登录进来的
 
 
 兴趣、我想要、添加语言、星座、教育情况、家庭计划、沟通风格、爱的方式、宠物喜好、饮酒、你多久抽一次烟？、健身情况、社交媒体活跃度
@@ -7,6 +10,157 @@
 
 
 已完成-------------------------
+
+个人资料
+一.UI设计
+	1.界面在路径tinder_app/lib/page/profile_page.dart中
+	    a.点击GOLD的升级按钮、PLATINUM的升级按钮、PLUS的升级按钮进入UpgradePage界面，UpgradePage界面的UI根据跳转进来的三种类型分别展示如图upgrade_type_1、upgrade_type_2、upgrade_type_3三张图样式；需要1:1还原UI (最大字体为17，最大边距为16)
+
+
+
+个人资料
+一.UI设计
+	1.界面在路径tinder_app/lib/page/profile_page.dart中
+	    a.点击[上传至少3张照片]进入ProfileEditPage界面并自动弹出_showPhotoPickerBottomSheet弹窗，
+	    c.点击[上传个人简介]进入新界面如图personal_profile，新界面在路径tinder_app/lib/page/profile_personal_desc_page.dart 文件中，如果没有profile_personal_desc_page.dart 就自行创建
+二.业务逻辑
+	1.ProfileEditPage界面
+		a.当用户照片数量少于3张，则显示[上传至少3张照片]，当用户照片数量大于3张则不显示
+		b.从ProfileEditPage界面回到ProfilePage，需要同步一次数据显示到界面
+		c.如果用户personalProfile参数没有数据，则显示[上传个人简介]，如果已经填写，则隐藏
+		d.profile_personal_desc_page界面中用户填写了个人介绍，点击右上角关闭页面，并将数据返回到ProfilePage同步到数据模型中，并同步到本地数据库
+
+个人资料编辑
+一.UI设计
+	1.界面在路径tinder_app/lib/page/profile_edit/page/profile_edit_page.dart中
+	    a.ProfileEditPage界面重构按照如图片profile_1、profile_2、profile_3、profile_4、profile_5、profile_6六张图；需要1:1还原UI (最大字体为17，最大边距为16)
+	    c.预览页面按照图片profile_prew重构
+二.业务逻辑
+	1.ProfileEditPage界面
+		a.ProfileEditPage中Edit页面数据根据当前用户模型UserProfileModel每个参数填写情况，来显示界面上的百分比；每次修改完参数后需要保持到模型中，并且同步保存到数据库
+		
+
+三.数据补充
+	1.ProfileEditPage界面
+		a.ProfileEditPage中Edit页面数据需要保存到数据库，与数据库同步
+		b.ProfileEditPage中Preview页面数据需要保存到数据库，与数据库同步
+
+一.UI设计
+	1.LikePage界面在路径tinder_app/lib/page/like_page.dart中
+	    a.如图片like_1、like_2两张图；需要1:1还原UI (最大字体为17，最大边距为16)
+	    b.点击点击筛选按钮弹出like_fliter界面；需要1:1还原UI (最大字体为17，最大边距为16)
+	    c.[20次赞]列表下方的用户item展示效果要求仿照[最佳精选]用户item的样式
+二.业务逻辑
+	1.LikePage界面
+		a.[20次赞]列表中点击横向滑动的标签，下方列表展示数据根据标签来筛选展示
+		b.LikePage中所展示的用户数据，全部来自于OptionDataManager中getUserlike的数据，并且同步本地数据库
+
+三.数据补充
+	1.LikePage界面
+		a.页面数据根据页面展示数据字段从UserProfileModel模型找出对应字段并显示在界面上
+
+一.UI设计
+	1.SearchPage界面在路径inder_app/lib/page/search_page.dart中
+	    a.如图片search_1、search_2、search_3、search_4、search_5、search_6六张图都是同一个界面,同一个列表，不同状态；需要1:1还原UI (最大字体为17，最大边距为16)
+	    b.点击点击列表的item弹出图片loading展示的加载界面，三秒后关闭并跳转到HomePage界面
+二.业务逻辑
+	1.SearchPage界面
+		a.点击列表的item跳转到HomePage，根据点击item的类型，进入HomePage后自动生成对应类型下多个UserProfileModel数据，(HomePage中生成UserProfileModel卡片数据数据源增加根据跳转过来的类型判断)
+
+三.数据补充
+	1.SearchPage界面
+		a.页面数据根据页面展示数据字段从UserProfileModel模型找出对应字段并显示在界面上
+
+UserPage中点击举报按钮跳转加载chat_safety_ui.dart文件中的ReportFlowPage，点击屏蔽按钮弹出chat_safety_ui.dart文件中的_ConfirmActionDialog
+点击showBlockConfirmDialog触发回调关闭弹窗、关闭UserPage页面关闭当前页面，并且在首页把刚才那个用户向左滑动删除
+
+
+
+一.UI设计
+	1.UserApplyPage界面在路径tinder_app/lib/widget/user_apply_page.dart中,如果没有user_apply_page.dart请自行创建
+	    a.如图片apply_1、apply_2、apply_3、apply_4、apply_5、apply_6、apply_7七张图都是同一个界面，不同状态；需要1:1还原UI (最大字体为17，最大边距为16)
+	    b.界面顶部的照片展示区域是可以左右滑动的图片轮播空间，展示用户照片
+	    c.点击UserApplyPage中的发送跳转到新界面，新的界面放进tinder_app/lib/widget/user_pay_page.dart中;界面样式按照图片pay_1、pay_2、pay_3做成同一个列表
+
+ 
+二.业务逻辑
+	1.UserApplyPage界面
+		a.中间区域可以横向滑动，根据用户在UserPage中点击的回复按钮跳进来默认滑动到当前index
+
+三.数据补充
+	1.UserApplyPage界面
+		a.页面数据根据页面展示数据字段从UserProfileModel模型找出对应字段并显示在界面上
+
+一.UI设计
+	1.UserPage界面在路径tinder_app/lib/widget/user_page.dart中
+	    a.如图片detail_1、detail_2、detail__3、detail_4、detail_5、detail_6、detail_7七张图都是同一个列表，不同状态；需要1:1还原UI (最大字体为17，最大边距为16)
+	    b.界面顶部的照片展示区域是可以左右滑动的图片轮播空间，展示用户照片
+
+ 
+二.业务逻辑
+	1.UserPage界面
+		a.导航栏右上角按钮是关闭当前页面按钮，点击后关闭当前页面
+		b.点击悬浮的叉按钮是关闭当前页面，并且在首页把刚才那个用户向左滑动删除
+		c.点击悬浮的爱心按钮是关闭当前页面，并且在首页把刚才那个用户向右滑动添加到app当前用户的【我点赞过用户】的数据源中
+		d.当前用户的【我点赞过用户】的数据源是需要存储到本地数据库中，下次app加载全局都可以获取到数据源数据，数据源获取方法放进OptionDataManager类中，方法名称为getUserlike,
+三.数据补充
+	1.UserPage界面
+		a.页面数据根据页面展示数据字段从UserProfileModel模型找出对应字段并显示在界面上
+		
+
+
+
+
+
+
+
+
+
+现在我在首页
+图片与文字对应关系:
+
+一.UI设计
+	1.首页在路径tinder_app/lib/page/home_page.dart中
+	    a.首页是用户片的展示界面，卡片展示用户照片,如果是男性从路径inder_app/assets/user/male/获取，如果是女性从inder_app/assets/user/female中获取；
+	    例如：第一个男性用户的照片获取图片路径为inder_app/assets/user/male/male_1/,第一张照片为inder_app/assets/user/male/male_1/male_1_a,第二张照片为inder_app/assets/user/male/male_1/male_1_b
+	    第二个男性照片从inder_app/assets/user/male/male_2/male_2_a
+	    b.首页卡片点击可以切换该用户照片，顶部时照片数量指示器，跟随照片切换联动
+ 
+二.业务逻辑
+	1.首页
+		a.首页是展示用户卡片的页面，用户手指在屏幕中卡片并且拖动时，拖动的卡片下方可以看到下一张卡片；
+		b.如图home_left_1、home_left_2用户手指按住卡片向左拖动，叉按钮状态发生变化，当卡片向左拖动未超过卡片的二分之一面积时，松手后卡片恢复到原本home_center图中的位置，叉按钮恢复到之前状态，当卡片向左拖动超过卡片的二分之一面积时，卡片顺着手拖动方向滑出屏幕，此时界面中间卡片展示下一张用户卡片
+		c.如图home_right_1、home_right_2如图用户手指按住卡片向右拖动，爱心按钮发生变化，后续操作与b相似，只是方向向右
+
+三.数据补充
+	1.首页
+		a.页面数据与该用户的UserProfileModel同步，与本地数据库同步
+		b.向左划卡片从左侧消失或者点击叉按钮后，移除数据源中此卡片用户数据；向右侧划卡片从右侧消失或者点击爱心按钮后，此卡片用户数据加入到app当前用户的【我点赞过用户】的数据源中，并且存入本地数据库
+		c.用户照片改为用用AssetImage加载，图片名称为图片名为assets/user/ + 0～18 随机组合成
+
+
+
+
+
+现在我在首页
+图片与文字对应关系:
+
+一.UI设计
+	1.首页在路径tinder_app/lib/page/home_page.dart中
+	    a.首页是用户片的展示界面，如图片home_center、home_left_1、home_left_2、home_right_1、home_right_2五张图都是同一个界面，不同状态；需要1:1还原UI (最大字体为17，最大边距为16)
+ 
+二.业务逻辑
+	1.首页
+		a.首页是展示用户卡片的页面，用户手指在屏幕中卡片并且拖动时，拖动的卡片下方可以看到下一张卡片；
+		b.如图home_left_1、home_left_2用户手指按住卡片向左拖动，叉按钮状态发生变化，当卡片向左拖动未超过卡片的二分之一面积时，松手后卡片恢复到原本home_center图中的位置，叉按钮恢复到之前状态，当卡片向左拖动超过卡片的二分之一面积时，卡片顺着手拖动方向滑出屏幕，此时界面中间卡片展示下一张用户卡片
+		c.如图home_right_1、home_right_2如图用户手指按住卡片向右拖动，爱心按钮发生变化，后续操作与b相似，只是方向向右
+
+三.数据补充
+	1.首页
+		a.页面数据与该用户的UserProfileModel同步，与本地数据库同步
+		b.向左划卡片从左侧消失或者点击叉按钮后，移除数据源中此卡片用户数据；向右侧划卡片从右侧消失或者点击爱心按钮后，此卡片用户数据加入到app当前用户的【我点赞过用户】的数据源中，并且存入本地数据库
+
+
 
 现在我在个人设置页面tinder_app/lib/page/setting/setting.dart
 1.点击许可证跳转到 图片license展示的界面，需要1:1还原UI (最大字体为17，最大边距为16)，导航栏文字剧中，有返回按钮并且支持点击返回

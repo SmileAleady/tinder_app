@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tinder_app/data/app_data.dart';
 import 'package:tinder_app/data/auth/user_auth_local_db.dart';
 import 'package:tinder_app/page/chat/chat_page.dart';
 import 'package:tinder_app/page/home_page.dart';
@@ -6,6 +7,8 @@ import 'package:tinder_app/page/like_page.dart';
 import 'package:tinder_app/page/login/login_page.dart';
 import 'package:tinder_app/page/profile_page.dart';
 import 'package:tinder_app/page/search_page.dart';
+import 'package:tinder_app/tool/event_bus.dart';
+import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -45,6 +48,7 @@ class _AuthGateState extends State<AuthGate> {
   }
 
   Future<void> _checkSession() async {
+    await UserAuthLocalDb.instance.ensureDefaultContactAccount();
     final user = await UserAuthLocalDb.instance.getActiveUser();
     if (!mounted) {
       return;
@@ -82,12 +86,40 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
   final List<int> _tabVersion = [0, 0, 0, 0, 0];
+  int _likeCount = 0;
+  StreamSubscription<LikeUsersChangedEvent>? _likeChangedSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshLikeCount();
+    _likeChangedSubscription = eventBus.on<LikeUsersChangedEvent>().listen((_) {
+      _refreshLikeCount();
+    });
+  }
+
+  @override
+  void dispose() {
+    _likeChangedSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _refreshLikeCount() async {
+    final users = await OptionDataManager.getUserlike();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _likeCount = users.length;
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
       _tabVersion[index] = _tabVersion[index] + 1;
     });
+    _refreshLikeCount();
   }
 
   @override
@@ -146,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           _navItem(
             index: 0,
-            label: '滑动',
+            label: 'Slide',
             selectedColor: selectedColor,
             unselectedColor: unselectedColor,
             iconBuilder: (selected, color) => Icon(
@@ -159,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           _navItem(
             index: 1,
-            label: '探索',
+            label: 'Explore',
             selectedColor: selectedColor,
             unselectedColor: unselectedColor,
             iconBuilder: (selected, color) => Icon(
@@ -170,7 +202,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           _navItem(
             index: 2,
-            label: '赞',
+            label: 'Likes',
             selectedColor: selectedColor,
             unselectedColor: unselectedColor,
             iconBuilder: (selected, color) => Stack(
@@ -192,10 +224,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       color: Color(0xFFF4C842),
                       shape: BoxShape.circle,
                     ),
-                    child: const Center(
+                    child: Center(
                       child: Text(
-                        '21',
-                        style: TextStyle(
+                        '$_likeCount',
+                        style: const TextStyle(
                           color: Color(0xFF1C2333),
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -209,7 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           _navItem(
             index: 3,
-            label: '聊天',
+            label: 'Chat',
             selectedColor: selectedColor,
             unselectedColor: unselectedColor,
             iconBuilder: (selected, color) => Icon(
@@ -220,7 +252,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           _navItem(
             index: 4,
-            label: '个人资料',
+            label: 'Profile',
             selectedColor: selectedColor,
             unselectedColor: unselectedColor,
             iconBuilder: (selected, color) => Icon(

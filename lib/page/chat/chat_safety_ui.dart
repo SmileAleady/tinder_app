@@ -58,36 +58,39 @@ Future<SafetySheetResult> showSafetyToolboxSheet(
             ),
             const SizedBox(height: 18),
             const Text(
-              '安全工具包',
+              'Security toolkit',
               style: TextStyle(fontSize: 42 / 2, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
             _sheetTile(
               icon: Icons.cancel,
               iconColor: const Color(0xFFFF5A5F),
-              title: '与$peerName取消配对',
-              subtitle: '已经不感兴趣？你可以与对方取消配对。',
+              title: 'Unpair with $peerName',
+              subtitle:
+                  'No longer interested? You can cancel the match with the other person.',
               onTap: () => Navigator.of(ctx).pop(_SafetyAction.unmatch),
             ),
             _sheetTile(
               icon: Icons.flag,
               iconColor: const Color(0xFFFF2D55),
-              title: '举报$peerName',
-              subtitle: '别担心，我们不会告知对方。',
+              title: 'Report $peerName',
+              subtitle: 'Don’t worry, we won’t inform the other party.',
               onTap: () => Navigator.of(ctx).pop(_SafetyAction.report),
             ),
             _sheetTile(
               icon: Icons.block,
               iconColor: const Color(0xFF5A5A6B),
-              title: '屏蔽$peerName',
-              subtitle: '你和对方将互不可见。',
+              title: 'Block $peerName',
+              subtitle:
+                  'You and the other party will become mutually invisible. ',
               onTap: () => Navigator.of(ctx).pop(_SafetyAction.block),
             ),
             _sheetTile(
               icon: Icons.shield,
               iconColor: const Color(0xFF1E63F1),
-              title: '访问安全中心',
-              subtitle: '你的体验至关重要。请在此处查找安全资源和工具。',
+              title: 'Visit Security Center',
+              subtitle:
+                  'Your experience matters. Find safety resources and tools here.',
               onTap: () => Navigator.of(ctx).pop(_SafetyAction.safetyCenter),
             ),
           ],

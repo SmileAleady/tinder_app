@@ -101,7 +101,7 @@ class ProfileRelationshipGoalSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    '你想要查找什么？',
+                    'What do you want to search for?',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -110,7 +110,7 @@ class ProfileRelationshipGoalSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '你可以随时更改交往意向哦。每个人都可以在这里找到自己想要的人际交往。',
+                    'You can change your intention to interact at any time. Everyone can find the interpersonal connections they want here.',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey[600],

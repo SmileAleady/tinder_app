@@ -14,13 +14,13 @@ class LikePage extends StatefulWidget {
 
 class _LikePageState extends State<LikePage> {
   static const List<String> _likeTags = [
-    '全部',
-    '附近',
-    '有个人资料',
-    '照片已验证',
-    '旅行',
-    '电影',
-    '音乐',
+    'All',
+    'Nearby',
+    "There is a profile",
+    'Photo verified',
+    'Travel',
+    'Movie',
+    'Music',
   ];
 
   int _tabIndex = 0;
@@ -81,8 +81,9 @@ class _LikePageState extends State<LikePage> {
   }
 
   bool _isVerified(UserProfileModel user) {
-    final hasVisibleGender =
-        (user.gender ?? <GenderModel>[]).any((item) => item.isVisible);
+    final hasVisibleGender = (user.gender ?? <GenderModel>[]).any(
+      (item) => item.isVisible,
+    );
     final hasVisibleOrientation =
         (user.sexualOrientation ?? <SexualOrientationModel>[]).any(
           (item) => item.isVisible,
@@ -92,25 +93,25 @@ class _LikePageState extends State<LikePage> {
 
   bool _matchTag(UserProfileModel user) {
     switch (_selectedLikeTag) {
-      case '全部':
+      case 'All':
         return true;
-      case '附近':
+      case 'Nearby':
         return (user.distance ?? 999) <= 10;
-      case '有个人资料':
+      case 'There is a profile':
         return user.aboutMe.trim().isNotEmpty;
-      case '照片已验证':
+      case 'Photo verified':
         return _isVerified(user);
-      case '旅行':
+      case 'Travel':
         return user.interests.any(
-          (i) => _containsKeyword(i.name, ['旅行', 'travel']),
+          (i) => _containsKeyword(i.name, ['Travel', 'travel']),
         );
-      case '电影':
+      case 'Movie':
         return user.interests.any(
-          (i) => _containsKeyword(i.name, ['电影', 'movie', 'film']),
+          (i) => _containsKeyword(i.name, ['Movie', 'movie', 'film']),
         );
-      case '音乐':
+      case 'Music':
         return user.interests.any(
-          (i) => _containsKeyword(i.name, ['音乐', 'music']),
+          (i) => _containsKeyword(i.name, ['Music', 'music']),
         );
       default:
         return true;
@@ -155,8 +156,10 @@ class _LikePageState extends State<LikePage> {
   List<UserProfileModel> get _topPickUsers {
     final source = _likedUsers.where(_matchFilter).toList();
     source.sort((a, b) {
-      final scoreA = (a.interests.length * 2) + (a.aboutMe.trim().isNotEmpty ? 2 : 0);
-      final scoreB = (b.interests.length * 2) + (b.aboutMe.trim().isNotEmpty ? 2 : 0);
+      final scoreA =
+          (a.interests.length * 2) + (a.aboutMe.trim().isNotEmpty ? 2 : 0);
+      final scoreB =
+          (b.interests.length * 2) + (b.aboutMe.trim().isNotEmpty ? 2 : 0);
       return scoreB.compareTo(scoreA);
     });
     return source;
@@ -175,7 +178,7 @@ class _LikePageState extends State<LikePage> {
                   const Padding(
                     padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
                     child: Text(
-                      '赞',
+                      'Like',
                       style: TextStyle(
                         color: Color(0xFF1E2432),
                         fontSize: 17,
@@ -203,9 +206,9 @@ class _LikePageState extends State<LikePage> {
       ),
       child: Row(
         children: [
-          Expanded(child: _tabButton('20 次赞', 0)),
+          Expanded(child: _tabButton('${_likedUsers.length} likes', 0)),
           Container(width: 1, height: 36, color: const Color(0xFFD4D7DE)),
-          Expanded(child: _tabButton('最佳精选', 1)),
+          Expanded(child: _tabButton('Best Selection', 1)),
         ],
       ),
     );
@@ -225,7 +228,9 @@ class _LikePageState extends State<LikePage> {
           Text(
             title,
             style: TextStyle(
-              color: selected ? const Color(0xFF1F2533) : const Color(0xFF778192),
+              color: selected
+                  ? const Color(0xFF1F2533)
+                  : const Color(0xFF778192),
               fontSize: 17,
               fontWeight: FontWeight.w700,
             ),
@@ -264,9 +269,16 @@ class _LikePageState extends State<LikePage> {
                           width: 48,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: const Color(0xFFC4C9D3), width: 1.4),
+                            border: Border.all(
+                              color: const Color(0xFFC4C9D3),
+                              width: 1.4,
+                            ),
                           ),
-                          child: const Icon(Icons.tune, color: Color(0xFF7A8394), size: 22),
+                          child: const Icon(
+                            Icons.tune,
+                            color: Color(0xFF7A8394),
+                            size: 22,
+                          ),
                         ),
                       );
                     }
@@ -285,10 +297,14 @@ class _LikePageState extends State<LikePage> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                            color: selected ? const Color(0xFF8A93A3) : const Color(0xFFC4C9D3),
+                            color: selected
+                                ? const Color(0xFF8A93A3)
+                                : const Color(0xFFC4C9D3),
                             width: 1.4,
                           ),
-                          color: selected ? const Color(0xFFEDEFF3) : Colors.transparent,
+                          color: selected
+                              ? const Color(0xFFEDEFF3)
+                              : Colors.transparent,
                         ),
                         child: Center(
                           child: Text(
@@ -309,7 +325,7 @@ class _LikePageState extends State<LikePage> {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  '升级至 Gold 来查看给你点赞的人。',
+                  'Upgrade to Gold to see who has liked you.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(0xFF2D3444),
@@ -323,7 +339,7 @@ class _LikePageState extends State<LikePage> {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  '全部获赞',
+                  'All likes',
                   style: TextStyle(
                     color: Color(0xFF1E2432),
                     fontSize: 17,
@@ -337,10 +353,12 @@ class _LikePageState extends State<LikePage> {
           ),
         ),
         _bottomActionButton(
-          title: '查看给你点赞的人',
+          title: 'View the people who have liked you',
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const UpgradePage()),
+              MaterialPageRoute(
+                builder: (_) => const UpgradePage(type: UpgradeType.gold),
+              ),
             );
           },
         ),
@@ -359,7 +377,7 @@ class _LikePageState extends State<LikePage> {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  '升级至 Tinder Gold™ 以获得更多最佳精选!',
+                  '升级至 Tinder Gold™ 以get more最佳精选!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Color(0xFF2D3444),
@@ -378,7 +396,9 @@ class _LikePageState extends State<LikePage> {
           title: '解锁所有最佳精选',
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const UpgradePage()),
+              MaterialPageRoute(
+                builder: (_) => const UpgradePage(type: UpgradeType.gold),
+              ),
             );
           },
         ),
@@ -386,12 +406,15 @@ class _LikePageState extends State<LikePage> {
     );
   }
 
-  Widget _buildUserGrid(List<UserProfileModel> users, {required bool topPickMode}) {
+  Widget _buildUserGrid(
+    List<UserProfileModel> users, {
+    required bool topPickMode,
+  }) {
     if (users.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Text(
-          '暂无用户数据',
+          'No user data available',
           textAlign: TextAlign.center,
           style: TextStyle(color: Color(0xFF7A8292), fontSize: 16),
         ),
@@ -418,7 +441,10 @@ class _LikePageState extends State<LikePage> {
     );
   }
 
-  Widget _bottomActionButton({required String title, required VoidCallback onTap}) {
+  Widget _bottomActionButton({
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return Positioned(
       left: 16,
       right: 16,
@@ -548,7 +574,11 @@ class _LikeUserCard extends StatelessWidget {
                       color: Color(0xFFF4F7FB),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.star, color: Color(0xFF20C5F5), size: 24),
+                    child: const Icon(
+                      Icons.star,
+                      color: Color(0xFF20C5F5),
+                      size: 24,
+                    ),
                   ),
               ],
             ),
@@ -648,7 +678,11 @@ class _LikeFilterSheetState extends State<_LikeFilterSheet> {
               children: [
                 IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, color: Color(0xFF7A8394), size: 30),
+                  icon: const Icon(
+                    Icons.close,
+                    color: Color(0xFF7A8394),
+                    size: 30,
+                  ),
                 ),
                 const Expanded(
                   child: Text(
@@ -685,7 +719,10 @@ class _LikeFilterSheetState extends State<_LikeFilterSheet> {
                 const Divider(height: 1, color: Color(0xFFD2D7E0)),
                 _sectionTitle('年龄范围', '${_draft.minAge}-${_draft.maxAge}+ 岁'),
                 RangeSlider(
-                  values: RangeValues(_draft.minAge.toDouble(), _draft.maxAge.toDouble()),
+                  values: RangeValues(
+                    _draft.minAge.toDouble(),
+                    _draft.maxAge.toDouble(),
+                  ),
                   min: 18,
                   max: 100,
                   activeColor: const Color(0xFFFF2D63),
@@ -736,7 +773,9 @@ class _LikeFilterSheetState extends State<_LikeFilterSheet> {
                                   : const Color(0xFFC4C9D3),
                               width: 1.5,
                             ),
-                            color: selected ? const Color(0xFFFFE8EF) : Colors.transparent,
+                            color: selected
+                                ? const Color(0xFFFFE8EF)
+                                : Colors.transparent,
                           ),
                           alignment: Alignment.center,
                           child: Text(
@@ -786,7 +825,10 @@ class _LikeFilterSheetState extends State<_LikeFilterSheet> {
                         },
                         borderRadius: BorderRadius.circular(999),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(999),
                             border: Border.all(
@@ -795,7 +837,9 @@ class _LikeFilterSheetState extends State<_LikeFilterSheet> {
                                   : const Color(0xFFC4C9D3),
                               width: 1.5,
                             ),
-                            color: selected ? const Color(0xFFFFE8EF) : Colors.transparent,
+                            color: selected
+                                ? const Color(0xFFFFE8EF)
+                                : Colors.transparent,
                           ),
                           child: Text(
                             interest,
@@ -946,7 +990,9 @@ class _LikeFilterSheetState extends State<_LikeFilterSheet> {
             Checkbox(
               value: value,
               onChanged: (v) => onChanged(v ?? false),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
               side: const BorderSide(color: Color(0xFF8993A4), width: 2),
               activeColor: const Color(0xFFFF2D63),
             ),

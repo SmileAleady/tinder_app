@@ -26,16 +26,40 @@ class _SearchPageState extends State<SearchPage> {
         title: '',
         subtitle: '',
         items: [
-          _item('Free Tonight', 511, const Color(0xFF5A27A6), 'assets/user/6.png'),
-          _item('Make New Friends', 881, const Color(0xFFC99817), 'assets/user/11.png'),
-          _item('Photo Verification', 1000, const Color(0xFFB9552B), 'assets/user/1.png', wide: true, cta: 'Try Now'),
+          _item(
+            'Free Tonight',
+            511,
+            const Color(0xFF5A27A6),
+            'assets/user/6.png',
+          ),
+          _item(
+            'Make New Friends',
+            881,
+            const Color(0xFFC99817),
+            'assets/user/11.png',
+          ),
+          _item(
+            'Photo Verification',
+            1000,
+            const Color(0xFFB9552B),
+            'assets/user/1.png',
+            wide: true,
+            cta: 'Try Now',
+          ),
         ],
       ),
       _SearchSection(
         title: 'Like-minded',
         subtitle: _subtitleFromModel('Nature Lovers'),
         items: [
-          _item('No-kids Lifestyle', 52, const Color(0xFF25A981), 'assets/user/4.png', wide: true, cta: 'Try Now'),
+          _item(
+            'No-kids Lifestyle',
+            52,
+            const Color(0xFF25A981),
+            'assets/user/4.png',
+            wide: true,
+            cta: 'Try Now',
+          ),
         ],
       ),
       _SearchSection(
@@ -43,18 +67,45 @@ class _SearchPageState extends State<SearchPage> {
         subtitle: _subtitleFromModel('Travel'),
         items: [
           _item('Travel', 614, const Color(0xFF8F2257), 'assets/user/8.png'),
-          _item('Binge Watchers', 540, const Color(0xFF1F8B4C), 'assets/user/5.png'),
+          _item(
+            'Binge Watchers',
+            540,
+            const Color(0xFF1F8B4C),
+            'assets/user/5.png',
+          ),
         ],
       ),
       _SearchSection(
         title: '',
         subtitle: '',
         items: [
-          _item('Nature Lovers', 351, const Color(0xFF1B8E46), 'assets/user/2.png'),
-          _item('Music Lovers', 380, const Color(0xFF55319A), 'assets/user/3.png'),
-          _item('Self Care', 540, const Color(0xFF1F8B4C), 'assets/user/10.png'),
+          _item(
+            'Nature Lovers',
+            351,
+            const Color(0xFF1B8E46),
+            'assets/user/2.png',
+          ),
+          _item(
+            'Music Lovers',
+            380,
+            const Color(0xFF55319A),
+            'assets/user/3.png',
+          ),
+          _item(
+            'Self Care',
+            540,
+            const Color(0xFF1F8B4C),
+            'assets/user/10.png',
+          ),
           _item('Gamers', 34, const Color(0xFF2F8D46), 'assets/user/9.png'),
-          _item('Pet Lovers', 81, const Color(0xFFB5432A), 'assets/user/12.png', wide: true, cta: 'Try Now'),
+          _item(
+            'Pet Lovers',
+            81,
+            const Color(0xFFB5432A),
+            'assets/user/12.png',
+            wide: true,
+            cta: 'Try Now',
+          ),
         ],
       ),
       _SearchSection(
@@ -62,10 +113,30 @@ class _SearchPageState extends State<SearchPage> {
         subtitle: '',
         items: [
           _item('Sports', 452, const Color(0xFFB64933), 'assets/user/13.png'),
-          _item('Coffee Dates', 135, const Color(0xFFC59818), 'assets/user/14.png'),
-          _item('Night Dates', 196, const Color(0xFF89235F), 'assets/user/15.png'),
-          _item('Adventure Seekers', 347, const Color(0xFFD6AA23), 'assets/user/16.png'),
-          _item('Creative Minds', 539, const Color(0xFF126E8D), 'assets/user/17.png'),
+          _item(
+            'Coffee Dates',
+            135,
+            const Color(0xFFC59818),
+            'assets/user/14.png',
+          ),
+          _item(
+            'Night Dates',
+            196,
+            const Color(0xFF89235F),
+            'assets/user/15.png',
+          ),
+          _item(
+            'Adventure Seekers',
+            347,
+            const Color(0xFFD6AA23),
+            'assets/user/16.png',
+          ),
+          _item(
+            'Creative Minds',
+            539,
+            const Color(0xFF126E8D),
+            'assets/user/17.png',
+          ),
           _item('Foodies', 274, const Color(0xFF92204D), 'assets/user/18.png'),
         ],
       ),
@@ -73,9 +144,25 @@ class _SearchPageState extends State<SearchPage> {
         title: 'Intentional Dating',
         subtitle: _subtitleFromModel('Looking for a Long-term Partner'),
         items: [
-          _item('Looking for a Long-term Partner', 934, const Color(0xFFB64933), 'assets/user/7.png'),
-          _item('Serious Relationship', 650, const Color(0xFFC45D3D), 'assets/user/11.png'),
-          _item('Enjoy Short-term Dating', 159, const Color(0xFF8F2257), 'assets/user/0.png', wide: true),
+          _item(
+            'Looking for a Long-term Partner',
+            934,
+            const Color(0xFFB64933),
+            'assets/user/7.png',
+          ),
+          _item(
+            'Serious Relationship',
+            650,
+            const Color(0xFFC45D3D),
+            'assets/user/11.png',
+          ),
+          _item(
+            'Enjoy Short-term Dating',
+            159,
+            const Color(0xFF8F2257),
+            'assets/user/0.png',
+            wide: true,
+          ),
         ],
       ),
     ];
@@ -100,7 +187,10 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   String _subtitleFromModel(String type) {
-    final sample = OptionDataManager.getUserListBySearchType(type, count: 1).first;
+    final sample = OptionDataManager.getUserListBySearchType(
+      type,
+      count: 1,
+    ).first;
     final goal = sample.relationshipGoal?.title ?? '';
     if (goal.isNotEmpty) {
       return goal;
@@ -127,10 +217,8 @@ class _SearchPageState extends State<SearchPage> {
     Navigator.of(dialogContext, rootNavigator: true).pop();
     await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => HomePage(
-          isFromSearchPage: true,
-          searchType: item.title,
-        ),
+        builder: (_) =>
+            HomePage(isFromSearchPage: true, searchType: item.title),
       ),
     );
   }
@@ -196,10 +284,7 @@ class _SearchPageState extends State<SearchPage> {
         rows.add(
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
-            child: _SearchCard(
-              item: current,
-              onTap: () => _onTapItem(current),
-            ),
+            child: _SearchCard(item: current, onTap: () => _onTapItem(current)),
           ),
         );
         i += 1;
@@ -254,7 +339,14 @@ class _LoadingOverlay extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Row(
                 children: [
-                  const Icon(Icons.close, size: 34, color: Color(0xFF202734)),
+                  InkWell(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: const Icon(
+                      Icons.close,
+                      size: 34,
+                      color: Color(0xFF202734),
+                    ),
+                  ),
                   const Spacer(),
                   Text(
                     item.title,
@@ -281,10 +373,7 @@ class _LoadingOverlay extends StatelessWidget {
                 border: Border.all(color: const Color(0xFFF3D9DF), width: 5),
               ),
               child: ClipOval(
-                child: Image(
-                  image: AssetImage(item.image),
-                  fit: BoxFit.cover,
-                ),
+                child: Image(image: AssetImage(item.image), fit: BoxFit.cover),
               ),
             ),
             const SizedBox(height: 20),
@@ -380,7 +469,10 @@ class _SearchCard extends StatelessWidget {
               Align(
                 alignment: Alignment.topRight,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 9,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
                     border: Border.all(color: Colors.white),
@@ -412,7 +504,10 @@ class _SearchCard extends StatelessWidget {
                   ),
                   if (item.cta != null)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(22),

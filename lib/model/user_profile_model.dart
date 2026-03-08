@@ -367,21 +367,22 @@ class UserProfileModel {
   final String nikeName; // 昵称
   final List<String> mediaUrls; // 媒体图片URL列表
   bool smartPhotosEnabled; // 是否启用智能照片
-  String aboutMe; // 关于我
+  String aboutMe; // 关于我-个人介绍
   final UserChatPreference? chatPreference; // 新增：欢迎跟我聊 聊天偏好
   final List<UserPrompt> prompts; // 问答列表
   List<UserInterest> interests; // 兴趣列表
   UserRelationshipGoalItem? relationshipGoal; // 交往目标
   UserHeightModel? height; // 身高
   List<UserLanguage> languages; // 会的语言
-  final UserMoreInfo moreInfo; // 更多信息
-  final UserLifestyle lifestyle; // 生活方式
+  UserMoreInfo moreInfo; // 更多信息
+  UserLifestyle lifestyle; // 生活方式
   String? jobTitle; // 职位
   String? company; // 公司
   String? school; // 学校
   String? city; // 居住地
   MusicModel? favoriteSong; // 最爱歌曲
   String? spotifyArtist; // Spotify艺术家
+  String? personalProfile; // 个人介绍参数
   List<GenderModel>? gender; // 性别
   List<SexualOrientationModel>? sexualOrientation; // 性取向
   final UserPrivacySettings privacySettings; // 隐私设置
@@ -412,6 +413,7 @@ class UserProfileModel {
     this.city,
     this.favoriteSong,
     this.spotifyArtist,
+    this.personalProfile,
     required this.gender,
     required this.sexualOrientation,
     required this.privacySettings,
@@ -444,6 +446,7 @@ class UserProfileModel {
       'city': city,
       'favoriteSong': favoriteSong?.toJson(),
       'spotifyArtist': spotifyArtist,
+      'personalProfile': personalProfile,
       'gender': gender?.map((item) => item.toJson()).toList(),
       'sexualOrientation': sexualOrientation
           ?.map((item) => item.toJson())
@@ -500,6 +503,7 @@ class UserProfileModel {
           ? MusicModel.fromJson(json['favoriteSong'] as Map<String, dynamic>)
           : null,
       spotifyArtist: json['spotifyArtist'] as String?,
+      personalProfile: json['personalProfile'] as String?,
       gender: (json['gender'] as List? ?? <dynamic>[])
           .map((i) => GenderModel.fromJson(i as Map<String, dynamic>))
           .toList(),

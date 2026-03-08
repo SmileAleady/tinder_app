@@ -9,3 +9,8 @@ class PromptAnswerEvent {
   final UserPrompt model;
   PromptAnswerEvent(this.model);
 }
+
+/// Notify global UI that liked-users count may have changed.
+class LikeUsersChangedEvent {
+  const LikeUsersChangedEvent();
+}

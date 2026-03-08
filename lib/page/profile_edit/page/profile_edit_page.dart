@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tinder_app/data/app_data.dart';
+import 'package:tinder_app/data/auth/user_auth_local_db.dart';
 import 'package:tinder_app/model/user_profile_model.dart';
 import 'package:tinder_app/page/profile_edit/widget/profile_about_me_list_page.dart';
 import 'dart:io';
@@ -22,7 +24,10 @@ import 'package:tinder_app/page/profile_edit/widget/universal_option_sheet.dart'
 import 'package:tinder_app/tool/event_bus.dart';
 
 class ProfileEditPage extends StatefulWidget {
-  const ProfileEditPage({Key? key}) : super(key: key);
+  final bool autoOpenPhotoPicker;
+
+  const ProfileEditPage({Key? key, this.autoOpenPhotoPicker = false})
+    : super(key: key);
 
   @override
   State<ProfileEditPage> createState() => _ProfileEditPageState();
@@ -39,32 +44,105 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   String? height;
   List<String> languages = ['English', 'Chinese', 'Japanese'];
   UserProfileModel? userProfileModel;
+  final TextEditingController _jobTitleController = TextEditingController();
+  final TextEditingController _companyController = TextEditingController();
+  final TextEditingController _schoolController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _aboutMeController = TextEditingController();
+  bool _loadingProfile = true;
+  StreamSubscription<PromptAnswerEvent>? _promptSubscription;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    userProfileModel = getUserProfileModel();
+    _loadProfile();
 
     // 监听事件
-    eventBus.on<PromptAnswerEvent>().listen((event) {
+    _promptSubscription = eventBus.on<PromptAnswerEvent>().listen((event) {
       print('Selected prompt: ${event.model.title}');
       print('Response: ${event.model.content}');
-      setState(() {
-        // 根据需要处理文本，这里示例放到 aboutMe
+      _updateProfile(() {
         userProfileModel?.prompts.add(event.model);
       });
     });
   }
 
+  Future<void> _loadProfile() async {
+    final active = await UserAuthLocalDb.instance.getActiveUser();
+    UserProfileModel? profile = active;
+    if (profile == null) {
+      final seed = OptionDataManager.getUserList();
+      if (seed.isNotEmpty) {
+        profile = seed.first;
+      }
+    }
+
+    if (profile != null) {
+      await UserAuthLocalDb.instance.upsertUser(profile, keepActive: true);
+    }
+
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      userProfileModel = profile;
+      smartPhotoEnabled = profile?.smartPhotosEnabled ?? true;
+      _jobTitleController.text = profile?.jobTitle ?? '';
+      _companyController.text = profile?.company ?? '';
+      _schoolController.text = profile?.school ?? '';
+      _cityController.text = profile?.city ?? '';
+      _aboutMeController.text =
+          profile?.personalProfile ?? profile?.aboutMe ?? '';
+      _loadingProfile = false;
+    });
+
+    if (widget.autoOpenPhotoPicker &&
+        (profile?.mediaUrls.length ?? 0) < 9 &&
+        mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) {
+          return;
+        }
+        _showPhotoPickerBottomSheet(profile?.mediaUrls.length ?? 0);
+      });
+    }
+  }
+
+  Future<void> _persistProfile() async {
+    final profile = userProfileModel;
+    if (profile == null) {
+      return;
+    }
+    await UserAuthLocalDb.instance.upsertUser(profile, keepActive: true);
+  }
+
+  void _updateProfile(VoidCallback mutate) {
+    setState(mutate);
+    unawaited(_persistProfile());
+  }
+
   @override
   void dispose() {
+    _promptSubscription?.cancel();
+    _jobTitleController.dispose();
+    _companyController.dispose();
+    _schoolController.dispose();
+    _cityController.dispose();
     _tabController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_loadingProfile) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    if (userProfileModel == null) {
+      return const Scaffold(body: Center(child: Text('No active profile')));
+    }
+
     return Scaffold(
       body: SafeArea(
         child: GestureDetector(
@@ -93,6 +171,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   }
 
   Widget _buildHeader() {
+    final completion = _completionPercent();
     return Column(
       children: [
         // Title and back button
@@ -110,8 +189,27 @@ class _ProfileEditPageState extends State<ProfileEditPage>
               ),
               const SizedBox(width: 12),
               const Text(
-                'Edit Profile',
+                'Edit Personal Profile',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFF2D63),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  '$completion%',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ],
           ),
@@ -126,6 +224,35 @@ class _ProfileEditPageState extends State<ProfileEditPage>
         ),
       ],
     );
+  }
+
+  int _completionPercent() {
+    final user = userProfileModel;
+    if (user == null) {
+      return 0;
+    }
+    const total = 16;
+    var done = 0;
+
+    if (user.mediaUrls.length >= 3) done++;
+    if (user.aboutMe.trim().isNotEmpty) done++;
+    if (user.nikeName.trim().isNotEmpty) done++;
+    if (user.prompts.isNotEmpty) done++;
+    if (user.interests.isNotEmpty) done++;
+    if (user.relationshipGoal != null) done++;
+    if (user.languages.isNotEmpty) done++;
+    if (user.height != null) done++;
+    if ((user.jobTitle ?? '').trim().isNotEmpty) done++;
+    if ((user.company ?? '').trim().isNotEmpty) done++;
+    if ((user.school ?? '').trim().isNotEmpty) done++;
+    if ((user.city ?? '').trim().isNotEmpty) done++;
+    if (user.favoriteSong != null) done++;
+    if ((user.gender ?? <GenderModel>[]).isNotEmpty) done++;
+    if ((user.sexualOrientation ?? <SexualOrientationModel>[]).isNotEmpty)
+      done++;
+    if (user.age != null) done++;
+
+    return (done * 100 / total).round().clamp(0, 100);
   }
 
   Widget _buildEditTab() {
@@ -229,7 +356,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 onCompleted: (result) {
                   // 处理最终结果
                   print('Result: ${result.combinedText}');
-                  setState(() {
+                  _updateProfile(() {
                     if (item.optionType == SheetOptionType.goOut) {
                       userProfileModel?.chatPreference?.goingOut = [
                         result.action,
@@ -257,7 +384,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 onDelete: () {
                   // 处理删除逻辑
                   print('Delete prompt');
-                  setState(() {
+                  _updateProfile(() {
                     if (item.optionType == SheetOptionType.goOut) {
                       userProfileModel?.chatPreference?.goingOut = [];
                     } else if (item.optionType == SheetOptionType.weekend) {
@@ -373,7 +500,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
             children: [
               if (userProfileModel == null ||
                   (userProfileModel != null &&
-                  userProfileModel!.mediaUrls != null &&
+                      userProfileModel!.mediaUrls != null &&
                       userProfileModel!.mediaUrls!.length <= index))
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 4, 4, 0),
@@ -420,7 +547,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                   right: 0,
                   child: GestureDetector(
                     onTap: () {
-                      setState(() {
+                      _updateProfile(() {
                         userProfileModel!.mediaUrls?.removeAt(index);
                       });
                     },
@@ -456,7 +583,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
   void _handlePhotoTap(int index) {
     // 如果已有图片，则不处理点击
     if (userProfileModel != null &&
-    userProfileModel!.mediaUrls != null &&
+        userProfileModel!.mediaUrls != null &&
         userProfileModel!.mediaUrls!.length > index &&
         userProfileModel!.mediaUrls?[index] != null) {
       return;
@@ -519,16 +646,18 @@ class _ProfileEditPageState extends State<ProfileEditPage>
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
       if (image != null) {
         final String localPath = await _saveImageLocally(image.path);
-        setState(() {
+        _updateProfile(() {
           userProfileModel!.mediaUrls?.add(localPath);
         });
       }
     } catch (e) {
       debugPrint('Failed to pick image from gallery: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Failed to select image. Please try again.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to select image. Please try again.'),
+          ),
+        );
       }
     }
   }
@@ -539,16 +668,18 @@ class _ProfileEditPageState extends State<ProfileEditPage>
       final XFile? image = await picker.pickImage(source: ImageSource.camera);
       if (image != null) {
         final String localPath = await _saveImageLocally(image.path);
-        setState(() {
+        _updateProfile(() {
           userProfileModel!.mediaUrls?.add(localPath);
         });
       }
     } catch (e) {
       debugPrint('Failed to capture photo: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Failed to capture photo. Please try again.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to capture photo. Please try again.'),
+          ),
+        );
       }
     }
   }
@@ -598,6 +729,17 @@ class _ProfileEditPageState extends State<ProfileEditPage>
           ...items.map((item) {
             int index = items.indexOf(item);
             String? valueString = item.value;
+            if (item.optionType == SheetOptionType.constellation) {
+              valueString = userProfileModel?.moreInfo.zodiac;
+            } else if (item.optionType == SheetOptionType.education) {
+              valueString = userProfileModel?.moreInfo.education;
+            } else if (item.optionType == SheetOptionType.wantChildren) {
+              valueString = userProfileModel?.moreInfo.familyPlan;
+            } else if (item.optionType == SheetOptionType.communicationStyle) {
+              valueString = userProfileModel?.moreInfo.communicationStyle;
+            } else if (item.optionType == SheetOptionType.loveLanguage) {
+              valueString = userProfileModel?.moreInfo.loveLanguage;
+            }
             if (item.optionType == SheetOptionType.goOut) {
               valueString = userProfileModel?.chatPreference?.goingOut?.join(
                 ',',
@@ -651,7 +793,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            item.label as String,
+                            item.label ?? "",
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.black,
@@ -660,9 +802,10 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                           const Spacer(),
                           Expanded(
                             child: Text(
+                              textAlign: TextAlign.right,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                              valueString as String,
+                              valueString ?? '',
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey,
@@ -695,13 +838,53 @@ class _ProfileEditPageState extends State<ProfileEditPage>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSingleFieldSection('Job Title', 'Add job title', important: true, percent: '+4%'),
+        _buildSingleFieldSection(
+          'Job Title',
+          'Add job title',
+          important: true,
+          percent: '+4%',
+          controller: _jobTitleController,
+          onChanged: (value) {
+            _updateProfile(() {
+              userProfileModel?.jobTitle = value;
+            });
+          },
+        ),
         const SizedBox(height: 24),
-        _buildSingleFieldSection('Company', 'Add company', percent: '+2%'),
+        _buildSingleFieldSection(
+          'Company',
+          'Add company',
+          percent: '+2%',
+          controller: _companyController,
+          onChanged: (value) {
+            _updateProfile(() {
+              userProfileModel?.company = value;
+            });
+          },
+        ),
         const SizedBox(height: 24),
-        _buildSingleFieldSection('School', 'Add school', percent: '+4%'),
+        _buildSingleFieldSection(
+          'School',
+          'Add school',
+          percent: '+4%',
+          controller: _schoolController,
+          onChanged: (value) {
+            _updateProfile(() {
+              userProfileModel?.school = value;
+            });
+          },
+        ),
         const SizedBox(height: 24),
-        _buildSingleFieldSection('Living in', 'Add city'),
+        _buildSingleFieldSection(
+          'Living in',
+          'Add city',
+          controller: _cityController,
+          onChanged: (value) {
+            _updateProfile(() {
+              userProfileModel?.city = value;
+            });
+          },
+        ),
       ],
     );
   }
@@ -739,8 +922,9 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                   child: Switch(
                     value: smartPhotoEnabled,
                     onChanged: (value) {
-                      setState(() {
+                      _updateProfile(() {
                         smartPhotoEnabled = value;
+                        userProfileModel?.smartPhotosEnabled = value;
                       });
                     },
                     activeColor: Colors.red,
@@ -765,6 +949,8 @@ class _ProfileEditPageState extends State<ProfileEditPage>
     String placeholder, {
     bool important = false,
     String percent = '',
+    required TextEditingController controller,
+    required ValueChanged<String> onChanged,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -820,25 +1006,14 @@ class _ProfileEditPageState extends State<ProfileEditPage>
               borderRadius: BorderRadius.circular(8), // 圆角
             ),
             child: TextField(
+              controller: controller,
               decoration: InputDecoration(
                 hintText: placeholder,
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
               maxLines: 1,
-              onChanged: (value) {
-                setState(() {
-                  if (title == 'Job Title') {
-                    userProfileModel?.jobTitle = value;
-                  } else if (title == 'Company') {
-                    userProfileModel?.company = value;
-                  } else if (title == 'School') {
-                    userProfileModel?.school = value;
-                  } else if (title == 'Living in') {
-                    userProfileModel?.city = value;
-                  }
-                });
-              },
+              onChanged: onChanged,
             ),
           ),
         ],
@@ -894,14 +1069,16 @@ class _ProfileEditPageState extends State<ProfileEditPage>
               borderRadius: BorderRadius.circular(8), // 圆角
             ),
             child: TextField(
+              controller: _aboutMeController,
               decoration: const InputDecoration(
                 hintText: 'Write something about yourself',
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
               onChanged: (value) {
-                setState(() {
+                _updateProfile(() {
                   userProfileModel?.aboutMe = value;
+                  userProfileModel?.personalProfile = value;
                 });
               },
               // maxLines: 4,
@@ -1137,7 +1314,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
             right: 0,
             child: InkWell(
               onTap: () {
-                setState(() {
+                _updateProfile(() {
                   // 删除已选择的提示
                   if (userProfileModel!.prompts.isNotEmpty &&
                       index < userProfileModel!.prompts.length) {
@@ -1201,7 +1378,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 context,
                 selectedInterest: userProfileModel?.interests,
                 onCompleted: (selectedInterests) {
-                  setState(() {
+                  _updateProfile(() {
                     userProfileModel?.interests = selectedInterests;
                   });
                 },
@@ -1255,7 +1432,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 selectedItem: userProfileModel?.relationshipGoal, // 回显已选中的项
                 onItemSelected: (item) {
                   // 选中回调，更新状态
-                  setState(() {
+                  _updateProfile(() {
                     if (userProfileModel != null) {
                       userProfileModel!.relationshipGoal = item;
                     }
@@ -1344,14 +1521,14 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 initialInch: userProfileModel?.height?.inch,
                 // 完成按钮回调
                 onCompleted: (height) {
-                  setState(() {
+                  _updateProfile(() {
                     userProfileModel?.height = height;
                   });
                 },
 
                 // 删除按钮回调
                 onDelete: () {
-                  setState(() {
+                  _updateProfile(() {
                     userProfileModel?.height?.unit = HeightUnit.feetInch;
                     userProfileModel?.height?.cm = null;
                     userProfileModel?.height?.feet = null;
@@ -1416,7 +1593,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                 context,
                 selectedLanguage: userProfileModel?.languages,
                 onCompleted: (selectedLanguages) {
-                  setState(() {
+                  _updateProfile(() {
                     userProfileModel?.languages = selectedLanguages;
                   });
                 },
@@ -1478,13 +1655,13 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                   builder: (context) => ProfileSpotifySongSelectionWidget(
                     onNoFavoriteClick: (time) {
                       print("Tapped 'I don't want a favorite song' at: $time");
-                      setState(() {
+                      _updateProfile(() {
                         userProfileModel?.favoriteSong = null;
                       });
                     },
                     onMusicSelected: (music) {
                       print("Selected song: ${music.title} - ${music.artist}");
-                      setState(() {
+                      _updateProfile(() {
                         userProfileModel?.favoriteSong = music;
                       });
                     },
@@ -1563,13 +1740,18 @@ class _ProfileEditPageState extends State<ProfileEditPage>
               color: Colors.white, // 浅灰色背景
               borderRadius: BorderRadius.circular(8), // 圆角
             ),
-            child: const TextField(
+            child: TextField(
               decoration: InputDecoration(
                 hintText: 'Add artist',
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
               maxLines: 1,
+              onChanged: (value) {
+                _updateProfile(() {
+                  userProfileModel?.spotifyArtist = value;
+                });
+              },
             ),
           ),
           const SizedBox(height: 8),
@@ -1624,7 +1806,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                     // 接收选中的Gender数组
                     onConfirm: (selectedGenders) {
                       print('Selected gender:');
-                      setState(() {
+                      _updateProfile(() {
                         userProfileModel?.gender = selectedGenders;
                       });
                     },
@@ -1712,7 +1894,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                     // 接收选中的性向数组
                     onConfirm: (selectedOrientations) {
                       print('Selected orientation:');
-                      setState(() {
+                      _updateProfile(() {
                         userProfileModel?.sexualOrientation =
                             selectedOrientations;
                       });
@@ -1832,7 +2014,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                         value:
                             userProfileModel?.privacySettings.hideAge ?? false,
                         onChanged: (value) {
-                          setState(() {
+                          _updateProfile(() {
                             userProfileModel?.privacySettings.hideAge = value;
                           });
                         },
@@ -1872,7 +2054,7 @@ class _ProfileEditPageState extends State<ProfileEditPage>
                             userProfileModel?.privacySettings.hideDistance ??
                             false,
                         onChanged: (value) {
-                          setState(() {
+                          _updateProfile(() {
                             userProfileModel?.privacySettings.hideDistance =
                                 value;
                           });
@@ -1913,6 +2095,106 @@ class _ProfileEditPageState extends State<ProfileEditPage>
       // initialSelectedId: 'libra', // 可选：初始选中ID
       onCompleted: (selectedItem) {
         print('Selected: ${selectedItem.title}, ID: ${selectedItem.id}');
+        _updateProfile(() {
+          final user = userProfileModel;
+          if (user == null) {
+            return;
+          }
+          switch (type) {
+            case SheetOptionType.constellation:
+              user.moreInfo = UserMoreInfo(
+                zodiac: selectedItem.title,
+                education: user.moreInfo.education,
+                familyPlan: user.moreInfo.familyPlan,
+                communicationStyle: user.moreInfo.communicationStyle,
+                loveLanguage: user.moreInfo.loveLanguage,
+              );
+              break;
+            case SheetOptionType.education:
+              user.moreInfo = UserMoreInfo(
+                zodiac: user.moreInfo.zodiac,
+                education: selectedItem.title,
+                familyPlan: user.moreInfo.familyPlan,
+                communicationStyle: user.moreInfo.communicationStyle,
+                loveLanguage: user.moreInfo.loveLanguage,
+              );
+              break;
+            case SheetOptionType.wantChildren:
+              user.moreInfo = UserMoreInfo(
+                zodiac: user.moreInfo.zodiac,
+                education: user.moreInfo.education,
+                familyPlan: selectedItem.title,
+                communicationStyle: user.moreInfo.communicationStyle,
+                loveLanguage: user.moreInfo.loveLanguage,
+              );
+              break;
+            case SheetOptionType.communicationStyle:
+              user.moreInfo = UserMoreInfo(
+                zodiac: user.moreInfo.zodiac,
+                education: user.moreInfo.education,
+                familyPlan: user.moreInfo.familyPlan,
+                communicationStyle: selectedItem.title,
+                loveLanguage: user.moreInfo.loveLanguage,
+              );
+              break;
+            case SheetOptionType.loveLanguage:
+              user.moreInfo = UserMoreInfo(
+                zodiac: user.moreInfo.zodiac,
+                education: user.moreInfo.education,
+                familyPlan: user.moreInfo.familyPlan,
+                communicationStyle: user.moreInfo.communicationStyle,
+                loveLanguage: selectedItem.title,
+              );
+              break;
+            case SheetOptionType.petPreference:
+              user.lifestyle = UserLifestyle(
+                petPreference: selectedItem.title,
+                drinking: user.lifestyle.drinking,
+                smoking: user.lifestyle.smoking,
+                fitness: user.lifestyle.fitness,
+                socialMediaActivity: user.lifestyle.socialMediaActivity,
+              );
+              break;
+            case SheetOptionType.drinking:
+              user.lifestyle = UserLifestyle(
+                petPreference: user.lifestyle.petPreference,
+                drinking: selectedItem.title,
+                smoking: user.lifestyle.smoking,
+                fitness: user.lifestyle.fitness,
+                socialMediaActivity: user.lifestyle.socialMediaActivity,
+              );
+              break;
+            case SheetOptionType.smoking:
+              user.lifestyle = UserLifestyle(
+                petPreference: user.lifestyle.petPreference,
+                drinking: user.lifestyle.drinking,
+                smoking: selectedItem.title,
+                fitness: user.lifestyle.fitness,
+                socialMediaActivity: user.lifestyle.socialMediaActivity,
+              );
+              break;
+            case SheetOptionType.fitness:
+              user.lifestyle = UserLifestyle(
+                petPreference: user.lifestyle.petPreference,
+                drinking: user.lifestyle.drinking,
+                smoking: user.lifestyle.smoking,
+                fitness: selectedItem.title,
+                socialMediaActivity: user.lifestyle.socialMediaActivity,
+              );
+              break;
+            case SheetOptionType.socialMediaActivity:
+              user.lifestyle = UserLifestyle(
+                petPreference: user.lifestyle.petPreference,
+                drinking: user.lifestyle.drinking,
+                smoking: user.lifestyle.smoking,
+                fitness: user.lifestyle.fitness,
+                socialMediaActivity: selectedItem.title,
+              );
+              break;
+            default:
+              break;
+          }
+        });
         Navigator.pop(context);
       },
     );

@@ -6,6 +6,7 @@ import 'package:tinder_app/data/app_data.dart';
 import 'package:tinder_app/data/auth/user_auth_local_db.dart';
 import 'package:tinder_app/data/home/home_swipe_local_db.dart';
 import 'package:tinder_app/model/user_profile_model.dart';
+import 'package:tinder_app/tool/event_bus.dart';
 import 'package:tinder_app/widget/user_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -263,6 +264,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         user: removedUser,
         liked: liked,
       );
+      if (liked) {
+        eventBus.fire(const LikeUsersChangedEvent());
+      }
     } else {
       setState(() {
         _dragOffset = Offset.zero;

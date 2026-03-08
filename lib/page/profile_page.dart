@@ -3,6 +3,7 @@ import 'package:tinder_app/data/app_data.dart';
 import 'package:tinder_app/data/auth/user_auth_local_db.dart';
 import 'package:tinder_app/model/user_profile_model.dart';
 import 'package:tinder_app/page/profile_edit/page/profile_edit_page.dart';
+import 'package:tinder_app/page/profile_personal_desc_page.dart';
 import 'package:tinder_app/page/setting/setting.dart';
 import 'package:tinder_app/page/upgrade/upgrade_page.dart';
 
@@ -178,7 +179,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         Icon(Icons.edit, color: Colors.white, size: 15),
                         SizedBox(width: 7),
                         Text(
-                          '编辑个人资料',
+                          'Edit Personal Profile',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
@@ -278,7 +279,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           const SizedBox(height: 8),
           const Text(
-            '完善个人资料，让更多的人看到你!',
+            'Improve your personal profile and let more people see you!，让更多的人看到你!',
             style: TextStyle(
               color: Color(0xFF5C6272),
               fontSize: 47 / 4,
@@ -291,78 +292,116 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _taskCard(_ProfileTask task) {
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 68,
-            child: Column(
-              children: [
-                Icon(task.icon, size: 28, color: const Color(0xFFFF5A9A)),
-                const SizedBox(height: 2),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 7,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFE7F0),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    task.percent,
-                    style: const TextStyle(
-                      color: Color(0xFFFF2E6D),
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
+    return InkWell(
+      onTap: () => _onTaskTap(task),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF3F4F6),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 68,
+              child: Column(
+                children: [
+                  Icon(task.icon, size: 28, color: const Color(0xFFFF5A9A)),
+                  const SizedBox(height: 2),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFE7F0),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      task.percent,
+                      style: const TextStyle(
+                        color: Color(0xFFFF2E6D),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  task.title,
-                  style: const TextStyle(
-                    color: Color(0xFF181E2C),
-                    fontSize: 49 / 4,
-                    fontWeight: FontWeight.w800,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    task.title,
+                    style: const TextStyle(
+                      color: Color(0xFF181E2C),
+                      fontSize: 49 / 4,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  task.subtitle,
-                  style: const TextStyle(
-                    color: Color(0xFF616878),
-                    fontSize: 46 / 4,
-                    height: 1.2,
+                  const SizedBox(height: 3),
+                  Text(
+                    task.subtitle,
+                    style: const TextStyle(
+                      color: Color(0xFF616878),
+                      fontSize: 46 / 4,
+                      height: 1.2,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFF98A0AF), width: 2),
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFF98A0AF), width: 2),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
+  }
+
+  Future<void> _onTaskTap(_ProfileTask task) async {
+    if (_activeUser == null) {
+      return;
+    }
+    if (task.action == _ProfileTaskAction.uploadPhotos) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const ProfileEditPage(autoOpenPhotoPicker: true),
+        ),
+      );
+      await _loadActiveUser();
+      return;
+    }
+    if (task.action == _ProfileTaskAction.personalProfile) {
+      final initial = (_activeUser!.aboutMe).trim();
+      final result = await Navigator.of(context).push<String>(
+        MaterialPageRoute(
+          builder: (_) => ProfilePersonalDescPage(initialValue: initial),
+        ),
+      );
+      if (!mounted || result == null) {
+        return;
+      }
+      final desc = result.trim();
+      if (desc.isEmpty) {
+        return;
+      }
+      _activeUser!.personalProfile = desc;
+      _activeUser!.aboutMe = desc;
+      await UserAuthLocalDb.instance.upsertUser(_activeUser!, keepActive: true);
+      await _loadActiveUser();
+    }
   }
 
   Widget _actionTiles() {
@@ -375,7 +414,7 @@ class _ProfilePageState extends State<ProfilePage> {
               icon: Icons.star,
               iconColor: const Color(0xFF1087CF),
               title: '0 个 Super Like',
-              sub: '获得更多',
+              sub: 'get more',
               subColor: const Color(0xFF1878DA),
               onTap: () {
                 Navigator.of(context).push(
@@ -389,8 +428,8 @@ class _ProfilePageState extends State<ProfilePage> {
             child: _actionTile(
               icon: Icons.bolt,
               iconColor: const Color(0xFF9624FA),
-              title: '我的 Boost',
-              sub: '获得更多',
+              title: 'My Boost',
+              sub: 'get more',
               subColor: const Color(0xFFA029FF),
               onTap: _showBoostSheet,
             ),
@@ -489,31 +528,42 @@ class _ProfilePageState extends State<ProfilePage> {
         bg: const Color(0xFFF8E9AE),
         text: const Color(0xFF1F2533),
         name: 'GOLD',
+        type: UpgradeType.gold,
         logoColor: const Color(0xFFE5AF0E),
         buttonStart: const Color(0xFFE2B429),
         buttonEnd: const Color(0xFFE8C141),
-        rightTitle: '免费  Gold',
-        rows: const ['查看给你点赞的人', '最佳精选', '免费 Super Like'],
+        rightTitle: 'Free  Gold',
+        rows: const ['View who likes you', 'Best selection', 'Free Super Like'],
       ),
       _PackageCardData(
         bg: const Color(0xFFD8DCE5),
         text: const Color(0xFF1F2533),
         name: 'PLATINUM',
+        type: UpgradeType.platinum,
         logoColor: const Color(0xFF0F1218),
         buttonStart: const Color(0xFF2A313E),
         buttonEnd: const Color(0xFF495364),
-        rightTitle: '免费  Platinum',
-        rows: const ['置顶赞', '附加信息促配对', '查看给你点赞的人'],
+        rightTitle: 'Free  Platinum',
+        rows: const [
+          'Pin and Like',
+          'Additional Information to Facilitate Matchmaking',
+          'View Who Has Liked You',
+        ],
       ),
       _PackageCardData(
         bg: const Color(0xFFF4CDD6),
         text: const Color(0xFF1F2533),
         name: 'PLUS',
+        type: UpgradeType.plus,
         logoColor: const Color(0xFFFF2A61),
         buttonStart: const Color(0xFFFF2D63),
         buttonEnd: const Color(0xFFFF5360),
-        rightTitle: '免费  Plus',
-        rows: const ['无限点赞次数', '无限倒回', '位置漫游'],
+        rightTitle: 'Free  Plus',
+        rows: const [
+          'Unlimited likes',
+          'Unlimited rewinds',
+          'Location roaming',
+        ],
       ),
     ];
 
@@ -577,22 +627,31 @@ class _ProfilePageState extends State<ProfilePage> {
                             ),
                           ),
                           const Spacer(),
-                          Container(
-                            width: 80,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              gradient: LinearGradient(
-                                colors: [item.buttonStart, item.buttonEnd],
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => UpgradePage(type: item.type),
+                                ),
+                              );
+                            },
+                            child: Container(
+                              width: 80,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                gradient: LinearGradient(
+                                  colors: [item.buttonStart, item.buttonEnd],
+                                ),
                               ),
-                            ),
-                            child: const Center(
-                              child: Text(
-                                '升级',
-                                style: TextStyle(
-                                  color: Color(0xFF1C2432),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
+                              child: const Center(
+                                child: Text(
+                                  'upgrade',
+                                  style: TextStyle(
+                                    color: Color(0xFF1C2432),
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                             ),
@@ -603,7 +662,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Row(
                         children: [
                           const Text(
-                            '专属功能',
+                            'Exclusive function',
                             style: TextStyle(
                               color: Color(0xFF1F2533),
                               fontSize: 15,
@@ -655,7 +714,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       const Spacer(),
                       const Center(
                         child: Text(
-                          '查看所有高级功能',
+                          'View all advanced features',
                           style: TextStyle(
                             color: Color(0xFF1F2533),
                             fontSize: 15,
@@ -726,7 +785,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               const Text(
-                '我的 Boost',
+                'My Boost',
                 style: TextStyle(fontSize: 68 / 4, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
@@ -755,7 +814,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 child: const Center(
                   child: Text(
-                    '获得更多 Boost',
+                    'get more Boost',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 64 / 4,
@@ -849,7 +908,7 @@ class _ProfilePageState extends State<ProfilePage> {
     var done = 0;
 
     if (user.mediaUrls.length >= 3) done++;
-    if (user.aboutMe.trim().isNotEmpty) done++;
+    if ((user.personalProfile ?? user.aboutMe).trim().isNotEmpty) done++;
     if (user.nikeName.trim().isNotEmpty) done++;
     if (user.prompts.isNotEmpty) done++;
     if (user.interests.isNotEmpty) done++;
@@ -878,20 +937,23 @@ class _ProfilePageState extends State<ProfilePage> {
       list.add(
         const _ProfileTask(
           icon: Icons.image,
-          title: '上传至少3张照片',
-          subtitle: '上传6张照片，至多可获双倍赞。',
+          title: 'Upload at least 3 photos',
+          subtitle: 'Upload 6 photos and you can earn up to double likes.',
           percent: '+21%',
+          action: _ProfileTaskAction.uploadPhotos,
         ),
       );
     }
 
-    if (user.aboutMe.trim().isEmpty) {
+    if ((user.personalProfile ?? user.aboutMe).trim().isEmpty) {
       list.add(
         const _ProfileTask(
           icon: Icons.edit,
-          title: '上传个人简介',
-          subtitle: '添加自我介绍，配对数量提高至多25%。',
+          title: 'Upload personal profile',
+          subtitle:
+              'Add a self-introduction, and the number of matches can be increased by up to 25%.',
           percent: '+20%',
+          action: _ProfileTaskAction.personalProfile,
         ),
       );
     }
@@ -901,9 +963,10 @@ class _ProfilePageState extends State<ProfilePage> {
       list.add(
         const _ProfileTask(
           icon: Icons.verified,
-          title: '进行验证',
-          subtitle: '验证个人资料，提高资料可信度。',
+          title: 'verify',
+          subtitle: 'Verify personal information to enhance its credibility.',
           percent: '+8%',
+          action: _ProfileTaskAction.none,
         ),
       );
     }
@@ -913,8 +976,9 @@ class _ProfilePageState extends State<ProfilePage> {
         const _ProfileTask(
           icon: Icons.check_circle,
           title: '资料已较完整',
-          subtitle: '继续补充更多信息可获得更多曝光。',
+          subtitle: '继续补充更多信息可get more曝光。',
           percent: '+5%',
+          action: _ProfileTaskAction.none,
         ),
       );
     }
@@ -928,19 +992,24 @@ class _ProfileTask {
   final String title;
   final String subtitle;
   final String percent;
+  final _ProfileTaskAction action;
 
   const _ProfileTask({
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.percent,
+    required this.action,
   });
 }
+
+enum _ProfileTaskAction { none, uploadPhotos, personalProfile }
 
 class _PackageCardData {
   final Color bg;
   final Color text;
   final String name;
+  final UpgradeType type;
   final Color logoColor;
   final Color buttonStart;
   final Color buttonEnd;
@@ -951,6 +1020,7 @@ class _PackageCardData {
     required this.bg,
     required this.text,
     required this.name,
+    required this.type,
     required this.logoColor,
     required this.buttonStart,
     required this.buttonEnd,
@@ -1023,7 +1093,7 @@ class _SuperLikePageState extends State<SuperLikePage> {
             ),
             const SizedBox(height: 20),
             const Text(
-              '使用 Super Like 吸引 Ta 的目\n光吧，让你的配对成功几率提高\n3 倍!',
+              'Use Super Like to catch their eye and boost your chances of a successful match by 3 times!',
               style: TextStyle(
                 color: Color(0xFF1F2534),
                 fontSize: 86 / 4,
@@ -1033,7 +1103,7 @@ class _SuperLikePageState extends State<SuperLikePage> {
             ),
             const SizedBox(height: 24),
             const Text(
-              '选择一个套餐',
+              'Choose a package',
               style: TextStyle(
                 color: Color(0xFF1F2534),
                 fontSize: 78 / 4,
@@ -1206,7 +1276,8 @@ class _SuperLikePageState extends State<SuperLikePage> {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => const UpgradePage(),
+                                builder: (context) =>
+                                    const UpgradePage(type: UpgradeType.gold),
                               ),
                             );
                           },
@@ -1290,7 +1361,7 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                     ),
                     const Spacer(),
                     const Text(
-                      '我的订阅',
+                      'My Subscriptions',
                       style: TextStyle(
                         color: Color(0xFF1D2332),
                         fontSize: 70 / 4,
@@ -1349,30 +1420,32 @@ class _MySubscriptionPageState extends State<MySubscriptionPage> {
                 ),
                 const SizedBox(height: 16),
                 _featureSection(
-                  tag: '升级你的赞',
+                  tag: 'Upgrade your likes',
                   items: const [
-                    ('无限点赞', true),
-                    ('查看给你点赞的人', false),
-                    ('顶置赞', false),
+                    ('Unlimited likes', true),
+                    ('View who has liked you', false),
+                    ('Top Like', false),
                   ],
-                  desc: '置顶赞可以让你赞的人更快看到你。',
+                  desc:
+                      'Pinning likes allows the people you like to see you faster. ',
                 ),
                 const SizedBox(height: 14),
                 _featureSection(
-                  tag: '升级你的体验',
+                  tag: 'Upgrade your experience',
                   items: const [
-                    ('无限倒回', true),
-                    ('每月 1 个免费 Boost', false),
-                    ('每周 3 个免费 Super Like', false),
-                    ('每周 3 次免费初印象', false),
+                    ('Infinite loop', true),
+                    ('1 free Boost per month', false),
+                    ('3 free Super Likes per week', false),
+                    ('3 free initial impressions per week', false),
                   ],
-                  desc: '配对前可发送信息赢得好感。',
+                  desc: 'You can send messages to win favor before matching. ',
                 ),
                 const SizedBox(height: 14),
                 _featureSection(
-                  tag: '高级探索',
-                  items: const [('无限位置漫游模式*', true)],
-                  desc: '你可以和世界各地的用户配对聊天。*含限制条件。',
+                  tag: 'Advanced Exploration',
+                  items: const [('Unlimited location roaming mode*', true)],
+                  desc:
+                      'You can pair and chat with users from all over the world. *Restrictions apply.',
                 ),
               ],
             ),
