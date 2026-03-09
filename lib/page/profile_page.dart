@@ -439,7 +439,7 @@ class _ProfilePageState extends State<ProfilePage> {
             child: _actionTile(
               icon: Icons.local_fire_department,
               iconColor: const Color(0xFFFF2D63),
-              title: '订阅套餐',
+              title: 'Subscription package',
               sub: '',
               subColor: const Color(0xFF5A6172),
               onTap: () {
@@ -790,17 +790,17 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 6),
               const Text(
-                '在 30 分钟里成为你所在地区的热门会员，以达成更多配对!',
+                "Become a popular member in your region within 30 minutes to achieve more matches! ",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Color(0xFF545B6D), fontSize: 45 / 4),
               ),
               const SizedBox(height: 18),
-              _boostRow(icon: Icons.bolt, title: 'Boost', remain: '剩余 0 个'),
+              _boostRow(icon: Icons.bolt, title: 'Boost', remain: '0 left'),
               const Divider(color: Color(0xFFD2D6DF), height: 24),
               _boostRow(
                 icon: Icons.timer_outlined,
-                title: '优时 Boost',
-                remain: '剩余 0 个',
+                title: 'Uptime Boost',
+                remain: '0 remaining',
               ),
               const SizedBox(height: 18),
               Container(
@@ -1057,8 +1057,8 @@ class _SuperLikePageState extends State<SuperLikePage> {
   Widget build(BuildContext context) {
     final cards = const [
       ('3 Super Like', 'HK\$26.00/个', ''),
-      ('15 Super Like', 'HK\$20.50/个', '热门'),
-      ('30 Super Like', 'HK\$17.00/个', '超值'),
+      ('15 Super Like', 'HK\$20.50/个', 'Popular'),
+      ('30 Super Like', 'HK\$17.00/个', 'Great value'),
     ];
 
     return Scaffold(
@@ -1081,7 +1081,7 @@ class _SuperLikePageState extends State<SuperLikePage> {
                 ),
                 const SizedBox(width: 8),
                 const Text(
-                  '获取 Super Like',
+                  'Get Super Like',
                   style: TextStyle(
                     color: Color(0xFF1F2534),
                     fontSize: 62 / 4,
@@ -1168,7 +1168,7 @@ class _SuperLikePageState extends State<SuperLikePage> {
                           ),
                           child: const Center(
                             child: Text(
-                              '选择',
+                              'Choice',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 15,
@@ -1264,7 +1264,7 @@ class _SuperLikePageState extends State<SuperLikePage> {
                         ),
                         const SizedBox(width: 8),
                         const Text(
-                          '开通 Tinder Gold™',
+                          'Activate Tinder Gold™',
                           style: TextStyle(
                             color: Color(0xFF1D2332),
                             fontSize: 64 / 4,
@@ -1292,7 +1292,7 @@ class _SuperLikePageState extends State<SuperLikePage> {
                             minimumSize: const Size(20, 30),
                           ),
                           child: const Text(
-                            '选择',
+                            'Choice',
                             style: TextStyle(
                               color: Color(0xFF293041),
                               fontSize: 12,

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:tinder_app/data/app_data.dart';
 import 'package:tinder_app/data/auth/user_auth_local_db.dart';
 import 'package:tinder_app/data/chat/chat_local_db.dart';
 import 'package:tinder_app/model/user_profile_model.dart';
 import 'package:tinder_app/page/login/login_page.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_gender_selection_page.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_interest_sheet.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_language_sheet.dart';
+import 'package:tinder_app/page/profile_edit/widget/profile_relationship_goal_sheet.dart';
+import 'package:tinder_app/page/profile_edit/widget/universal_option_sheet.dart';
 import 'package:tinder_app/page/profile_page.dart';
 
 class SettingPage extends StatefulWidget {
@@ -189,7 +195,7 @@ class _SettingPageState extends State<SettingPage> {
           icon: const Icon(Icons.arrow_back, color: _pink, size: 28),
         ),
         title: const Text(
-          '设置',
+          'Setting',
           style: TextStyle(
             color: _text,
             fontSize: 17,
@@ -427,7 +433,11 @@ class _SettingPageState extends State<SettingPage> {
                   _card(
                     child: Column(
                       children: [
-                        _entryRow('Interested', trailing: _firstGender()),
+                        _entryRow(
+                          'Interested',
+                          trailing: _firstGender(),
+                          onTap: _openGenderSelection,
+                        ),
                         const SizedBox(height: 12),
                         Row(
                           children: [
@@ -575,25 +585,106 @@ class _SettingPageState extends State<SettingPage> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        ...[
-                          ('Interest', 'Choice'),
-                          ('I want', 'choose'),
-                          ('Add Language', 'Select'),
-                          ('constellation', 'select'),
-                          ('Education status', 'Select'),
-                          ('Family Plan', 'Select'),
-                          ('Communication style', 'Selection'),
-                          ('Way of love', 'Choice'),
-                          ('Pet preference', 'Selection'),
-                          ('drinking', 'choice'),
-                          ('How often do you smoke?', 'Select'),
-                          ('Fitness status', 'Select'),
-                          ('Social media activity', 'Choice'),
-                        ].map(
-                          (item) => _entryRow(
-                            item.$1,
-                            trailing: item.$2,
-                            topPadding: 12,
+                        _entryRow(
+                          'Interest',
+                          trailing: _interestSummary(),
+                          topPadding: 12,
+                          onTap: _openInterestSelection,
+                        ),
+                        _entryRow(
+                          'I want',
+                          trailing: _relationshipGoalSummary(),
+                          topPadding: 12,
+                          onTap: _openRelationshipGoalSelection,
+                        ),
+                        _entryRow(
+                          'Add Language',
+                          trailing: _languageSummary(),
+                          topPadding: 12,
+                          onTap: _openLanguageSelection,
+                        ),
+                        _entryRow(
+                          'constellation',
+                          trailing: _optionText(_user?.moreInfo.zodiac),
+                          topPadding: 12,
+                          onTap: () => _openUniversalOptionSelection(
+                            SheetOptionType.constellation,
+                          ),
+                        ),
+                        _entryRow(
+                          'Education status',
+                          trailing: _optionText(_user?.moreInfo.education),
+                          topPadding: 12,
+                          onTap: () => _openUniversalOptionSelection(
+                            SheetOptionType.education,
+                          ),
+                        ),
+                        _entryRow(
+                          'Family Plan',
+                          trailing: _optionText(_user?.moreInfo.familyPlan),
+                          topPadding: 12,
+                          onTap: () => _openUniversalOptionSelection(
+                            SheetOptionType.wantChildren,
+                          ),
+                        ),
+                        _entryRow(
+                          'Communication style',
+                          trailing: _optionText(
+                            _user?.moreInfo.communicationStyle,
+                          ),
+                          topPadding: 12,
+                          onTap: () => _openUniversalOptionSelection(
+                            SheetOptionType.communicationStyle,
+                          ),
+                        ),
+                        _entryRow(
+                          'Way of love',
+                          trailing: _optionText(_user?.moreInfo.loveLanguage),
+                          topPadding: 12,
+                          onTap: () => _openUniversalOptionSelection(
+                            SheetOptionType.loveLanguage,
+                          ),
+                        ),
+                        _entryRow(
+                          'Pet preference',
+                          trailing: _optionText(_user?.lifestyle.petPreference),
+                          topPadding: 12,
+                          onTap: () => _openUniversalOptionSelection(
+                            SheetOptionType.petPreference,
+                          ),
+                        ),
+                        _entryRow(
+                          'drinking',
+                          trailing: _optionText(_user?.lifestyle.drinking),
+                          topPadding: 12,
+                          onTap: () => _openUniversalOptionSelection(
+                            SheetOptionType.drinking,
+                          ),
+                        ),
+                        _entryRow(
+                          'How often do you smoke?',
+                          trailing: _optionText(_user?.lifestyle.smoking),
+                          topPadding: 12,
+                          onTap: () => _openUniversalOptionSelection(
+                            SheetOptionType.smoking,
+                          ),
+                        ),
+                        _entryRow(
+                          'Fitness status',
+                          trailing: _optionText(_user?.lifestyle.fitness),
+                          topPadding: 12,
+                          onTap: () => _openUniversalOptionSelection(
+                            SheetOptionType.fitness,
+                          ),
+                        ),
+                        _entryRow(
+                          'Social media activity',
+                          trailing: _optionText(
+                            _user?.lifestyle.socialMediaActivity,
+                          ),
+                          topPadding: 12,
+                          onTap: () => _openUniversalOptionSelection(
+                            SheetOptionType.socialMediaActivity,
                           ),
                         ),
                       ],
@@ -867,9 +958,13 @@ class _SettingPageState extends State<SettingPage> {
                     child: Column(
                       children: [
                         _entryRow('Notice'),
+                        const SizedBox(height: 10),
                         _entryRow('Email address'),
+                        const SizedBox(height: 10),
                         _entryRow('Push notification'),
+                        const SizedBox(height: 10),
                         _entryRow('SMS'),
+                        const SizedBox(height: 10),
                         _entryRow('Tinder Team'),
                       ],
                     ),
@@ -977,6 +1072,7 @@ class _SettingPageState extends State<SettingPage> {
                     child: Column(
                       children: [
                         _entryRow('Help and Support'),
+                        const SizedBox(height: 10),
                         _entryRow('Report'),
                       ],
                     ),
@@ -1002,14 +1098,17 @@ class _SettingPageState extends State<SettingPage> {
                           'Cookie Policy',
                           onTap: _openCookiePolicyPage,
                         ),
+                        const SizedBox(height: 10),
                         _entryRow(
                           'Privacy Policy',
                           onTap: _openPrivacyPolicyPage,
                         ),
+                        const SizedBox(height: 10),
                         _entryRow(
                           'Privacy Preferences',
                           onTap: _openPrivacyPreferencePage,
                         ),
+                        const SizedBox(height: 10),
                         _entryRow(
                           'From Match Group',
                           onTap: _openMatchGroupPage,
@@ -1330,6 +1429,304 @@ class _SettingPageState extends State<SettingPage> {
     );
   }
 
+  Future<void> _openGenderSelection() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ProfileGenderSelectionPage(
+          initialSelectedGenders: _user?.gender ?? <GenderModel>[],
+          onConfirm: (selectedGenders) {
+            setState(() {
+              _user?.gender = selectedGenders;
+            });
+            _updateUser((u) => u.gender = selectedGenders);
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openInterestSelection() async {
+    await ProfileInterestSheet.show<void>(
+      context,
+      selectedInterest: _user?.interests ?? <UserInterest>[],
+      onCompleted: (selectedInterests) {
+        setState(() {
+          _user?.interests = selectedInterests;
+        });
+        _updateUser((u) => u.interests = selectedInterests);
+      },
+    );
+  }
+
+  Future<void> _openRelationshipGoalSelection() async {
+    await ProfileRelationshipGoalSheet.show<void>(
+      context,
+      selectedItem: _user?.relationshipGoal,
+      onItemSelected: (item) {
+        setState(() {
+          _user?.relationshipGoal = item;
+        });
+        _updateUser((u) => u.relationshipGoal = item);
+        Navigator.of(context).pop();
+      },
+    );
+  }
+
+  Future<void> _openLanguageSelection() async {
+    await ProfileLanguageSheet.show<void>(
+      context,
+      selectedLanguage: _user?.languages ?? <UserLanguage>[],
+      onCompleted: (selectedLanguages) {
+        setState(() {
+          _user?.languages = selectedLanguages;
+        });
+        _updateUser((u) => u.languages = selectedLanguages);
+      },
+    );
+  }
+
+  Future<void> _openUniversalOptionSelection(SheetOptionType type) async {
+    await UniversalOptionSheet.show<void>(
+      context,
+      type: type,
+      onCompleted: (selectedItem) {
+        setState(() {
+          _applyUniversalOption(type, selectedItem.title);
+        });
+        _updateUser((u) {
+          switch (type) {
+            case SheetOptionType.constellation:
+              u.moreInfo = UserMoreInfo(
+                zodiac: selectedItem.title,
+                education: u.moreInfo.education,
+                familyPlan: u.moreInfo.familyPlan,
+                communicationStyle: u.moreInfo.communicationStyle,
+                loveLanguage: u.moreInfo.loveLanguage,
+              );
+              break;
+            case SheetOptionType.education:
+              u.moreInfo = UserMoreInfo(
+                zodiac: u.moreInfo.zodiac,
+                education: selectedItem.title,
+                familyPlan: u.moreInfo.familyPlan,
+                communicationStyle: u.moreInfo.communicationStyle,
+                loveLanguage: u.moreInfo.loveLanguage,
+              );
+              break;
+            case SheetOptionType.wantChildren:
+              u.moreInfo = UserMoreInfo(
+                zodiac: u.moreInfo.zodiac,
+                education: u.moreInfo.education,
+                familyPlan: selectedItem.title,
+                communicationStyle: u.moreInfo.communicationStyle,
+                loveLanguage: u.moreInfo.loveLanguage,
+              );
+              break;
+            case SheetOptionType.communicationStyle:
+              u.moreInfo = UserMoreInfo(
+                zodiac: u.moreInfo.zodiac,
+                education: u.moreInfo.education,
+                familyPlan: u.moreInfo.familyPlan,
+                communicationStyle: selectedItem.title,
+                loveLanguage: u.moreInfo.loveLanguage,
+              );
+              break;
+            case SheetOptionType.loveLanguage:
+              u.moreInfo = UserMoreInfo(
+                zodiac: u.moreInfo.zodiac,
+                education: u.moreInfo.education,
+                familyPlan: u.moreInfo.familyPlan,
+                communicationStyle: u.moreInfo.communicationStyle,
+                loveLanguage: selectedItem.title,
+              );
+              break;
+            case SheetOptionType.petPreference:
+              u.lifestyle = UserLifestyle(
+                petPreference: selectedItem.title,
+                drinking: u.lifestyle.drinking,
+                smoking: u.lifestyle.smoking,
+                fitness: u.lifestyle.fitness,
+                socialMediaActivity: u.lifestyle.socialMediaActivity,
+              );
+              break;
+            case SheetOptionType.drinking:
+              u.lifestyle = UserLifestyle(
+                petPreference: u.lifestyle.petPreference,
+                drinking: selectedItem.title,
+                smoking: u.lifestyle.smoking,
+                fitness: u.lifestyle.fitness,
+                socialMediaActivity: u.lifestyle.socialMediaActivity,
+              );
+              break;
+            case SheetOptionType.smoking:
+              u.lifestyle = UserLifestyle(
+                petPreference: u.lifestyle.petPreference,
+                drinking: u.lifestyle.drinking,
+                smoking: selectedItem.title,
+                fitness: u.lifestyle.fitness,
+                socialMediaActivity: u.lifestyle.socialMediaActivity,
+              );
+              break;
+            case SheetOptionType.fitness:
+              u.lifestyle = UserLifestyle(
+                petPreference: u.lifestyle.petPreference,
+                drinking: u.lifestyle.drinking,
+                smoking: u.lifestyle.smoking,
+                fitness: selectedItem.title,
+                socialMediaActivity: u.lifestyle.socialMediaActivity,
+              );
+              break;
+            case SheetOptionType.socialMediaActivity:
+              u.lifestyle = UserLifestyle(
+                petPreference: u.lifestyle.petPreference,
+                drinking: u.lifestyle.drinking,
+                smoking: u.lifestyle.smoking,
+                fitness: u.lifestyle.fitness,
+                socialMediaActivity: selectedItem.title,
+              );
+              break;
+            default:
+              break;
+          }
+        });
+        Navigator.of(context).pop();
+      },
+    );
+  }
+
+  void _applyUniversalOption(SheetOptionType type, String selectedTitle) {
+    final user = _user;
+    if (user == null) {
+      return;
+    }
+    switch (type) {
+      case SheetOptionType.constellation:
+        user.moreInfo = UserMoreInfo(
+          zodiac: selectedTitle,
+          education: user.moreInfo.education,
+          familyPlan: user.moreInfo.familyPlan,
+          communicationStyle: user.moreInfo.communicationStyle,
+          loveLanguage: user.moreInfo.loveLanguage,
+        );
+        break;
+      case SheetOptionType.education:
+        user.moreInfo = UserMoreInfo(
+          zodiac: user.moreInfo.zodiac,
+          education: selectedTitle,
+          familyPlan: user.moreInfo.familyPlan,
+          communicationStyle: user.moreInfo.communicationStyle,
+          loveLanguage: user.moreInfo.loveLanguage,
+        );
+        break;
+      case SheetOptionType.wantChildren:
+        user.moreInfo = UserMoreInfo(
+          zodiac: user.moreInfo.zodiac,
+          education: user.moreInfo.education,
+          familyPlan: selectedTitle,
+          communicationStyle: user.moreInfo.communicationStyle,
+          loveLanguage: user.moreInfo.loveLanguage,
+        );
+        break;
+      case SheetOptionType.communicationStyle:
+        user.moreInfo = UserMoreInfo(
+          zodiac: user.moreInfo.zodiac,
+          education: user.moreInfo.education,
+          familyPlan: user.moreInfo.familyPlan,
+          communicationStyle: selectedTitle,
+          loveLanguage: user.moreInfo.loveLanguage,
+        );
+        break;
+      case SheetOptionType.loveLanguage:
+        user.moreInfo = UserMoreInfo(
+          zodiac: user.moreInfo.zodiac,
+          education: user.moreInfo.education,
+          familyPlan: user.moreInfo.familyPlan,
+          communicationStyle: user.moreInfo.communicationStyle,
+          loveLanguage: selectedTitle,
+        );
+        break;
+      case SheetOptionType.petPreference:
+        user.lifestyle = UserLifestyle(
+          petPreference: selectedTitle,
+          drinking: user.lifestyle.drinking,
+          smoking: user.lifestyle.smoking,
+          fitness: user.lifestyle.fitness,
+          socialMediaActivity: user.lifestyle.socialMediaActivity,
+        );
+        break;
+      case SheetOptionType.drinking:
+        user.lifestyle = UserLifestyle(
+          petPreference: user.lifestyle.petPreference,
+          drinking: selectedTitle,
+          smoking: user.lifestyle.smoking,
+          fitness: user.lifestyle.fitness,
+          socialMediaActivity: user.lifestyle.socialMediaActivity,
+        );
+        break;
+      case SheetOptionType.smoking:
+        user.lifestyle = UserLifestyle(
+          petPreference: user.lifestyle.petPreference,
+          drinking: user.lifestyle.drinking,
+          smoking: selectedTitle,
+          fitness: user.lifestyle.fitness,
+          socialMediaActivity: user.lifestyle.socialMediaActivity,
+        );
+        break;
+      case SheetOptionType.fitness:
+        user.lifestyle = UserLifestyle(
+          petPreference: user.lifestyle.petPreference,
+          drinking: user.lifestyle.drinking,
+          smoking: user.lifestyle.smoking,
+          fitness: selectedTitle,
+          socialMediaActivity: user.lifestyle.socialMediaActivity,
+        );
+        break;
+      case SheetOptionType.socialMediaActivity:
+        user.lifestyle = UserLifestyle(
+          petPreference: user.lifestyle.petPreference,
+          drinking: user.lifestyle.drinking,
+          smoking: user.lifestyle.smoking,
+          fitness: user.lifestyle.fitness,
+          socialMediaActivity: selectedTitle,
+        );
+        break;
+      default:
+        break;
+    }
+  }
+
+  String _interestSummary() {
+    final list = _user?.interests ?? <UserInterest>[];
+    if (list.isEmpty) {
+      return 'Choice';
+    }
+    return list.map((e) => e.name).join(', ');
+  }
+
+  String _relationshipGoalSummary() {
+    final goal = _user?.relationshipGoal;
+    if (goal == null) {
+      return 'choose';
+    }
+    return '${goal.emoji} ${goal.title}';
+  }
+
+  String _languageSummary() {
+    final list = _user?.languages ?? <UserLanguage>[];
+    if (list.isEmpty) {
+      return 'Select';
+    }
+    return list.map((e) => e.name).join(', ');
+  }
+
+  String _optionText(String? value, {String fallback = 'Select'}) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) {
+      return fallback;
+    }
+    return text;
+  }
+
   String _firstGender() {
     final list = _user?.gender;
     if (list == null || list.isEmpty) {
@@ -1495,7 +1892,7 @@ class LicenseListPage extends StatelessWidget {
         backgroundColor: const Color(0xFFFF2D68),
         centerTitle: true,
         title: const Text(
-          '许可证',
+          'License',
           style: TextStyle(
             color: Colors.white,
             fontSize: 17,
@@ -1621,7 +2018,7 @@ class PrivacyPolicyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _TextDocPage(
-      title: '隐私政策',
+      title: 'Privacy Policy',
       sections: const [
         _DocSectionData(
           title: 'The information we collect',
@@ -1898,14 +2295,14 @@ class _PrivacyPreferencePageState extends State<PrivacyPreferencePage> {
           icon: const Icon(Icons.arrow_back, color: Color(0xFF7A8292)),
         ),
         title: const Text(
-          '隐私偏好中心',
+          'Privacy Preference Center',
           style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text(
-              '完成',
+              'Complete',
               style: TextStyle(
                 color: Color(0xFFFF2D68),
                 fontSize: 17,
@@ -1919,7 +2316,7 @@ class _PrivacyPreferencePageState extends State<PrivacyPreferencePage> {
         padding: const EdgeInsets.all(16),
         children: [
           const Text(
-            '和其它应用一样，如您使用 Tinder，我们及合作伙伴的追踪器将会存储和检索您设备上的信息。您可以在这里调整偏好。',
+            "Like other applications, if you use Tinder, our and our partners' trackers will store and retrieve information on your device. You can adjust your preferences here.",
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF5A6475),
@@ -1928,7 +2325,7 @@ class _PrivacyPreferencePageState extends State<PrivacyPreferencePage> {
           ),
           const SizedBox(height: 16),
           const Text(
-            '管理权限',
+            'Administrative Permissions',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -1937,30 +2334,34 @@ class _PrivacyPreferencePageState extends State<PrivacyPreferencePage> {
           ),
           const SizedBox(height: 10),
           _PreferenceCard(
-            title: '必要权限',
-            subtitle: '这些是运行应用所需的基础权限，无法关闭。',
+            title: 'Necessary Permissions',
+            subtitle:
+                'These are the basic permissions required to run the application and cannot be closed.',
             value: requiredPermission,
             enabled: false,
             onChanged: (_) {},
           ),
           const SizedBox(height: 10),
           _PreferenceCard(
-            title: '同意启用广告权限',
-            subtitle: '广告权限将默认启用，可进入“个性化定制广告权限”查看详情。',
+            title: 'Agree to Enable Advertising Permissions',
+            subtitle:
+                'Advertising permissions will be enabled by default, and you can go to‘ Personalized Customized Advertising Permissions’to view details. ',
             value: adPermission,
             onChanged: (v) => setState(() => adPermission = v),
           ),
           const SizedBox(height: 10),
           _PreferenceCard(
-            title: '同意启用营销权限',
-            subtitle: '用于监测和提升营销活动有效性。',
+            title: 'Agree to Enable Marketing Permissions',
+            subtitle:
+                'Used to monitor and enhance the effectiveness of marketing activities.',
             value: marketingPermission,
             onChanged: (v) => setState(() => marketingPermission = v),
           ),
           const SizedBox(height: 10),
           _PreferenceCard(
-            title: '同意启用 Match Group 数据共享',
-            subtitle: '用于个性化体验和服务优化。',
+            title: 'Agree to Enable Match Group Data Sharing',
+            subtitle:
+                'Used for personalized experience and service optimization.',
             value: matchGroupPermission,
             onChanged: (v) => setState(() => matchGroupPermission = v),
           ),
@@ -1981,7 +2382,7 @@ class _PrivacyPreferencePageState extends State<PrivacyPreferencePage> {
               minimumSize: const Size.fromHeight(54),
             ),
             child: const Text(
-              '全部同意启用',
+              'All agree to enable',
               style: TextStyle(
                 color: Color(0xFFFF2D68),
                 fontSize: 17,
@@ -2006,7 +2407,7 @@ class _PrivacyPreferencePageState extends State<PrivacyPreferencePage> {
               minimumSize: const Size.fromHeight(54),
             ),
             child: const Text(
-              '全部拒绝启用',
+              'Reject all activation',
               style: TextStyle(
                 color: Color(0xFFFF2D68),
                 fontSize: 17,
@@ -2059,7 +2460,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
           const _WebHeader(),
           const SizedBox(height: 16),
           const Text(
-            'Tinder > 安全与隐私 > 隐私',
+            'Tinder>Security&Privacy>Privacy',
             style: TextStyle(fontSize: 17, color: Color(0xFF444C5A)),
           ),
           const SizedBox(height: 12),
@@ -2075,7 +2476,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
                 Icon(Icons.search, color: Color(0xFF8D95A4), size: 30),
                 SizedBox(width: 8),
                 Text(
-                  '搜索',
+                  'Search',
                   style: TextStyle(fontSize: 17, color: Color(0xFF8D95A4)),
                 ),
               ],
@@ -2083,7 +2484,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
           ),
           const SizedBox(height: 16),
           const Text(
-            '为什么我们要在 Match Group 各公司之间共享讯息',
+            'Why do we need to share information among companies in Match Group',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -2093,7 +2494,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
           ),
           const SizedBox(height: 10),
           const Text(
-            'Tinder 是 Match Group 旗下产品。我们可能会在集团内部共享必要数据，用于服务稳定、账号安全、风控防欺诈和体验优化。',
+            'Tinder is a product under Match Group. We may share necessary data within the group for service stability, account security, risk control, fraud prevention, and experience optimization.',
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF4F596A),
@@ -2102,7 +2503,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
           ),
           const SizedBox(height: 16),
           const Text(
-            '保护你和他人的安全',
+            'Protect your and others‘ safety',
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -2111,7 +2512,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
           ),
           const SizedBox(height: 10),
           const Text(
-            '我们会在必要时共享风险信号，以识别虚假账号、垃圾内容、欺诈行为和严重违规。',
+            'We will share risk signals when necessary to identify fake accounts, junk content, fraudulent behavior, and serious violations. ',
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF4F596A),
@@ -2120,7 +2521,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
           ),
           const SizedBox(height: 10),
           const Text(
-            '• 调查并处理违法违规行为\n• 改进反骚扰与反欺诈能力\n• 在法律要求下配合执法机关',
+            '• Investigate and handle illegal and irregular behavior \ n • Improve anti harassment and anti fraud capabilities \ n • Cooperate with law enforcement agencies as required by law',
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF1F2533),
@@ -2131,7 +2532,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
           const Divider(color: Color(0xFFCBD2DD)),
           const SizedBox(height: 10),
           const Text(
-            '本文中的信息帮助了你多少？ *',
+            'How much has the information in this article helped you?  *',
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF1F2533),
@@ -2154,7 +2555,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
           ),
           const SizedBox(height: 6),
           const Text(
-            '说说对此的想法：',
+            'Share your thoughts on this:',
             style: TextStyle(fontSize: 17, color: Color(0xFF1F2533)),
           ),
           const SizedBox(height: 8),
@@ -2164,7 +2565,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
             maxLines: 4,
             style: const TextStyle(fontSize: 17),
             decoration: InputDecoration(
-              hintText: '请输入反馈内容',
+              hintText: 'Please enter feedback content',
               counterStyle: const TextStyle(
                 fontSize: 17,
                 color: Color(0xFF5B6476),
@@ -2181,9 +2582,9 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
               height: 56,
               child: ElevatedButton(
                 onPressed: () {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text('提交成功')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Submission successful')),
+                  );
                   Navigator.of(context).pop();
                 },
                 style: ElevatedButton.styleFrom(
@@ -2193,7 +2594,7 @@ class _MatchGroupInfoPageState extends State<MatchGroupInfoPage> {
                   ),
                 ),
                 child: const Text(
-                  '提交',
+                  'Submit',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 17,

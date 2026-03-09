@@ -1424,6 +1424,12 @@ class OptionDataManager {
     final activeUserId = activeUser?.userId ?? 'guest';
     return HomeSwipeLocalDb.instance.getLikedUsers(activeUserId);
   }
+
+  static Future<List<UserProfileModel>> getUserBest() async {
+    final activeUser = await UserAuthLocalDb.instance.getActiveUser();
+    final activeUserId = activeUser?.userId ?? 'guest';
+    return HomeSwipeLocalDb.instance.getBestUsers(activeUserId);
+  }
 }
 
 class ProfileItem {

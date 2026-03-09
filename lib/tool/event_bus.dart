@@ -14,3 +14,8 @@ class PromptAnswerEvent {
 class LikeUsersChangedEvent {
   const LikeUsersChangedEvent();
 }
+
+/// Notify global UI that best-users list may have changed.
+class BestUsersChangedEvent {
+  const BestUsersChangedEvent();
+}

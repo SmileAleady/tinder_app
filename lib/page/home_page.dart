@@ -7,16 +7,15 @@ import 'package:tinder_app/data/auth/user_auth_local_db.dart';
 import 'package:tinder_app/data/home/home_swipe_local_db.dart';
 import 'package:tinder_app/model/user_profile_model.dart';
 import 'package:tinder_app/tool/event_bus.dart';
+import 'package:tinder_app/widget/user_apply_page.dart';
 import 'package:tinder_app/widget/user_page.dart';
+
+enum _DragIntent { none, left, right, up }
 
 class HomePage extends StatefulWidget {
   final bool isFromSearchPage;
   final String? searchType;
-  const HomePage({
-    super.key,
-    this.isFromSearchPage = false,
-    this.searchType,
-  });
+  const HomePage({super.key, this.isFromSearchPage = false, this.searchType});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -35,6 +34,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   bool _isAnimating = false;
 
   double _cardWidth = 0;
+  double _cardHeight = 0;
   Map<String, int> _photoIndexByUserId = <String, int>{};
 
   @override
@@ -100,7 +100,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
   }
 
-  Future<void> _refreshUsersWhenEmpty() async {
+  Future<void> _refreshUsers() async {
     final random = math.Random();
     final source = OptionDataManager.getUserList();
     if (source.isEmpty) {
@@ -127,12 +127,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (!mounted) {
       return;
     }
-    final photoIndexMap = <String, int>{for (final user in generated) user.userId: 0};
+    final photoIndexMap = <String, int>{
+      for (final user in generated) user.userId: 0,
+    };
     setState(() {
       _users
         ..clear()
         ..addAll(generated);
       _photoIndexByUserId = photoIndexMap;
+      _dragOffset = Offset.zero;
+      _isAnimating = false;
     });
   }
 
@@ -157,7 +161,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
-  bool get _isDragging => _dragOffset.dx.abs() > 0.1;
+  bool get _isDragging => _dragOffset.distance > 0.1;
 
   bool get _showNextCard {
     return _users.length > 1 && (_isDragging || _isAnimating);
@@ -174,16 +178,48 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return (_dragOffset.dx.abs() / _swipeThreshold).clamp(0.0, 1.0);
   }
 
-  bool get _isLeftDrag => _dragOffset.dx < 0;
+  double get _upSwipeThreshold {
+    if (_cardHeight <= 0) {
+      return 170;
+    }
+    return _cardHeight * 0.24;
+  }
 
-  bool get _isRightDrag => _dragOffset.dx > 0;
+  double get _upDragDistance {
+    return math.max(0, -_dragOffset.dy);
+  }
+
+  double get _upDragProgress {
+    return (_upDragDistance / _upSwipeThreshold).clamp(0.0, 1.0);
+  }
+
+  _DragIntent get _dragIntent {
+    final dx = _dragOffset.dx.abs();
+    final dy = _dragOffset.dy.abs();
+    if (dx < 12 && dy < 12) {
+      return _DragIntent.none;
+    }
+    if (_dragOffset.dy < 0 && dy > 20 && dy > dx * 1.2) {
+      return _DragIntent.up;
+    }
+    if (dx > 20 && dx > dy * 1.1) {
+      return _dragOffset.dx < 0 ? _DragIntent.left : _DragIntent.right;
+    }
+    return _DragIntent.none;
+  }
+
+  bool get _isLeftDrag => _dragIntent == _DragIntent.left;
+
+  bool get _isRightDrag => _dragIntent == _DragIntent.right;
+
+  bool get _isUpDrag => _dragIntent == _DragIntent.up;
 
   void _onDragUpdate(DragUpdateDetails details) {
     if (_isAnimating || _users.isEmpty) {
       return;
     }
     setState(() {
-      _dragOffset = Offset(_dragOffset.dx + details.delta.dx, 0);
+      _dragOffset = _dragOffset + details.delta;
     });
   }
 
@@ -192,17 +228,40 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       return;
     }
 
-    final shouldDismiss = _dragOffset.dx.abs() >= _swipeThreshold;
-    if (!shouldDismiss) {
-      await _animateCardTo(Offset.zero, shouldDismiss: false, liked: false);
-      return;
+    switch (_dragIntent) {
+      case _DragIntent.up:
+        if (_upDragDistance >= _upSwipeThreshold) {
+          await _animateCardTo(
+            Offset(0, -(_cardHeight + 160)),
+            shouldDismiss: true,
+            liked: false,
+            bestSelected: true,
+          );
+          return;
+        }
+        break;
+      case _DragIntent.left:
+      case _DragIntent.right:
+        if (_dragOffset.dx.abs() >= _swipeThreshold) {
+          final direction = _dragOffset.dx.isNegative ? -1.0 : 1.0;
+          await _animateCardTo(
+            Offset(direction * (_cardWidth + 120), 0),
+            shouldDismiss: true,
+            liked: direction > 0,
+            bestSelected: false,
+          );
+          return;
+        }
+        break;
+      case _DragIntent.none:
+        break;
     }
 
-    final direction = _dragOffset.dx.isNegative ? -1.0 : 1.0;
     await _animateCardTo(
-      Offset(direction * (_cardWidth + 120), 0),
-      shouldDismiss: true,
-      liked: direction > 0,
+      Offset.zero,
+      shouldDismiss: false,
+      liked: false,
+      bestSelected: false,
     );
   }
 
@@ -214,6 +273,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       Offset(-(_cardWidth + 120), 0),
       shouldDismiss: true,
       liked: false,
+      bestSelected: false,
     );
   }
 
@@ -225,6 +285,40 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       Offset(_cardWidth + 120, 0),
       shouldDismiss: true,
       liked: true,
+      bestSelected: false,
+    );
+  }
+
+  Future<void> _onBestTap() async {
+    if (_isAnimating || _users.isEmpty) {
+      return;
+    }
+    await _animateCardTo(
+      Offset(0, -(_cardHeight + 160)),
+      shouldDismiss: true,
+      liked: false,
+      bestSelected: true,
+    );
+  }
+
+  Future<void> _onRefreshTap() async {
+    if (_isAnimating) {
+      return;
+    }
+    await _refreshUsers();
+  }
+
+  Future<void> _onSendMessageTap() async {
+    if (_users.isEmpty) {
+      return;
+    }
+    final topUser = _users.first;
+    final initialIndex = _photoIndexByUserId[topUser.userId] ?? 0;
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            UserApplyPage(userProfile: topUser, initialIndex: initialIndex),
+      ),
     );
   }
 
@@ -232,6 +326,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     Offset target, {
     required bool shouldDismiss,
     required bool liked,
+    required bool bestSelected,
   }) async {
     if (_users.isEmpty) {
       return;
@@ -263,9 +358,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         activeUserId: _activeUserId,
         user: removedUser,
         liked: liked,
+        bestSelected: bestSelected,
       );
       if (liked) {
         eventBus.fire(const LikeUsersChangedEvent());
+      }
+      if (bestSelected) {
+        eventBus.fire(const BestUsersChangedEvent());
       }
     } else {
       setState(() {
@@ -305,10 +404,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     _cardWidth = MediaQuery.of(context).size.width;
+    _cardHeight = MediaQuery.of(context).size.height - 180;
 
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
+        top: false,
         bottom: false,
         child: _isLoading
             ? const Center(
@@ -316,7 +417,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               )
             : _users.isEmpty
             ? RefreshIndicator(
-                onRefresh: _refreshUsersWhenEmpty,
+                onRefresh: _refreshUsers,
                 color: Colors.white,
                 backgroundColor: const Color(0xFF202638),
                 child: ListView(
@@ -347,8 +448,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       onTap: _onCardTap,
-                      onHorizontalDragUpdate: _onDragUpdate,
-                      onHorizontalDragEnd: _onDragEnd,
+                      onPanUpdate: _onDragUpdate,
+                      onPanEnd: _onDragEnd,
                       child: Transform.translate(
                         offset: _dragOffset,
                         child: Transform.rotate(
@@ -368,6 +469,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   _buildRewindButton(),
                   if (_isLeftDrag) _buildOverlayBadge(isLike: false),
                   if (_isRightDrag) _buildOverlayBadge(isLike: true),
+                  if (_isUpDrag) _buildBestOverlayBadge(),
                   _buildBottomActions(),
                 ],
               ),
@@ -411,6 +513,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
+  // ignore: unused_element
   Widget _buildTopHintBar() {
     final remains = math.max(0, 6 - (_dragProgress * 6).round());
 
@@ -485,7 +588,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final current = (_photoIndexByUserId[topUserId] ?? 0).clamp(0, total - 1);
 
     return Positioned(
-      top: 76,
+      top: 20,
       left: 0,
       right: 0,
       child: Row(
@@ -556,27 +659,47 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Widget _buildBottomActions() {
-    final bottom = widget.isFromSearchPage ? 12.0 : 22.0;
+    final bottom = widget.isFromSearchPage ? 60.0 : 15.0;
 
     return Positioned(
-      left: 0,
-      right: 0,
+      left: 16,
+      right: 16,
       bottom: bottom,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          _buildActionButton(
+            onTap: _onRefreshTap,
+            icon: Icons.replay_rounded,
+            iconColor: const Color(0xFFFF7B2C),
+            active: false,
+          ),
           _buildActionButton(
             onTap: _onRejectTap,
             icon: Icons.close,
+            iconColor: const Color(0xFFFF2CA3),
             active: _isLeftDrag,
             gradient: const [Color(0xFFFF44BE), Color(0xFFFF1759)],
           ),
-          const SizedBox(width: 34),
+          _buildActionButton(
+            onTap: _onBestTap,
+            icon: Icons.star,
+            iconColor: const Color(0xFF21B9FF),
+            active: _isUpDrag,
+            gradient: const [Color(0xFF39D0FF), Color(0xFF1A79FF)],
+          ),
           _buildActionButton(
             onTap: _onLikeTap,
             icon: Icons.favorite,
+            iconColor: const Color(0xFF7DFE3D),
             active: _isRightDrag,
             gradient: const [Color(0xFFE1FF29), Color(0xFF34D86B)],
+          ),
+          _buildActionButton(
+            onTap: _onSendMessageTap,
+            icon: Icons.send_rounded,
+            iconColor: const Color(0xFF1EA8FF),
+            active: false,
           ),
         ],
       ),
@@ -586,8 +709,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget _buildActionButton({
     required VoidCallback onTap,
     required IconData icon,
+    required Color iconColor,
     required bool active,
-    required List<Color> gradient,
+    List<Color>? gradient,
   }) {
     return AnimatedScale(
       scale: active ? 1.12 : 1,
@@ -595,22 +719,40 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          width: 92,
-          height: 92,
+          width: 74,
+          height: 74,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: Colors.black,
-            gradient: active ? LinearGradient(colors: gradient) : null,
+            gradient: active && gradient != null
+                ? LinearGradient(colors: gradient)
+                : null,
             border: Border.all(color: Colors.black, width: 2),
           ),
           child: Icon(
             icon,
-            color: active
-                ? const Color(0xFFF1F2F6)
-                : (icon == Icons.close
-                      ? const Color(0xFFFF25AA)
-                      : const Color(0xFF7DFF38)),
-            size: 46,
+            color: active ? const Color(0xFFEFF2F7) : iconColor,
+            size: 42,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBestOverlayBadge() {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: Center(
+          child: Opacity(
+            opacity: _upDragProgress,
+            child: Transform.scale(
+              scale: 0.7 + (_upDragProgress * 0.6),
+              child: const Icon(
+                Icons.star,
+                color: Color(0xFF22B9FF),
+                size: 148,
+              ),
+            ),
           ),
         ),
       ),
@@ -623,10 +765,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       child: Stack(
         children: [
           Positioned.fill(child: _buildCardImage(user)),
-          if (isTopCard && _isLeftDrag)
+          if (isTopCard && (_isLeftDrag || _isUpDrag))
             Positioned.fill(
               child: Container(
-                color: Colors.black.withValues(alpha: 0.18 * _dragProgress),
+                color: Colors.black.withValues(
+                  alpha: 0.18 * math.max(_dragProgress, _upDragProgress),
+                ),
               ),
             ),
           Positioned(
@@ -634,7 +778,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             right: 0,
             bottom: 0,
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 26),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
@@ -646,114 +790,120 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   ],
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8FFE9),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Text(
-                      'Active',
-                      style: TextStyle(
-                        color: Color(0xFF0C8A56),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
+              child: Container(
+                padding: EdgeInsets.only(
+                  bottom: widget.isFromSearchPage ? 70 : 0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE8FFE9),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Text(
+                        'Active',
+                        style: TextStyle(
+                          color: Color(0xFF0C8A56),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          '${user.nikeName} ${user.age ?? ''}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w800,
+                    const SizedBox(height: 10),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            '${user.nikeName} ${user.age ?? ''}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        width: 22,
-                        height: 22,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0xFF0A84FF),
-                        ),
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 15,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: Colors.white,
-                        size: 17,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Distance ${user.distance?.round() ?? 0} km',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Spacer(),
-                      InkWell(
-                        onTap: () async {
-                          final action = await Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => UserPage(userProfile: user),
-                            ),
-                          );
-                          if (!mounted) {
-                            return;
-                          }
-                          if (action == UserPageAction.dislike) {
-                            await _onRejectTap();
-                          } else if (action == UserPageAction.like) {
-                            await _onLikeTap();
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
+                        const SizedBox(width: 8),
+                        Container(
+                          width: 22,
+                          height: 22,
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.black.withValues(alpha: 0.4),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.35),
-                            ),
+                            color: Color(0xFF0A84FF),
                           ),
                           child: const Icon(
-                            Icons.arrow_upward,
+                            Icons.check,
                             color: Colors.white,
-                            size: 20,
+                            size: 15,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on_outlined,
+                          color: Colors.white,
+                          size: 17,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Distance ${user.distance?.round() ?? 0} km',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        InkWell(
+                          onTap: () async {
+                            final action = await Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    UserPage(userProfile: user),
+                              ),
+                            );
+                            if (!mounted) {
+                              return;
+                            }
+                            if (action == UserPageAction.dislike) {
+                              await _onRejectTap();
+                            } else if (action == UserPageAction.like) {
+                              await _onLikeTap();
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.black.withValues(alpha: 0.4),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.35),
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.arrow_upward,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -767,10 +917,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (assetPhotos.isNotEmpty) {
       final rawIndex = _photoIndexByUserId[user.userId] ?? 0;
       final index = rawIndex.clamp(0, assetPhotos.length - 1);
-      return Image(
-        image: AssetImage(assetPhotos[index]),
-        fit: BoxFit.cover,
-      );
+      return Image(image: AssetImage(assetPhotos[index]), fit: BoxFit.cover);
     }
     final image = user.mediaUrls.isNotEmpty ? user.mediaUrls.first : '';
 
@@ -778,7 +925,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       return Image.network(
         image,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildImageFallback(user),
+        errorBuilder: (_, error, stackTrace) => _buildImageFallback(user),
       );
     }
 
@@ -786,7 +933,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       return Image.file(
         File(image),
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildImageFallback(user),
+        errorBuilder: (_, error, stackTrace) => _buildImageFallback(user),
       );
     }
 

@@ -1,8 +1,11 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:tinder_app/data/app_data.dart';
 import 'package:tinder_app/model/user_profile_model.dart';
+import 'package:tinder_app/tool/event_bus.dart';
+import 'package:tinder_app/widget/user_page.dart';
 import 'package:tinder_app/page/upgrade/upgrade_page.dart';
 
 class LikePage extends StatefulWidget {
@@ -27,24 +30,44 @@ class _LikePageState extends State<LikePage> {
   String _selectedLikeTag = _likeTags.first;
   bool _loading = true;
   List<UserProfileModel> _likedUsers = <UserProfileModel>[];
+  List<UserProfileModel> _bestUsers = <UserProfileModel>[];
   _LikeFilterConfig _filter = _LikeFilterConfig.initial();
+  StreamSubscription<LikeUsersChangedEvent>? _likeChangedSubscription;
+  StreamSubscription<BestUsersChangedEvent>? _bestChangedSubscription;
 
   @override
   void initState() {
     super.initState();
-    _loadLikedUsers();
+    _loadUsers();
+    _likeChangedSubscription = eventBus.on<LikeUsersChangedEvent>().listen((_) {
+      _loadUsers(showLoading: false);
+    });
+    _bestChangedSubscription = eventBus.on<BestUsersChangedEvent>().listen((_) {
+      _loadUsers(showLoading: false);
+    });
   }
 
-  Future<void> _loadLikedUsers() async {
-    setState(() {
-      _loading = true;
-    });
+  @override
+  void dispose() {
+    _likeChangedSubscription?.cancel();
+    _bestChangedSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _loadUsers({bool showLoading = true}) async {
+    if (showLoading) {
+      setState(() {
+        _loading = true;
+      });
+    }
     final users = await OptionDataManager.getUserlike();
+    final bestUsers = await OptionDataManager.getUserBest();
     if (!mounted) {
       return;
     }
     setState(() {
       _likedUsers = users;
+      _bestUsers = bestUsers;
       _loading = false;
     });
   }
@@ -154,15 +177,13 @@ class _LikePageState extends State<LikePage> {
   }
 
   List<UserProfileModel> get _topPickUsers {
-    final source = _likedUsers.where(_matchFilter).toList();
-    source.sort((a, b) {
-      final scoreA =
-          (a.interests.length * 2) + (a.aboutMe.trim().isNotEmpty ? 2 : 0);
-      final scoreB =
-          (b.interests.length * 2) + (b.aboutMe.trim().isNotEmpty ? 2 : 0);
-      return scoreB.compareTo(scoreA);
-    });
-    return source;
+    return _bestUsers.where(_matchFilter).toList();
+  }
+
+  Future<void> _openUserProfile(UserProfileModel user) async {
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => UserPage(userProfile: user)));
   }
 
   @override
@@ -249,7 +270,7 @@ class _LikePageState extends State<LikePage> {
     return Stack(
       children: [
         RefreshIndicator(
-          onRefresh: _loadLikedUsers,
+          onRefresh: _loadUsers,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(0, 8, 0, 104),
             children: [
@@ -259,7 +280,7 @@ class _LikePageState extends State<LikePage> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   scrollDirection: Axis.horizontal,
                   itemCount: _likeTags.length + 1,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  separatorBuilder: (_, index) => const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       return InkWell(
@@ -370,7 +391,7 @@ class _LikePageState extends State<LikePage> {
     return Stack(
       children: [
         RefreshIndicator(
-          onRefresh: _loadLikedUsers,
+          onRefresh: _loadUsers,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(0, 8, 0, 104),
             children: [
@@ -435,7 +456,11 @@ class _LikePageState extends State<LikePage> {
         itemCount: users.length,
         itemBuilder: (context, index) {
           final user = users[index];
-          return _LikeUserCard(user: user, topPickMode: topPickMode);
+          return _LikeUserCard(
+            user: user,
+            topPickMode: topPickMode,
+            onTap: () => _openUserProfile(user),
+          );
         },
       ),
     );
@@ -478,8 +503,13 @@ class _LikePageState extends State<LikePage> {
 class _LikeUserCard extends StatelessWidget {
   final UserProfileModel user;
   final bool topPickMode;
+  final VoidCallback onTap;
 
-  const _LikeUserCard({required this.user, required this.topPickMode});
+  const _LikeUserCard({
+    required this.user,
+    required this.topPickMode,
+    required this.onTap,
+  });
 
   Widget _buildImage() {
     if (user.mediaUrls.isNotEmpty) {
@@ -509,81 +539,85 @@ class _LikeUserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
+    return InkWell(
+      onTap: onTap,
       borderRadius: BorderRadius.circular(22),
-      child: Stack(
-        children: [
-          Positioned.fill(child: _buildImage()),
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withValues(alpha: 0.05),
-                    Colors.black.withValues(alpha: 0.75),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 10,
-            right: 10,
-            bottom: 10,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${user.nikeName.isEmpty ? 'User' : user.nikeName}, ${user.age ?? 20}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        topPickMode
-                            ? '剩余 5 小时'
-                            : '距离 ${(user.distance ?? 0).round()} 公里',
-                        style: TextStyle(
-                          color: topPickMode
-                              ? const Color(0xFFF3C62B)
-                              : Colors.white,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(22),
+        child: Stack(
+          children: [
+            Positioned.fill(child: _buildImage()),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.05),
+                      Colors.black.withValues(alpha: 0.75),
                     ],
                   ),
                 ),
-                if (topPickMode)
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF4F7FB),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.star,
-                      color: Color(0xFF20C5F5),
-                      size: 24,
+              ),
+            ),
+            Positioned(
+              left: 10,
+              right: 10,
+              bottom: 10,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${user.nikeName.isEmpty ? 'User' : user.nikeName}, ${user.age ?? 20}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          topPickMode
+                              ? '剩余 5 小时'
+                              : '距离 ${(user.distance ?? 0).round()} 公里',
+                          style: TextStyle(
+                            color: topPickMode
+                                ? const Color(0xFFF3C62B)
+                                : Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-              ],
+                  if (topPickMode)
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF4F7FB),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.star,
+                        color: Color(0xFF20C5F5),
+                        size: 24,
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

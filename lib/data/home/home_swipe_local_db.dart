@@ -23,6 +23,7 @@ class HomeSwipeLocalDb {
     final raw = await _readRaw();
     final feedMap = _readUserMap(raw['feedByUserId']);
     final likedMap = _readUserMap(raw['likedByUserId']);
+    final bestMap = _readUserMap(raw['bestByUserId']);
 
     final feed = feedMap[activeUserId] ?? <UserProfileModel>[];
     if (feed.isNotEmpty) {
@@ -39,7 +40,7 @@ class HomeSwipeLocalDb {
         .toList();
 
     feedMap[activeUserId] = seeded;
-    await _save(feedMap, likedMap);
+    await _save(feedMap, likedMap, bestMap);
     return seeded;
   }
 
@@ -49,14 +50,22 @@ class HomeSwipeLocalDb {
     return likedMap[activeUserId] ?? <UserProfileModel>[];
   }
 
+  Future<List<UserProfileModel>> getBestUsers(String activeUserId) async {
+    final raw = await _readRaw();
+    final bestMap = _readUserMap(raw['bestByUserId']);
+    return bestMap[activeUserId] ?? <UserProfileModel>[];
+  }
+
   Future<void> consumeTopCard({
     required String activeUserId,
     required UserProfileModel user,
     required bool liked,
+    bool bestSelected = false,
   }) async {
     final raw = await _readRaw();
     final feedMap = _readUserMap(raw['feedByUserId']);
     final likedMap = _readUserMap(raw['likedByUserId']);
+    final bestMap = _readUserMap(raw['bestByUserId']);
 
     final feed = feedMap[activeUserId] ?? <UserProfileModel>[];
     feed.removeWhere((item) => item.userId == user.userId);
@@ -71,7 +80,16 @@ class HomeSwipeLocalDb {
       likedMap[activeUserId] = likedUsers;
     }
 
-    await _save(feedMap, likedMap);
+    if (bestSelected) {
+      final bestUsers = bestMap[activeUserId] ?? <UserProfileModel>[];
+      final exists = bestUsers.any((item) => item.userId == user.userId);
+      if (!exists) {
+        bestUsers.insert(0, user);
+      }
+      bestMap[activeUserId] = bestUsers;
+    }
+
+    await _save(feedMap, likedMap, bestMap);
   }
 
   Future<void> replaceFeedUsers({
@@ -81,8 +99,9 @@ class HomeSwipeLocalDb {
     final raw = await _readRaw();
     final feedMap = _readUserMap(raw['feedByUserId']);
     final likedMap = _readUserMap(raw['likedByUserId']);
+    final bestMap = _readUserMap(raw['bestByUserId']);
     feedMap[activeUserId] = List<UserProfileModel>.from(users);
-    await _save(feedMap, likedMap);
+    await _save(feedMap, likedMap, bestMap);
   }
 
   Future<Map<String, dynamic>> _readRaw() async {
@@ -91,6 +110,7 @@ class HomeSwipeLocalDb {
       return {
         'feedByUserId': <String, dynamic>{},
         'likedByUserId': <String, dynamic>{},
+        'bestByUserId': <String, dynamic>{},
       };
     }
 
@@ -99,6 +119,7 @@ class HomeSwipeLocalDb {
       return {
         'feedByUserId': <String, dynamic>{},
         'likedByUserId': <String, dynamic>{},
+        'bestByUserId': <String, dynamic>{},
       };
     }
 
@@ -107,6 +128,7 @@ class HomeSwipeLocalDb {
       return {
         'feedByUserId': <String, dynamic>{},
         'likedByUserId': <String, dynamic>{},
+        'bestByUserId': <String, dynamic>{},
       };
     }
     return decoded;
@@ -138,6 +160,7 @@ class HomeSwipeLocalDb {
   Future<void> _save(
     Map<String, List<UserProfileModel>> feedMap,
     Map<String, List<UserProfileModel>> likedMap,
+    Map<String, List<UserProfileModel>> bestMap,
   ) async {
     final file = await _dbFile();
     final payload = {
@@ -146,6 +169,10 @@ class HomeSwipeLocalDb {
             MapEntry(key, value.map((item) => item.toJson()).toList()),
       ),
       'likedByUserId': likedMap.map(
+        (key, value) =>
+            MapEntry(key, value.map((item) => item.toJson()).toList()),
+      ),
+      'bestByUserId': bestMap.map(
         (key, value) =>
             MapEntry(key, value.map((item) => item.toJson()).toList()),
       ),
